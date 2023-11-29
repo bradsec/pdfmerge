@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Merge multiple PDF documents, convert images to PDF, or merge both PDF and images into a single PDF document using your browser."
+    />
+    <meta name="author" content="Mark Bradley" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#222222" />
+    <link rel="icon" href="favicon.ico" />
+    <title>PDFMerge.me</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+      rel="stylesheet"
+    />
+    <link href="css/pdfmerge.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="spinner" class="spinner"></div>
+      <div class="hero">
+        <div class="branding">PDF<span class="bold">Merge</span>.me</div>
+        <p>Effortlessly merge multiple PDF documents, convert images to PDF, or combine PDFs and images into a single PDF document, all within your browser. Enjoy a free and private experience with no uploads to servers.</p>
+      </div>
+      <div id="error-message"></div>
+      <div id="success-message"></div>
+      <label for="file-input" id="file-upload-label">
+        Click to add files...
+      </label>
+      <input
+        accept=".jpg, .jpeg, .png, .pdf"
+        id="file-input"
+        multiple=""
+        type="file"
+      />
+      <div id="drop-area">
+        <p class="bold">Or drag and drop files here...</p>
+      </div>
+      <div id="file-list">
+        <ul id="selected-files-list"></ul>
+      </div>
+      <button
+        id="convert-button"
+        onclick="convertToPDF()"
+        style="display: none"
+      >
+        Convert and PDF Merge
+      </button>
+      <button id="reset-button" onclick="resetPage()" style="display: none">
+        Clear File List
+      </button>
+      <a id="download-link" style="display: none"> Download Merged PDF </a>
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+      </div>
+      <p class="light-gray">
+        <span class="bold">PDF</span>, <span class="bold">PNG</span>, and
+        <span class="bold">JPG</span> filetypes are supported. Images will be fit to a standard A4 page size. All processing is done locally within your browser using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> javascript library and HTML5 FileReader API. No files or personal data are uploaded to any server.</p>
+        <script src="https://unpkg.com/@pdf-lib/fontkit@latest/dist/fontkit.umd.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+        <script src="js/pdfmerge.js"></script>
+    </div>
+  </body>
+</html>
