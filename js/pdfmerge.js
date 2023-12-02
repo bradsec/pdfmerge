@@ -143,10 +143,10 @@ fileInput.addEventListener("change", () => {
   const newFiles = fileInput.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.size <= 10 * 1024 * 1024 || file.type === "application/pdf") {
+    if (file.size <= 25 * 1024 * 1024|| file.type === "application/pdf") {
       selectedFiles.push(file);
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 10MB limit.");
+      displayErrorMessage("Image size exceeds 25MB limit.");
     }
   }
   updateSelectedFilesList();
@@ -170,10 +170,10 @@ dropArea.addEventListener("drop", (e) => {
   const newFiles = e.dataTransfer.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.size <= 10 * 1024 * 1024 || file.type === "application/pdf") {
+    if (file.size <= 25 * 1024 * 1024|| file.type === "application/pdf") {
       selectedFiles.push(file);
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 10MB limit.");
+      displayErrorMessage("Image size exceeds 25MB limit.");
     }
   }
   updateSelectedFilesList();
@@ -678,13 +678,13 @@ function initEventListeners() {
 
 function handleFileInputChange() {
   Array.from(this.files).forEach((file) => {
-    if (file.size <= 10 * 1024 * 1024) {
-      // Check if file size is less than or equal to 10MB
+    if (file.size <= 25 * 1024 * 1024) {
+      // Check if file size is less than or equal to 25MB
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else {
-      displayErrorMessage("File size exceeds 10MB limit.");
+      displayErrorMessage("File size exceeds 25MB limit.");
     }
   });
   updateSelectedFilesList();
@@ -694,13 +694,13 @@ function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
   Array.from(e.dataTransfer.files).forEach((file) => {
-    if (file.size <= 10 * 1024 * 1024) {
-      // Check if file size is less than or equal to 10MB
+    if (file.size <= 25 * 1024 * 1024) {
+      // Check if file size is less than or equal to 25MB
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else {
-      displayErrorMessage("File size exceeds 10MB limit.");
+      displayErrorMessage("File size exceeds 25MB limit.");
     }
   });
   updateSelectedFilesList();

@@ -21,7 +21,7 @@ To use PDFMerge, simply visit [pdfmerge.me](https://pdfmerge.me) and upload your
 
 - **In-Browser Processing Constraints:** PDFMerge operates entirely within your browser, leveraging client-side resources. While this ensures data privacy and negates server-side data transfer, it does mean that the tool's performance is inherently tied to the capabilities of the user's device and browser. Particularly, handling very large files can lead to performance bottlenecks.
 
-- **Maximum Image Size Limitation:** To optimise performance and ensure a smooth user experience, PDFMerge imposes a file size limitation on images. The maximum allowable size for any image file is 10MB. This constraint helps prevent excessive memory usage and potential browser crashes, especially when dealing with high-resolution images. Users attempting to upload images larger than 10MB will receive an informative error message.
+- **Maximum Image Size Limitation:** To optimise performance and ensure a smooth user experience, PDFMerge imposes a file size limitation on images. The maximum allowable size for any image file is 30MB. This constraint helps prevent excessive memory usage and potential browser crashes, especially when dealing with high-resolution images. Users attempting to upload images larger than 30MB will receive an informative error message.
 
 It's recommended to pre-process larger images using external tools to reduce their file size before merging them into a PDF using PDFMerge.
 
