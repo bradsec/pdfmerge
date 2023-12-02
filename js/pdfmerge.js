@@ -95,6 +95,8 @@ function updateSelectedFilesList() {
     if (
       fileExtension === "jpg" ||
       fileExtension === "jpeg" ||
+      fileExtension === "webp" ||
+      fileExtension === "gif" ||
       fileExtension === "png"
     ) {
       iconSpan.textContent = "image";
@@ -143,10 +145,14 @@ fileInput.addEventListener("change", () => {
   const newFiles = fileInput.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.size <= 25 * 1024 * 1024|| file.type === "application/pdf") {
-      selectedFiles.push(file);
+    if (file.type === "application/pdf" || file.size <= 20 * 1024 * 1024) {
+      if (!selectedFiles.find((f) => f.name === file.name)) {
+        selectedFiles.push(file);
+      }
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 25MB limit.");
+      displayErrorMessage("Image size exceeds 20MB limit.");
+    } else {
+      displayErrorMessage("File size exceeds 20MB limit.");
     }
   }
   updateSelectedFilesList();
@@ -170,10 +176,10 @@ dropArea.addEventListener("drop", (e) => {
   const newFiles = e.dataTransfer.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.size <= 25 * 1024 * 1024|| file.type === "application/pdf") {
+    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
       selectedFiles.push(file);
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 25MB limit.");
+      displayErrorMessage("Image size exceeds 20MB limit.");
     }
   }
   updateSelectedFilesList();
@@ -292,12 +298,23 @@ function resizeImageAndConvertToJPEG(originalFile) {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          const MAX_SIZE = 1920;
+          // Get selected paper size in points
+          const [widthPoints, heightPoints] = getSelectedPaperSize();
+          // Convert points to millimeters
+          const widthMM = widthPoints / 2.83465;
+          const heightMM = heightPoints / 2.83465;
+          // Calculate max width and height in pixels for 300 DPI
+          const maxWidthPixels = widthMM * (300 / 25.4);
+          const maxHeightPixels = heightMM * (300 / 25.4);
+
           let width = img.width;
           let height = img.height;
 
           // Calculate the scaling factor
-          const scalingFactor = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+          const scalingFactor = Math.min(
+            maxWidthPixels / width,
+            maxHeightPixels / height
+          );
           width = width * scalingFactor;
           height = height * scalingFactor;
 
@@ -324,24 +341,23 @@ async function getImageDetails(file) {
     const reader = new FileReader();
     reader.onload = async function (e) {
       try {
-        // Use ExifReader to extract EXIF data
-        const tags = ExifReader.load(e.target.result);
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        let imgGpsInfo = null,
+          imgDateTime = null,
+          tags = null;
 
-        // Logging the extracted tags for debugging
-        // console.log("Extracted EXIF tags:", tags);
+        // Only use ExifReader for file types other than .webp and .gif
+        if (fileExtension !== "webp" && fileExtension !== "gif") {
+          tags = ExifReader.load(e.target.result);
 
-        // Format GPS data if available
-        let imgGpsInfo = null;
-        if (tags["GPSLatitude"] && tags["GPSLongitude"]) {
-          const latitude = tags["GPSLatitude"].description;
-          const longitude = tags["GPSLongitude"].description;
-          imgGpsInfo = `${latitude}, ${longitude}`;
+          if (tags["GPSLatitude"] && tags["GPSLongitude"]) {
+            imgGpsInfo = `${tags["GPSLatitude"].description}, ${tags["GPSLongitude"].description}`;
+          }
+
+          if (tags["DateTimeOriginal"]) {
+            imgDateTime = tags["DateTimeOriginal"].description;
+          }
         }
-
-        // Accessing date and checking if it's in the correct format
-        let imgDateTime = tags["DateTimeOriginal"]
-          ? tags["DateTimeOriginal"].description
-          : null;
 
         // Compute imgHash hash
         const hashBuffer = await crypto.subtle.digest(
@@ -377,6 +393,17 @@ function formatFileSize(bytes) {
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
 }
 
+function handleConversionTimeout() {
+  console.error("Conversion process timed out.");
+  displayErrorMessage("Conversion process took too long and was terminated.");
+
+  // Wait for 3 seconds before reloading the page
+  setTimeout(function() {
+    resetPage();
+  }, 3000); // 3000 milliseconds = 3 seconds
+}
+
+
 // Function to get selected paper size with A4 as the default
 function getSelectedPaperSize() {
   selectedSize = "A4";
@@ -387,7 +414,13 @@ function getSelectedPaperSize() {
 }
 
 async function convertToPDF() {
+  const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds)
   const { PDFDocument, rgb } = PDFLib;
+
+  // Start the conversion timeout
+  conversionTimeout = setTimeout(() => {
+    handleConversionTimeout();
+  }, TIMEOUT_DURATION);
 
   if (selectedFiles.length < 1) {
     displayErrorMessage("Select at least one image to convert.");
@@ -416,6 +449,8 @@ async function convertToPDF() {
       if (
         fileExtension === "jpg" ||
         fileExtension === "jpeg" ||
+        fileExtension === "webp" ||
+        fileExtension === "gif" ||
         fileExtension === "png"
       ) {
         const dataUrl = await resizeImageAndConvertToJPEG(file);
@@ -471,7 +506,7 @@ async function convertToPDF() {
           textY -= lineHeight; // Adjust Y position for each detail
           drawWrappedText(
             page,
-            `Filename: ${fileName}`,
+            `Name: ${fileName}`,
             textX,
             textY,
             maxTextWidth,
@@ -485,7 +520,7 @@ async function convertToPDF() {
             textY -= lineHeight; // Adjust Y position for spacing
             drawWrappedText(
               page,
-              `Filehash: ${imgHash}`,
+              `Hash: ${imgHash}`,
               textX,
               textY,
               maxTextWidth,
@@ -597,6 +632,7 @@ async function convertToPDF() {
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
   }
+  clearTimeout(conversionTimeout);
 }
 
 async function downloadPDF(pdfBytes) {
@@ -678,13 +714,14 @@ function initEventListeners() {
 
 function handleFileInputChange() {
   Array.from(this.files).forEach((file) => {
-    if (file.size <= 25 * 1024 * 1024) {
-      // Check if file size is less than or equal to 25MB
+    // Check if file size is less than or equal to 30MB
+    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else {
-      displayErrorMessage("File size exceeds 25MB limit.");
+      // Display error message if the file size exceeds the limit
+      displayErrorMessage("Image size exceeds 20MB limit.");
     }
   });
   updateSelectedFilesList();
@@ -694,13 +731,14 @@ function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
   Array.from(e.dataTransfer.files).forEach((file) => {
-    if (file.size <= 25 * 1024 * 1024) {
-      // Check if file size is less than or equal to 25MB
+    // Check if file size is less than or equal to 30MB
+    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else {
-      displayErrorMessage("File size exceeds 25MB limit.");
+      // Display error message if the file size exceeds the limit
+      displayErrorMessage("Image size exceeds 20MB limit.");
     }
   });
   updateSelectedFilesList();
