@@ -348,17 +348,17 @@ function getImageDetails(file) {
 
         // Only use ExifReader for file types other than .webp and .gif
         if (fileExtension !== "webp" && fileExtension !== "gif") {
-          tags = ExifReader.load(e.target.result);
+          tags = ExifReader.load(e.target.result, { expanded: true });
 
-          if (tags["GPSLatitude"] && tags["GPSLongitude"]) {
-            gpsLat = parseFloat(tags["GPSLatitude"].description.toFixed(6));
-            gpsLong = parseFloat(tags["GPSLongitude"].description.toFixed(6));
+          if (tags.gps && tags.gps.Latitude && tags.gps.Longitude) {
+            const gpsLat = tags.gps.Latitude;
+            const gpsLong = tags.gps.Longitude;
 
-            imgGpsInfo = `${gpsLat}, ${gpsLong}`;
+            imgGpsInfo = `${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;
           }
 
-          if (tags["DateTimeOriginal"]) {
-            imgDateTime = tags["DateTimeOriginal"].description;
+          if (tags.DateTimeOriginal) {
+            imgDateTime = tags.DateTimeOriginal.description;
           }
         }
 
@@ -481,7 +481,7 @@ async function convertToPDF() {
 
           // Get image details
           const imgDetails = await getImageDetails(file);
-          
+
           const imgGpsInfo = imgDetails.imgGpsInfo;
 
           // Check if DateTimeOriginal exists in details
