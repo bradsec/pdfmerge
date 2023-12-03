@@ -349,8 +349,7 @@ function getImageDetails(file) {
         // Only use ExifReader for file types other than .webp and .gif
         if (fileExtension !== "webp" && fileExtension !== "gif") {
           tags = ExifReader.load(e.target.result, { expanded: true });
-          // console.log(tags);
-
+          // Check if GPS data exists
           if (tags.gps && tags.gps.Latitude && tags.gps.Longitude) {
             const gpsLat = tags.gps.Latitude;
             const gpsLong = tags.gps.Longitude;
@@ -358,7 +357,8 @@ function getImageDetails(file) {
             imgGpsInfo = `${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;
           }
 
-          if (tags.exif.DateTimeOriginal) {
+          // Check if DateTimeOriginal exists in the EXIF data
+          if (tags.exif && tags.exif.DateTimeOriginal) {
             imgDateTime = tags.exif.DateTimeOriginal.description;
           }
         }
@@ -388,7 +388,6 @@ function getImageDetails(file) {
     reader.readAsArrayBuffer(file);
   });
 }
-
 
 // Helper function to format file size
 function formatFileSize(bytes) {
