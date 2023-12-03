@@ -349,6 +349,7 @@ function getImageDetails(file) {
         // Only use ExifReader for file types other than .webp and .gif
         if (fileExtension !== "webp" && fileExtension !== "gif") {
           tags = ExifReader.load(e.target.result, { expanded: true });
+          // console.log(tags);
 
           if (tags.gps && tags.gps.Latitude && tags.gps.Longitude) {
             const gpsLat = tags.gps.Latitude;
@@ -357,8 +358,8 @@ function getImageDetails(file) {
             imgGpsInfo = `${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;
           }
 
-          if (tags.DateTimeOriginal) {
-            imgDateTime = tags.DateTimeOriginal.description;
+          if (tags.exif.DateTimeOriginal) {
+            imgDateTime = tags.exif.DateTimeOriginal.description;
           }
         }
 
@@ -483,12 +484,7 @@ async function convertToPDF() {
           const imgDetails = await getImageDetails(file);
 
           const imgGpsInfo = imgDetails.imgGpsInfo;
-
-          // Check if DateTimeOriginal exists in details
-          let imgDateTime = null;
-          if (imgDetails.exifData?.DateTimeOriginal) {
-            imgDateTime = imgDetails.exifData?.DateTimeOriginal.description;
-          }
+          const imgDateTime = imgDetails.imgDateTime;
 
           // Calculate the SHA256 hash from the file data
           const fileData = await new Response(file).arrayBuffer();
@@ -532,7 +528,7 @@ async function convertToPDF() {
             textY -= lineHeight; // Adding an extra line's height for spacing between details
             drawWrappedText(
               page,
-              `DateTime: ${formattedDateTime}`,
+              `Date: ${formattedDateTime}`,
               textX,
               textY,
               maxTextWidth,
