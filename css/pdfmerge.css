@@ -1,30 +1,25 @@
 :root {
-  --primary-color: #1fa3de;
-  --secondary-color: #1e78c1;
+  --primary-font-color: #1d1d1d;
+  --secondary-font-color: #727272;
+  --primary-color: #0071e3;
+  --secondary-color: #005ab5;
   --error-color: #c60000;
   --success-color: #4caf50;
-  --lighter-gray: #dddddd;
-  --light-gray: #888888;
-  --dark-gray: #222222;
-  --bg-color: #f0f0f0;
+  --lighter-gray: #ebebeb;
+  --light-gray: #bebebe;
+  --medium-gray: #808080;
+  --dark-gray: #1d1d1d;
+  --bg-color: #fafafa;
   --font-family: "Roboto", sans-serif;
   --base-font-size: 1em;
   --line-height: 1.4;
   --hero-font-size: 2.8em;
-  --hero-line-height: 1.6;
+  --hero-line-height: 1.4;
   --hero-letter-spacing: 0.05em;
   --button-padding: 18px 24px;
   --button-border-radius: 4px;
-  --link-font-color: #1e78c1;
-  --link-hover-color: #202020;
-  /* Select Dropdown */
-  --select-container-font-color: #202020;
-  --select-container-bg: linear-gradient(to bottom, #f9f9f9 0%, #e8e8e8 100%);
-  --select-option-font-color: #202020;
-  --select-option-bg: #ffffff;
-  --select-box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.08), 0px 2px 1px -1px rgba(0, 0, 0, 0.04);
-  --select-arrow: #666666;
+  --link-font-color: #005ab5;
+  --link-hover-color: #1d1d1d;
 }
 
 *,
@@ -37,7 +32,7 @@ body {
   font-family: var(--font-family);
   margin: 0;
   padding: 15px;
-  color: var(--dark-gray);
+  color: var(--primary-font-color);
   background-color: var(--bg-color);
   font-size: var(--base-font-size);
   line-height: var(--line-height);
@@ -53,7 +48,7 @@ footer {
   margin-top: auto;
   padding: 15px;
   text-align: center;
-  color: var(--light-gray);
+  color: var(--secondary-font-color);
 }
 
 footer p {
@@ -113,7 +108,7 @@ a:hover {
 }
 
 .light-gray {
-  color: var(--light-gray);
+  color: var(--medium-gray);
 }
 
 .blue {
@@ -140,7 +135,7 @@ button[type="submit"] {
   text-align: center;
   display: inline-block;
   background-color: var(--primary-color);
-  color: #fff;
+  color: #ffffff;
   padding: var(--button-padding);
   border: none;
   border-radius: var(--button-border-radius);
@@ -148,11 +143,21 @@ button[type="submit"] {
   font-size: 1em;
 }
 
+/* Media query for small screens */
+@media (max-width: 768px) { /* Adjust the max-width as needed for your design */
+  .button,
+  button,
+  button[type="submit"] {
+    display: block; /* Change to block to take the full width */
+    width: 100%; /* Set width to 100% to fill the container */
+    margin: 4px 0; /* Adjust margin as needed */
+  }
+}
+
 .button:hover,
 button:hover,
 #file-upload-label:hover {
   background-color: var(--secondary-color);
-  color: var(--lighter-gray);
 }
 
 .button:active,
@@ -165,7 +170,7 @@ button:active {
 button[disabled],
 button[disabled]:hover {
   background-color: var(--lighter-gray);
-  color: #ffffff;
+  color: #fafafa;
   opacity: 0.65;
   cursor: not-allowed;
 }
@@ -193,20 +198,21 @@ button[disabled]:hover {
 
 #drop-area {
   margin: 8px 4px 8px 0;
-  border: 1px dashed var(--light-gray);
+  border: 1px dashed var(--medium-gray);
   padding: 30px;
   text-align: center;
   margin-bottom: 20px;
-  color: var(--light-gray);
+  color: var(--medium-gray);
 }
 
 #drop-area.drag {
-  border-color: var(--error-color);
+  border-color: var(--light-gray);
+  color: var(--light-gray);
 }
 
 #file-list {
   margin: 8px 4px 8px 0;
-  color: var(--light-gray);
+  color: var(--medium-gray);
   display: flex;
   justify-content: center;
 }
@@ -241,7 +247,7 @@ button[disabled]:hover {
   text-align: center;
   display: block;
   background-color: var(--primary-color);
-  color: #ffffff;
+  color: #fafafa;
   padding: var(--button-padding);
   border: none;
   border-radius: 4px;
@@ -253,7 +259,7 @@ button[disabled]:hover {
   font-weight: 600;
   text-align: center;
   background-color: var(--error-color);
-  color: #ffffff;
+  color: #fafafa;
   padding: var(--button-padding);
   display: none;
   border-radius: 4px;
@@ -277,7 +283,7 @@ button[disabled]:hover {
   font-weight: 600;
   text-align: center;
   background-color: var(--success-color);
-  color: #ffffff;
+  color: #fafafa;
   padding: var(--button-padding);
   display: none;
   border-radius: 4px;
@@ -286,70 +292,6 @@ button[disabled]:hover {
 .small {
   font-size: 0.8em;
   line-height: 1.3em;
-}
-
-/* select dropdown */
-
-.select-group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.select-container {
-  flex-basis: 100%;
-  margin-bottom: 12px;
-}
-
-.select-container {
-  margin: 12px 0;
-  position: relative;
-  display: inline-block;
-  background: var(--select-container-bg);
-  border-radius: 3px;
-  overflow: hidden;
-  box-shadow: var(--select-box-shadow);
-}
-
-.select-container::after {
-  content: "\25BC";
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-size: 14px;
-  color: var(--select-arrow);
-  transition: transform 0.3s ease-in-out;
-}
-
-.select-container.open::after {
-  transform: translateY(-50%) rotate(-90deg);
-}
-
-.select-container select {
-  color: var(--select-container-font-color);
-  width: 100%;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: transparent;
-  padding: 14px 30px 14px 16px;
-  border: none;
-  font-size: 14px;
-}
-
-.select-container select::-ms-expand {
-  display: none;
-}
-
-.select-container select option,
-.select-container select option:hover,
-.select-container select option:checked,
-.select-container select option:focus {
-  background: var(--select-option-bg);
-  color: var(--select-option-font-color);
-  padding: 10px;
 }
 
 /* Checkbox toggles */
@@ -396,7 +338,7 @@ button[disabled]:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #888888;
+  background-color: var(--medium-gray);
   transition: 0.4s;
   border-radius: 20px;
 }
@@ -408,7 +350,7 @@ button[disabled]:hover {
   width: 16px;
   left: 2px;
   bottom: 2px;
-  background-color: #ffffff;
+  background-color: #fafafa;
   transition: 0.4s;
   border-radius: 50%;
 }
@@ -459,4 +401,18 @@ li[draggable="true"] {
 
 .drag-over {
   border: none;
+}
+
+@keyframes flash-success {
+  0%, 100% {
+    background-color: var(--lighter-gray);
+  }
+  50% {
+    background-color: var(--success-color);
+    color: #ffffff;
+  }
+}
+
+.flash-success {
+  animation: flash-success 1s ease;
 }

@@ -75,6 +75,7 @@ function updateSelectedFilesList() {
   const imageList = document.getElementById("selected-files-list");
   imageList.innerHTML = "";
 
+  // Iterate through selectedFiles array
   selectedFiles.forEach((file, index) => {
     const listItem = document.createElement("li");
     listItem.className = "flex-item";
@@ -86,19 +87,14 @@ function updateSelectedFilesList() {
     listItem.addEventListener("dragover", handleDragOver);
     listItem.addEventListener("drop", handleDrop);
 
-    // File icon
+    // Create a span for the file icon
     const iconSpan = document.createElement("span");
     iconSpan.className = "material-icons-outlined";
     iconSpan.style.marginRight = "8px";
     const fileExtension = file.name.split(".").pop().toLowerCase();
 
-    if (
-      fileExtension === "jpg" ||
-      fileExtension === "jpeg" ||
-      fileExtension === "webp" ||
-      fileExtension === "gif" ||
-      fileExtension === "png"
-    ) {
+    // Determine the icon based on the file extension
+    if (["jpg", "jpeg", "webp", "gif", "png"].includes(fileExtension)) {
       iconSpan.textContent = "image";
     } else if (fileExtension === "pdf") {
       iconSpan.textContent = "description";
@@ -112,9 +108,26 @@ function updateSelectedFilesList() {
     listItem.appendChild(iconSpan);
     listItem.appendChild(document.createTextNode(`${file.name} (${fileSize})`));
     imageList.appendChild(listItem);
+
     updateButtonVisibility();
   });
+
+  // Remove the "flash-success" class from all list items
+  const allListItems = imageList.querySelectorAll("li");
+  allListItems.forEach((item) => {
+    item.classList.remove("flash-success");
+  });
+
+  // Add the "flash-success" class to the last item
+  if (selectedFiles.length > 0) {
+    const lastListItem = document.getElementById(`file-${selectedFiles.length - 1}`);
+    if (lastListItem) {
+      lastListItem.classList.add("flash-success");
+    }
+  }
 }
+
+
 
 let draggedItemIndex = null;
 
@@ -139,8 +152,9 @@ function handleDrop(e) {
   }
 }
 
-// Event listener for file input change
 const fileInput = document.getElementById("file-input");
+
+// Event listener for file input change
 fileInput.addEventListener("change", () => {
   const newFiles = fileInput.files;
   for (let i = 0; i < newFiles.length; i++) {
@@ -184,6 +198,7 @@ dropArea.addEventListener("drop", (e) => {
   }
   updateSelectedFilesList();
 });
+
 
 function updateButtonVisibility() {
   const convertButton = document.getElementById("convert-button");
