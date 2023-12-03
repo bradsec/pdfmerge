@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #007bff;
-  --secondary-color: #125eae;
+  --primary-color: #1fa3de;
+  --secondary-color: #1e78c1;
   --error-color: #c60000;
   --success-color: #4caf50;
   --lighter-gray: #dddddd;
@@ -15,7 +15,7 @@
   --hero-letter-spacing: 0.05em;
   --button-padding: 18px 24px;
   --button-border-radius: 4px;
-  --link-font-color: #666666;
+  --link-font-color: #1e78c1;
   --link-hover-color: #202020;
   /* Select Dropdown */
   --select-container-font-color: #202020;
@@ -431,7 +431,7 @@ input:checked + .slider:before {
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #007bff;
+  border-top: 4px solid var(--primary-color);
   border-radius: 50%;
   width: 40px;
   height: 40px;
