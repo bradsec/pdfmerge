@@ -1,4 +1,4 @@
-![Alt Text](img/android-chrome-192x192.png)
+![Alt Text](android-chrome-192x192.png)
 
 # PDFMerge
 

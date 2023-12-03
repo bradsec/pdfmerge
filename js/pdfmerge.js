@@ -336,7 +336,7 @@ function resizeImageAndConvertToJPEG(originalFile) {
   });
 }
 
-async function getImageDetails(file) {
+function getImageDetails(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = async function (e) {
@@ -351,7 +351,10 @@ async function getImageDetails(file) {
           tags = ExifReader.load(e.target.result);
 
           if (tags["GPSLatitude"] && tags["GPSLongitude"]) {
-            imgGpsInfo = `${tags["GPSLatitude"].description}, ${tags["GPSLongitude"].description}`;
+            gpsLat = parseFloat(tags["GPSLatitude"].description.toFixed(6));
+            gpsLong = parseFloat(tags["GPSLongitude"].description.toFixed(6));
+
+            imgGpsInfo = `${gpsLat}, ${gpsLong}`;
           }
 
           if (tags["DateTimeOriginal"]) {
@@ -384,6 +387,7 @@ async function getImageDetails(file) {
     reader.readAsArrayBuffer(file);
   });
 }
+
 
 // Helper function to format file size
 function formatFileSize(bytes) {
@@ -477,16 +481,8 @@ async function convertToPDF() {
 
           // Get image details
           const imgDetails = await getImageDetails(file);
-          // Check if GPSLatitude and GPSLongitude exist in details
-          let gpsLat = null;
-          let gpsLong = null;
-          if (
-            imgDetails.exifData?.GPSLatitude &&
-            imgDetails.exifData?.GPSLongitude
-          ) {
-            gpsLat = imgDetails.exifData?.GPSLatitude.description;
-            gpsLong = imgDetails.exifData?.GPSLongitude.description;
-          }
+          
+          const imgGpsInfo = imgDetails.imgGpsInfo;
 
           // Check if DateTimeOriginal exists in details
           let imgDateTime = null;
@@ -547,11 +543,11 @@ async function convertToPDF() {
             );
           }
 
-          if (gpsLat !== null && gpsLong !== null) {
+          if (imgGpsInfo) {
             textY -= lineHeight; // Adjust Y position for each detail
             drawWrappedText(
               page,
-              `GPS (Lat, Long): ${gpsLat}, ${gpsLong}`,
+              `GPS (Lat, Long): ${imgGpsInfo}`,
               textX,
               textY,
               maxTextWidth,
