@@ -61,6 +61,7 @@ function displayErrorMessage(message) {
 }
 
 const selectedFiles = [];
+const addedFilesSet = new Set();
 
 // Function to reset selected files
 function resetFiles() {
@@ -109,7 +110,11 @@ function updateSelectedFilesList() {
     listItem.appendChild(document.createTextNode(`${file.name} (${fileSize})`));
     imageList.appendChild(listItem);
 
-    updateButtonVisibility();
+    if (addedFilesSet.has(file.name)) {
+      const listItem = document.getElementById(`file-${index}`);
+      listItem.classList.add("flash-success");
+      addedFilesSet.delete(file.name);
+    }
   });
 
   // Remove the "flash-success" class from all list items
@@ -119,15 +124,17 @@ function updateSelectedFilesList() {
   });
 
   // Add the "flash-success" class to the last item
-  if (selectedFiles.length > 0) {
-    const lastListItem = document.getElementById(`file-${selectedFiles.length - 1}`);
+  if (selectedFiles.length > 0 && !orderChanged) {
+    const lastListItem = document.getElementById(
+      `file-${selectedFiles.length - 1}`
+    );
     if (lastListItem) {
       lastListItem.classList.add("flash-success");
     }
+    updateButtonVisibility();
   }
+  orderChanged = false;
 }
-
-
 
 let draggedItemIndex = null;
 
@@ -141,6 +148,8 @@ function handleDragOver(e) {
   e.dataTransfer.dropEffect = "move";
 }
 
+let orderChanged = false;
+
 function handleDrop(e) {
   e.preventDefault();
   const targetIndex = parseInt(e.target.id.replace("file-", ""));
@@ -148,6 +157,7 @@ function handleDrop(e) {
     const itemToMove = selectedFiles[draggedItemIndex];
     selectedFiles.splice(draggedItemIndex, 1); // Remove the item from its original position
     selectedFiles.splice(targetIndex, 0, itemToMove); // Insert it at the new position
+    orderChanged = true; // Set flag to true when order changes
     updateSelectedFilesList(); // Update the list display
   }
 }
@@ -198,7 +208,6 @@ dropArea.addEventListener("drop", (e) => {
   }
   updateSelectedFilesList();
 });
-
 
 function updateButtonVisibility() {
   const convertButton = document.getElementById("convert-button");
@@ -417,11 +426,10 @@ function handleConversionTimeout() {
   displayErrorMessage("Conversion process took too long and was terminated.");
 
   // Wait for 3 seconds before reloading the page
-  setTimeout(function() {
+  setTimeout(function () {
     resetPage();
   }, 3000); // 3000 milliseconds = 3 seconds
 }
-
 
 // Function to get selected paper size with A4 as the default
 function getSelectedPaperSize() {
@@ -720,14 +728,9 @@ function initEventListeners() {
 
 function handleFileInputChange() {
   Array.from(this.files).forEach((file) => {
-    // Check if file size is less than or equal to 30MB
-    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
-      if (!selectedFiles.find((f) => f.name === file.name)) {
-        selectedFiles.push(file);
-      }
-    } else {
-      // Display error message if the file size exceeds the limit
-      displayErrorMessage("Image size exceeds 20MB limit.");
+    if (isNewFile(file) && !addedFilesSet.has(file.name)) {
+      addedFilesSet.add(file.name);
+      selectedFiles.push(file);
     }
   });
   updateSelectedFilesList();
@@ -737,17 +740,19 @@ function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
   Array.from(e.dataTransfer.files).forEach((file) => {
-    // Check if file size is less than or equal to 30MB
-    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
-      if (!selectedFiles.find((f) => f.name === file.name)) {
-        selectedFiles.push(file);
-      }
-    } else {
-      // Display error message if the file size exceeds the limit
-      displayErrorMessage("Image size exceeds 20MB limit.");
+    if (isNewFile(file) && !addedFilesSet.has(file.name)) {
+      addedFilesSet.add(file.name);
+      selectedFiles.push(file);
     }
   });
   updateSelectedFilesList();
+}
+
+function isNewFile(file) {
+  return (
+    (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") &&
+    !selectedFiles.find((f) => f.name === file.name)
+  );
 }
 
 function handleDragOverArea(e) {
