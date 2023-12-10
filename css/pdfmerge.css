@@ -1,68 +1,168 @@
 :root {
-  --primary-font-color: #1d1d1d;
-  --secondary-font-color: #727272;
-  --primary-color: #0071e3;
-  --secondary-color: #005ab5;
-  --error-color: #c60000;
-  --success-color: #4caf50;
-  --lighter-gray: #ebebeb;
-  --light-gray: #bebebe;
-  --medium-gray: #808080;
-  --dark-gray: #1d1d1d;
-  --bg-color: #fafafa;
+  /* Set standard colors used starting lightest at 1 to darker */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-blue-1: #0071e3;
+  --color-blue-2: #005ab5;
+  --color-blue-3: #004085;
+  --color-cyan-1: #1fb2d3;
+  --color-cyan-2: #1787a0;
+  --color-red-1: #c44438;
+  --color-red-2: #913128;
+  --color-green-1: #529a4a;
+  --color-green-2: #3f7539;
+  --color-orange-1: #d76f24;
+  --color-orange-2: #ad5a1e;
+  --color-gray-1: #fafafa;
+  --color-gray-2: #ebebeb;
+  --color-gray-3: #bebebe;
+  --color-gray-4: #999999;
+  --color-gray-5: #666666;
+  --color-gray-6: #4e4e4e;
+  --color-gray-7: #303030;
+  --color-gray-8: #1d1d1d;
+  /* Base HTML */
+  --bg-color: var(--color-white);
+  --font-color: var(--color-gray-8);
+  --font-color-footer: var(--color-gray-5);
   --font-family: "Roboto", sans-serif;
   --base-font-size: 1em;
   --line-height: 1.4;
-  --hero-font-size: 2.8em;
-  --hero-line-height: 1.4;
+  /* Branding */
+  --branding-font-color: var(--color-gray-8);
+  --branding-span-font-color: var(--color-gray-5);
+  --branding-span-bg-color: None;
+  --branding-font-size: 2.2em;
+  --branding-letter-spacing: -0.025em;
+  /* Link settings */
+  --link-font-color: var(--color-blue-2);
+  --link-hover-color: var(--color-gray-6);
+  --link-active-color: var(--color-blue-3);
+  /* Hero text settings */
+  --hero-font-size: 1.5em;
+  --hero-line-height: 1.6;
   --hero-letter-spacing: 0.05em;
+  /* Button settings */
   --button-padding: 18px 24px;
   --button-border-radius: 4px;
-  --link-font-color: #005ab5;
-  --link-hover-color: #1d1d1d;
+  /* File list */
+  --font-color-filelist: var(--color-gray-5);
+  --bg-color-filelist: var(--color-gray-2);
+  /* Drop area */
+  --border-color-drop-area: var(--color-gray-3);
+  --font-color-drop-area: var(--color-gray-3);
+  /* Form settings */
+  --form-input-font-color: var(--color-gray-6);
+  --form-input-border: None;
+  --form-textarea-border: 1px solid var(--color-gray-3);
+  --form-input-bg-color: var(--color-gray-2);
+  --form-placeholder-color: var(--color-gray-4);
 }
 
-*,
-::after,
-::before {
-  box-sizing: border-box;
+[data-theme="dark"] {
+    /* Base HTML */
+    --bg-color: var(--color-gray-8);
+    --font-color: var(--color-gray-4);
+    --font-family: "Roboto", sans-serif;
+    --base-font-size: 1em;
+    --line-height: 1.4;
+  /* Branding */
+  --branding-font-color: var(--color-gray-2);
+  --branding-span-font-color: var(--color-gray-4);
+    /* File list */
+    --font-color-filelist: var(--color-gray-3);
+    --bg-color-filelist: var(--color-gray-7);
+  /* Drop area */
+  --border-color-drop-area: var(--color-gray-5);
+  --font-color-drop-area: var(--color-gray-5);
+    /* Form settings */
+    --form-input-font-color: var(--color-gray-4);
+    --form-input-border: None;
+    --form-textarea-border: 1px solid var(--color-gray-3);
+    --form-input-bg-color: var(--color-gray-7);
+    --form-placeholder-color: var(--color-gray-4);
 }
 
 body {
   font-family: var(--font-family);
   margin: 0;
   padding: 15px;
-  color: var(--primary-font-color);
+  color: var(--font-color);
   background-color: var(--bg-color);
   font-size: var(--base-font-size);
   line-height: var(--line-height);
 }
 
 header {
-  display: flex;
+  display: grid;
+  grid-template-rows: auto auto auto; /* Create three rows */
   align-items: center;
   justify-content: space-between;
 }
 
-footer {
-  margin-top: auto;
-  padding: 15px;
-  text-align: center;
-  color: var(--secondary-font-color);
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-footer p {
-  font-size: var(--font-size-small);
-  margin: 10px;
-  line-height: var(--line-height-normal);
+main {
+  color: var(--font-color-main);
+  font-size: var(--font-size-main);  
+}
+
+footer {
+  color: var(--font-color-footer);
+  font-size: var(--font-size-footer);
+}
+
+#theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 10px;
+  cursor: pointer;
+  margin: 0;
+}
+
+#sun-icon,
+#moon-icon {
+  display: none;
+  width: 24px;
+  height: 24px;
+  margin: 8px;
+}
+
+.branding {
+  padding: 20px 10px;
+  font-size: var(--branding-font-size);
+  letter-spacing: var(--branding-letter-spacing);
+  color: var(--branding-font-color);
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.branding span {
+  color: var(--branding-span-font-color);
+  background-color: var(--branding-span-bg-color);
+}
+
+.branding a,
+.branding a:link,
+.branding a:active,
+.branding a:visited,
+.branding a:hover,
+.branding span a,
+.branding span a:link,
+.branding span a:active,
+.branding span a:visited,
+.branding span a:hover {
+  color: var(--branding-font-color);
+  text-decoration: none;
 }
 
 .hero {
-  padding: 20px 20px;
   text-align: center;
-}
-
-.hero .branding {
   font-size: var(--hero-font-size);
   margin-bottom: 15px;
   margin-top: 5px;
@@ -71,7 +171,6 @@ footer p {
 
 .hero p {
   font-size: 1.25em;
-  max-width: 800px;
   margin: 0 auto;
   letter-spacing: var(--hero-letter-spacing);
   line-height: var(--hero-line-height);
@@ -93,7 +192,6 @@ p {
 
 a,
 a:link,
-a:active,
 a:visited {
   color: var(--link-font-color);
   text-decoration: none;
@@ -103,16 +201,12 @@ a:hover {
   color: var(--link-hover-color);
 }
 
+a:active {
+  color: var(--link-active-color);
+}
+
 .bold {
   font-weight: 600;
-}
-
-.light-gray {
-  color: var(--medium-gray);
-}
-
-.blue {
-  color: var(--primary-color);
 }
 
 .hidden {
@@ -134,7 +228,7 @@ button[type="submit"] {
   font-weight: 600;
   text-align: center;
   display: inline-block;
-  background-color: var(--primary-color);
+  background-color: var(--color-blue-1);
   color: #ffffff;
   padding: var(--button-padding);
   border: none;
@@ -157,20 +251,20 @@ button[type="submit"] {
 .button:hover,
 button:hover,
 #file-upload-label:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--color-blue-2);
 }
 
 .button:active,
 button:active {
-  background-color: var(--primary-color);
+  background-color: var(--color-blue-1);
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.125);
 }
 
 .button[disabled],
 button[disabled],
 button[disabled]:hover {
-  background-color: var(--lighter-gray);
-  color: #fafafa;
+  background-color: var(--color-gray-3);
+  color: var(--color-gray-5);
   opacity: 0.65;
   cursor: not-allowed;
 }
@@ -179,8 +273,8 @@ button[disabled]:hover {
 .btn-outline:hover,
 .btn-outline:hover {
   background: none;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
+  color: var(--color-blue-1);
+  border: 2px solid var(--color-blue-1);
   padding: 12px 20px;
 }
 
@@ -192,27 +286,26 @@ button[disabled]:hover {
 #progress-bar {
   width: 0;
   height: 20px;
-  background-color: var(--primary-color);
+  background-color: var(--color-blue-1);
   transition: width 0.3s;
 }
 
 #drop-area {
   margin: 8px 4px 8px 0;
-  border: 1px dashed var(--medium-gray);
+  border: 1px dashed var(--border-color-drop-area);
   padding: 30px;
   text-align: center;
   margin-bottom: 20px;
-  color: var(--medium-gray);
+  color: var(--font-color-drop-area);
 }
 
 #drop-area.drag {
-  border-color: var(--light-gray);
-  color: var(--light-gray);
+  border-color: var(--color-gray-2);
+  color: var(--color-gray-2);
 }
 
 #file-list {
   margin: 8px 4px 8px 0;
-  color: var(--medium-gray);
   display: flex;
   justify-content: center;
 }
@@ -227,7 +320,8 @@ button[disabled]:hover {
 }
 
 #selected-files-list li {
-  background-color: var(--lighter-gray);
+  background-color: var(--bg-color-filelist);
+  color: var(--font-color-filelist);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -246,8 +340,8 @@ button[disabled]:hover {
   font-weight: 600;
   text-align: center;
   display: block;
-  background-color: var(--primary-color);
-  color: #fafafa;
+  background-color: var(--color-blue-1);
+  color: var(--color-gray-1);
   padding: var(--button-padding);
   border: none;
   border-radius: 4px;
@@ -258,8 +352,8 @@ button[disabled]:hover {
   margin: 8px 4px 8px 0;
   font-weight: 600;
   text-align: center;
-  background-color: var(--error-color);
-  color: #fafafa;
+  background-color: var(--color-red-1);
+  color: var(--color-gray-1);
   padding: var(--button-padding);
   display: none;
   border-radius: 4px;
@@ -271,10 +365,10 @@ button[disabled]:hover {
   text-align: center;
   display: block;
   background-color: none;
-  color: var(--primary-color);
+  color: var(--color-blue-1);
   padding: var(--button-padding);
   cursor: pointer;
-  border: 1px solid var(--primary-color);
+  border: 1px solid var(--color-blue-1);
   border-radius: 4px;
 }
 
@@ -282,8 +376,8 @@ button[disabled]:hover {
   margin: 8px 4px 8px 0;
   font-weight: 600;
   text-align: center;
-  background-color: var(--success-color);
-  color: #fafafa;
+  background-color: var(--color-green-1);
+  color: var(--color-gray-1);
   padding: var(--button-padding);
   display: none;
   border-radius: 4px;
@@ -314,7 +408,7 @@ button[disabled]:hover {
   justify-content: space-between;
   align-items: center;
   min-width: 180px;
-  margin-right: 10px; /* Add right margin to label */
+  margin-right: 10px; 
 }
 
 .switch {
@@ -322,7 +416,7 @@ button[disabled]:hover {
   display: inline-block;
   width: 40px;
   height: 20px;
-  margin-left: 10px; /* Or add left margin to switch */
+  margin-left: 10px; 
 }
 
 .switch input {
@@ -338,7 +432,7 @@ button[disabled]:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--medium-gray);
+  background-color: var(--color-gray-3);
   transition: 0.4s;
   border-radius: 20px;
 }
@@ -356,11 +450,11 @@ button[disabled]:hover {
 }
 
 input:checked + .slider {
-  background-color: var(--primary-color);
+  background-color: var(--color-blue-1);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px var(--secondary-color);
+  box-shadow: 0 0 1px var(--color-blue-2);
 }
 
 input:checked + .slider:before {
@@ -373,7 +467,7 @@ input:checked + .slider:before {
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid var(--primary-color);
+  border-top: 4px solid var(--color-blue-1);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -405,14 +499,63 @@ li[draggable="true"] {
 
 @keyframes flash-success {
   0%, 100% {
-    background-color: var(--lighter-gray);
+    background-color: var(--bg-color-filelist);
   }
   50% {
-    background-color: var(--success-color);
+    background-color: var(--color-green-1);
     color: #ffffff;
   }
 }
 
 .flash-success {
   animation: flash-success 1s ease;
+}
+
+/* Form elements styling */
+
+form {
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+  color: var(--form-input-font-color);
+  display: block;
+  width: 100%;
+  background-color: var(--form-input-bg-color);
+  border: var(--form-input-border);
+  border-radius: 3px;
+  padding: 12px 16px;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+textarea {
+  margin: 10px 0;
+  resize: none;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color: var(--form-input-font-color);
+  width: 100%;
+  padding: 0.5em;
+  background-color: var(--form-input-bg-color);
+  border: var(--form-input-border);
+  border-radius: 3px;
+  padding: 12px 16px;
+}
+
+select::-ms-expand {
+  display: none;
 }
