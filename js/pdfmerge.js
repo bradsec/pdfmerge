@@ -4,8 +4,8 @@ function checkFileReaderSupport() {
     console.log("FileReader API is supported.");
   } else {
     console.error("FileReader API is not supported in your browser.");
-    displayErrorMessage(
-      "Your browser does not support required features. Please update your browser or try a different one."
+    displayFlashMessage(
+      "Your browser does not support required features. Please update your browser or try a different one.", "danger"
     );
   }
 }
@@ -31,33 +31,6 @@ function hexToRgb(hex) {
   let g = (bigint >> 8) & 255;
   let b = bigint & 255;
   return { r: r / 255, g: g / 255, b: b / 255 };
-}
-
-// Display a success message
-function displaySuccessMessage() {
-  const convertButton = document.getElementById("convert-button");
-  const resetButton = document.getElementById("reset-button");
-  convertButton.style.display = "none";
-  resetButton.style.display = "none";
-
-  const successMessage = document.getElementById("success-message");
-  successMessage.textContent = "PDF Merge Successful.";
-  successMessage.style.display = "block";
-
-  setTimeout(() => {
-    successMessage.style.display = "none";
-  }, 5000);
-}
-
-// Display an error message
-function displayErrorMessage(message) {
-  const errorMessageElement = document.getElementById("error-message");
-  errorMessageElement.textContent = message;
-  errorMessageElement.style.display = "block";
-
-  setTimeout(() => {
-    errorMessageElement.style.display = "none";
-  }, 5000);
 }
 
 const selectedFiles = [];
@@ -174,9 +147,9 @@ fileInput.addEventListener("change", () => {
         selectedFiles.push(file);
       }
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 20MB limit.");
+      displayFlashMessage("Image size exceeds 20MB limit.", "danger");
     } else {
-      displayErrorMessage("File size exceeds 20MB limit.");
+      displayFlashMessage("File size exceeds 20MB limit.", "danger");
     }
   }
   updateSelectedFilesList();
@@ -203,7 +176,7 @@ dropArea.addEventListener("drop", (e) => {
     if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
       selectedFiles.push(file);
     } else if (file.type.startsWith("image/")) {
-      displayErrorMessage("Image size exceeds 20MB limit.");
+      displayFlashMessage("Image size exceeds 20MB limit.", "danger");
     }
   }
   updateSelectedFilesList();
@@ -423,7 +396,7 @@ function formatFileSize(bytes) {
 
 function handleConversionTimeout() {
   console.error("Conversion process timed out.");
-  displayErrorMessage("Conversion process took too long and was terminated.");
+  displayFlashMessage("Conversion process took too long and was terminated.", "danger");
 
   // Wait for 3 seconds before reloading the page
   setTimeout(function () {
@@ -450,7 +423,7 @@ async function convertToPDF() {
   }, TIMEOUT_DURATION);
 
   if (selectedFiles.length < 1) {
-    displayErrorMessage("Select at least one image to convert.");
+    displayFlashMessage("Select at least one image to convert.", "warning");
     return;
   }
 
@@ -635,10 +608,10 @@ async function convertToPDF() {
     downloadPDF(pdfBytes);
 
     spinner.style.display = "none";
-    displaySuccessMessage();
+    displayFlashMessage("PDF Merge completed successfully.", "success");
   } catch (error) {
     spinner.style.display = "none";
-    displayErrorMessage(`An error occurred: ${error.message}`);
+    displayFlashMessage(`An error occurred: ${error.message}`, "error");
     console.error(error);
   } finally {
     resetFiles();
@@ -692,8 +665,9 @@ async function downloadPDF(pdfBytes) {
   } catch (error) {
     // console.error("Error: ", error.message);
     // Handle the error or inform the user as needed
-    displayErrorMessage("File save was cancelled or failed.");
+    displayFlashMessage("File save was cancelled or failed.", "danger");
   }
+  updateButtonVisibility();
 }
 
 function degrees(degrees) {

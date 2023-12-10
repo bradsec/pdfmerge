@@ -37,3 +37,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
   
+
+  function displayFlashMessage(message, type) {
+    const flashBannerContainer = document.querySelector(
+      ".flash-banner-container"
+    );
+  
+    // Remove existing color classes
+    flashBannerContainer.classList.remove(
+      "flash-banner-success",
+      "flash-banner-danger",
+      "flash-banner-warning",
+      "flash-banner-info"
+    );
+  
+    // Add the class for the specified type
+    switch (type) {
+      case "danger":
+        flashBannerContainer.classList.add("flash-banner-danger");
+        break;
+      case "warning":
+        flashBannerContainer.classList.add("flash-banner-warning");
+        break;
+      case "success":
+        flashBannerContainer.classList.add("flash-banner-success");
+        break;
+      case "info":
+        flashBannerContainer.classList.add("flash-banner-info");
+        break;
+      default:
+        flashBannerContainer.classList.add("flash-banner-success");
+    }
+  
+    // Set the message and show the banner
+    flashBannerContainer.textContent = message;
+    flashBannerContainer.style.display = "block";
+  
+    // Hide the banner after a delay
+    setTimeout(function () {
+      flashBannerContainer.style.display = "none";
+    }, 3000);
+  }
