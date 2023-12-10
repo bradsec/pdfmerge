@@ -101,7 +101,7 @@ body {
 
 header {
   display: grid;
-  grid-template-rows: auto auto auto; /* Create three rows */
+  grid-template-columns: 1fr;
   align-items: center;
   justify-content: space-between;
 }
