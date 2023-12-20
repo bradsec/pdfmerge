@@ -47,9 +47,8 @@ function resetFiles() {
 
 function updateSelectedFilesList() {
   const imageList = document.getElementById("selected-files-list");
-  imageList.innerHTML = "";
+  const fragment = document.createDocumentFragment(); // Create a document fragment
 
-  // Iterate through selectedFiles array
   selectedFiles.forEach((file, index) => {
     const listItem = document.createElement("li");
     listItem.className = "flex-item";
@@ -78,36 +77,22 @@ function updateSelectedFilesList() {
 
     const fileSize = formatFileSize(file.size);
 
-    // Append elements
+    // Append elements to the list item
     listItem.appendChild(iconSpan);
     listItem.appendChild(document.createTextNode(`${file.name} (${fileSize})`));
-    imageList.appendChild(listItem);
 
-    if (addedFilesSet.has(file.name)) {
-      const listItem = document.getElementById(`file-${index}`);
-      listItem.classList.add("flash-success");
-      addedFilesSet.delete(file.name);
-    }
+    // Append the list item to the document fragment
+    fragment.appendChild(listItem);
   });
 
-  // Remove the "flash-success" class from all list items
-  const allListItems = imageList.querySelectorAll("li");
-  allListItems.forEach((item) => {
-    item.classList.remove("flash-success");
-  });
+  // Clear the existing content and append the new fragment
+  imageList.innerHTML = '';
+  imageList.appendChild(fragment);
 
-  // Add the "flash-success" class to the last item
-  if (selectedFiles.length > 0 && !orderChanged) {
-    const lastListItem = document.getElementById(
-      `file-${selectedFiles.length - 1}`
-    );
-    if (lastListItem) {
-      lastListItem.classList.add("flash-success");
-    }
-    updateButtonVisibility();
-  }
-  orderChanged = false;
+  // Update button visibility and other UI elements as needed
+  updateButtonVisibility();
 }
+
 
 let draggedItemIndex = null;
 
@@ -321,7 +306,11 @@ function resizeImageAndConvertToJPEG(originalFile) {
 
           // Convert to JPEG at 90% quality
           const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-          resolve(dataUrl); // Resolve the Promise with the data URL
+              // Cleanup
+              img.src = '';
+              canvas.remove();
+
+              resolve(dataUrl);
         };
         img.src = e.target.result;
       };
@@ -418,7 +407,7 @@ async function convertToPDF() {
   const { PDFDocument, rgb } = PDFLib;
 
   // Start the conversion timeout
-  conversionTimeout = setTimeout(() => {
+  let conversionTimeout = setTimeout(() => {
     handleConversionTimeout();
   }, TIMEOUT_DURATION);
 
@@ -607,19 +596,18 @@ async function convertToPDF() {
     const pdfBytes = await pdfDoc.save();
     downloadPDF(pdfBytes);
 
-    spinner.style.display = "none";
     displayFlashMessage("PDF Merge completed successfully.", "success");
   } catch (error) {
-    spinner.style.display = "none";
+    console.error("Error during conversion:", error);
     displayFlashMessage(`An error occurred: ${error.message}`, "error");
-    console.error(error);
   } finally {
+    // Cleanup, UI updates, and clearing timeout
     resetFiles();
     spinner.style.display = "none";
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
+    clearTimeout(conversionTimeout);
   }
-  clearTimeout(conversionTimeout);
 }
 
 async function downloadPDF(pdfBytes) {
@@ -663,12 +651,13 @@ async function downloadPDF(pdfBytes) {
       URL.revokeObjectURL(blobUrl);
     }
   } catch (error) {
-    // console.error("Error: ", error.message);
-    // Handle the error or inform the user as needed
+    console.error("Error during PDF download:", error);
     displayFlashMessage("File save was cancelled or failed.", "danger");
+  } finally {
+    updateButtonVisibility();
   }
-  updateButtonVisibility();
 }
+
 
 function degrees(degrees) {
   return (degrees * Math.PI) / 180;

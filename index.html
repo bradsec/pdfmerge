@@ -28,6 +28,12 @@
     <link href="css/styles.css" rel="stylesheet" />
   </head>
   <body>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', theme);
+      })();
+    </script>
     <div id="spinner" class="spinner"></div>
     <div class="wrapper">
       <header>
