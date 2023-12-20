@@ -633,25 +633,15 @@ async function processFileChunk(chunk, pdfDoc, customFont) {
 
 function getFormattedCurrentDate() {
   const currentDate = new Date();
-  return currentDate
-    .toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    })
-    .replace(/\//g, "")
-    .replace(/, /g, "_")
-    .replace(/:/g, "");
+  return currentDate.toISOString().replace(/:/g, "").replace(/-/g, "").replace(/\.\d+/, "");
 }
+
+
 
 function prepareDownloadLink(pdfBytes) {
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const blobUrl = URL.createObjectURL(blob);
-  const filename = `pdfmerge_${getFormattedCurrentDate()}.pdf`;
+  const filename = `pdf_${getFormattedCurrentDate()}.pdf`;
 
   // Get the existing download link element
   const downloadLinkElement = document.getElementById("download-link");
@@ -659,7 +649,8 @@ function prepareDownloadLink(pdfBytes) {
   // Update the download link properties
   downloadLinkElement.href = blobUrl;
   downloadLinkElement.download = filename;
-  downloadLinkElement.style.display = "block"; // Make sure it's visible
+  downloadLinkElement.innerHTML = "Download " + filename;
+  downloadLinkElement.style.display = "block";
 
   // Hide the other buttons
   const convertButton = document.getElementById("convert-button");
