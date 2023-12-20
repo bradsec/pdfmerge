@@ -426,6 +426,9 @@ async function convertToPDF() {
   const fontBytes = await fontResponse.arrayBuffer();
   const customFont = await pdfDoc.embedFont(fontBytes);
 
+  const spinner = document.getElementById("spinner");
+  spinner.style.display = "block";
+
   const progressContainer = document.getElementById("progress-container");
   progressContainer.style.display = "block";
   const progressBar = document.getElementById("progress-bar");
@@ -692,10 +695,10 @@ function initEventListeners() {
 }
 
 function handleFileInputChange() {
-  const spinner = document.getElementById("spinner"); // Get the spinner element
+  const spinner = document.getElementById("spinner");
   const downloadLinkElement = document.getElementById("download-link");
 
-  spinner.style.display = "block"; // Show the spinner
+  spinner.style.display = "block";
   downloadLinkElement.style.display = "none";
 
   Array.from(this.files).forEach((file) => {
@@ -706,17 +709,17 @@ function handleFileInputChange() {
   });
 
   updateSelectedFilesList();
-  spinner.style.display = "none"; // Hide the spinner after updating the file list
+  spinner.style.display = "none";
 }
 
 function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
 
-  const spinner = document.getElementById("spinner"); // Get the spinner element
+  const spinner = document.getElementById("spinner");
   const downloadLinkElement = document.getElementById("download-link");
 
-  spinner.style.display = "block"; // Show the spinner
+  spinner.style.display = "block";
   downloadLinkElement.style.display = "none";
 
   Array.from(e.dataTransfer.files).forEach((file) => {
@@ -727,8 +730,9 @@ function handleDropArea(e) {
   });
 
   updateSelectedFilesList();
-  spinner.style.display = "none"; // Hide the spinner after updating the file list
+  spinner.style.display = "none";
 }
+
 
 
 function isNewFile(file) {
