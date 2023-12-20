@@ -326,7 +326,7 @@ button[disabled]:hover {
 
 #progress-container {
   display: none;
-  margin-top: 20px;
+  margin: 20px 0 10px 0;
 }
 
 #progress-bar {

@@ -596,10 +596,10 @@ async function convertToPDF() {
     const pdfBytes = await pdfDoc.save();
     downloadPDF(pdfBytes);
 
-    displayFlashMessage("PDF Merge completed successfully.", "success");
+    displayFlashMessage("PDF Merge completed.", "success");
   } catch (error) {
     console.error("Error during conversion:", error);
-    displayFlashMessage(`An error occurred: ${error.message}`, "error");
+    displayFlashMessage(`An error occurred: ${error.message}`, "danger");
   } finally {
     // Cleanup, UI updates, and clearing timeout
     resetFiles();
