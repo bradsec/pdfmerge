@@ -641,7 +641,7 @@ function getFormattedCurrentDate() {
 function prepareDownloadLink(pdfBytes) {
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const blobUrl = URL.createObjectURL(blob);
-  const filename = `pdf_${getFormattedCurrentDate()}.pdf`;
+  const filename = `PDFMerge_${getFormattedCurrentDate()}.pdf`;
 
   // Get the existing download link element
   const downloadLinkElement = document.getElementById("download-link");
