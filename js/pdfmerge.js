@@ -402,19 +402,22 @@ function getSelectedPaperSize() {
   return [widthPoints, heightPoints];
 }
 
+function chunkArray(array, size) {
+  const chunkedArr = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunkedArr.push(array.slice(i, i + size));
+  }
+  return chunkedArr;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 async function convertToPDF() {
   const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds)
   const { PDFDocument, rgb } = PDFLib;
-
-  // Start the conversion timeout
-  let conversionTimeout = setTimeout(() => {
-    handleConversionTimeout();
-  }, TIMEOUT_DURATION);
-
-  if (selectedFiles.length < 1) {
-    displayFlashMessage("Select at least one image to convert.", "warning");
-    return;
-  }
 
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
@@ -426,171 +429,26 @@ async function convertToPDF() {
   progressContainer.style.display = "block";
   const progressBar = document.getElementById("progress-bar");
 
+  // Start the conversion timeout
+  let conversionTimeout = setTimeout(() => {
+    handleConversionTimeout();
+  }, TIMEOUT_DURATION);
+
+  if (selectedFiles.length < 1) {
+    displayFlashMessage("Select at least one image to convert.", "warning");
+    return;
+  }
+
+  const BATCH_SIZE = 5;
+  const fileChunks = chunkArray(selectedFiles, BATCH_SIZE);
+  let processedFiles = 0;
+
   try {
-    const spinner = document.getElementById("spinner");
-    spinner.style.display = "block";
-
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const fileName = file.name;
-      const fileExtension = fileName.split(".").pop().toLowerCase();
-
-      if (
-        fileExtension === "jpg" ||
-        fileExtension === "jpeg" ||
-        fileExtension === "webp" ||
-        fileExtension === "gif" ||
-        fileExtension === "png"
-      ) {
-        const dataUrl = await resizeImageAndConvertToJPEG(file);
-        const imageBytes = Uint8Array.from(atob(dataUrl.split(",")[1]), (c) =>
-          c.charCodeAt(0)
-        );
-
-        const [pageWidth, pageHeight] = getSelectedPaperSize();
-        const page = pdfDoc.addPage([pageWidth, pageHeight]);
-
-        const leftMargin = 25;
-        const topMargin = 40;
-        const rightMargin = pageWidth - 25;
-        const bottomMargin = pageHeight - 40;
-
-        const image = await pdfDoc.embedJpg(imageBytes);
-
-        if (shouldPrintImageDetails()) {
-          const fontSize = 10;
-          const maxTextWidth = rightMargin - leftMargin;
-          const lineHeight = 14;
-          const textX = leftMargin;
-          let textY = pageHeight - 20;
-
-          // Get image details
-          const imgDetails = await getImageDetails(file);
-
-          const imgGpsInfo = imgDetails.imgGpsInfo;
-          const imgDateTime = imgDetails.imgDateTime;
-
-          // Calculate the SHA256 hash from the file data
-          const fileData = await new Response(file).arrayBuffer();
-          const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const imgHash = hashArray
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
-
-          // Draw filename
-          textY -= lineHeight; // Adjust Y position for each detail
-          drawWrappedText(
-            page,
-            `Name: ${fileName}`,
-            textX,
-            textY,
-            maxTextWidth,
-            lineHeight,
-            customFont,
-            fontSize,
-            "#000000"
-          );
-
-          if (imgHash !== null) {
-            textY -= lineHeight; // Adjust Y position for spacing
-            drawWrappedText(
-              page,
-              `Hash: ${imgHash}`,
-              textX,
-              textY,
-              maxTextWidth,
-              lineHeight,
-              customFont,
-              fontSize,
-              "#000000"
-            );
-          }
-
-          if (imgDateTime !== null) {
-            const formattedDateTime = formatDateTime(imgDateTime);
-            textY -= lineHeight; // Adding an extra line's height for spacing between details
-            drawWrappedText(
-              page,
-              `Date: ${formattedDateTime}`,
-              textX,
-              textY,
-              maxTextWidth,
-              lineHeight,
-              customFont,
-              fontSize,
-              "#000000"
-            );
-          }
-
-          if (imgGpsInfo) {
-            textY -= lineHeight; // Adjust Y position for each detail
-            drawWrappedText(
-              page,
-              `GPS (Lat, Long): ${imgGpsInfo}`,
-              textX,
-              textY,
-              maxTextWidth,
-              lineHeight,
-              customFont,
-              fontSize,
-              "#000000"
-            );
-          }
-
-          let imgDetailsPadding = 100;
-
-          let imgDim = image.scaleToFit(
-            rightMargin - leftMargin,
-            bottomMargin - topMargin - imgDetailsPadding
-          );
-
-          let xPosition =
-            (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
-          let yPosition =
-            (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
-
-          page.drawImage(image, {
-            x: xPosition,
-            y: yPosition,
-            width: imgDim.width,
-            height: imgDim.height,
-          });
-        } else {
-          let imgDim = image.scaleToFit(
-            rightMargin - leftMargin,
-            bottomMargin - topMargin
-          );
-
-          let xPosition =
-            (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
-          let yPosition =
-            (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
-
-          page.drawImage(image, {
-            x: xPosition,
-            y: yPosition,
-            width: imgDim.width,
-            height: imgDim.height,
-          });
-        }
-      } else if (fileExtension === "pdf") {
-        const fileBytes = await fetch(URL.createObjectURL(file)).then((res) =>
-          res.arrayBuffer()
-        );
-        const existingPdfDoc = await PDFLib.PDFDocument.load(fileBytes, {
-          ignoreEncryption: true,
-        });
-        const copiedPages = await pdfDoc.copyPages(
-          existingPdfDoc,
-          existingPdfDoc.getPageIndices()
-        );
-        copiedPages.forEach((page) => pdfDoc.addPage(page));
-      } else {
-        throw new Error(`Unsupported file format: ${fileExtension}`);
-      }
-
-      progressBar.style.width = `${((i + 1) / selectedFiles.length) * 100}%`;
+    for (const chunk of fileChunks) {
+      await processFileChunk(chunk, pdfDoc, customFont);
+      processedFiles += chunk.length;
+      progressBar.style.width = `${(processedFiles / selectedFiles.length) * 100}%`;
+      await sleep(500);
     }
 
     const pdfBytes = await pdfDoc.save();
@@ -607,6 +465,167 @@ async function convertToPDF() {
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
     clearTimeout(conversionTimeout);
+  }
+}
+
+async function processFileChunk(chunk, pdfDoc, customFont) {
+  for (const file of chunk) {
+    const fileName = file.name;
+    const fileExtension = fileName.split(".").pop().toLowerCase();
+    if (
+      fileExtension === "jpg" ||
+      fileExtension === "jpeg" ||
+      fileExtension === "webp" ||
+      fileExtension === "gif" ||
+      fileExtension === "png"
+    ) {
+      const dataUrl = await resizeImageAndConvertToJPEG(file);
+      const imageBytes = Uint8Array.from(atob(dataUrl.split(",")[1]), (c) =>
+        c.charCodeAt(0)
+      );
+
+      const [pageWidth, pageHeight] = getSelectedPaperSize();
+      const page = pdfDoc.addPage([pageWidth, pageHeight]);
+
+      const leftMargin = 25;
+      const topMargin = 40;
+      const rightMargin = pageWidth - 25;
+      const bottomMargin = pageHeight - 40;
+
+      const image = await pdfDoc.embedJpg(imageBytes);
+
+      if (shouldPrintImageDetails()) {
+        const fontSize = 10;
+        const maxTextWidth = rightMargin - leftMargin;
+        const lineHeight = 14;
+        const textX = leftMargin;
+        let textY = pageHeight - 20;
+
+        // Get image details
+        const imgDetails = await getImageDetails(file);
+
+        const imgGpsInfo = imgDetails.imgGpsInfo;
+        const imgDateTime = imgDetails.imgDateTime;
+
+        // Calculate the SHA256 hash from the file data
+        const fileData = await new Response(file).arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const imgHash = hashArray
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+
+        // Draw filename
+        textY -= lineHeight; // Adjust Y position for each detail
+        drawWrappedText(
+          page,
+          `Name: ${fileName}`,
+          textX,
+          textY,
+          maxTextWidth,
+          lineHeight,
+          customFont,
+          fontSize,
+          "#000000"
+        );
+
+        if (imgHash !== null) {
+          textY -= lineHeight; // Adjust Y position for spacing
+          drawWrappedText(
+            page,
+            `Hash: ${imgHash}`,
+            textX,
+            textY,
+            maxTextWidth,
+            lineHeight,
+            customFont,
+            fontSize,
+            "#000000"
+          );
+        }
+
+        if (imgDateTime !== null) {
+          const formattedDateTime = formatDateTime(imgDateTime);
+          textY -= lineHeight; // Adding an extra line's height for spacing between details
+          drawWrappedText(
+            page,
+            `Date: ${formattedDateTime}`,
+            textX,
+            textY,
+            maxTextWidth,
+            lineHeight,
+            customFont,
+            fontSize,
+            "#000000"
+          );
+        }
+
+        if (imgGpsInfo) {
+          textY -= lineHeight; // Adjust Y position for each detail
+          drawWrappedText(
+            page,
+            `GPS (Lat, Long): ${imgGpsInfo}`,
+            textX,
+            textY,
+            maxTextWidth,
+            lineHeight,
+            customFont,
+            fontSize,
+            "#000000"
+          );
+        }
+
+        let imgDetailsPadding = 100;
+
+        let imgDim = image.scaleToFit(
+          rightMargin - leftMargin,
+          bottomMargin - topMargin - imgDetailsPadding
+        );
+
+        let xPosition =
+          (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
+        let yPosition =
+          (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
+
+        page.drawImage(image, {
+          x: xPosition,
+          y: yPosition,
+          width: imgDim.width,
+          height: imgDim.height,
+        });
+      } else {
+        let imgDim = image.scaleToFit(
+          rightMargin - leftMargin,
+          bottomMargin - topMargin
+        );
+
+        let xPosition =
+          (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
+        let yPosition =
+          (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
+
+        page.drawImage(image, {
+          x: xPosition,
+          y: yPosition,
+          width: imgDim.width,
+          height: imgDim.height,
+        });
+      }
+    } else if (fileExtension === "pdf") {
+      const fileBytes = await fetch(URL.createObjectURL(file)).then((res) =>
+        res.arrayBuffer()
+      );
+      const existingPdfDoc = await PDFLib.PDFDocument.load(fileBytes, {
+        ignoreEncryption: true,
+      });
+      const copiedPages = await pdfDoc.copyPages(
+        existingPdfDoc,
+        existingPdfDoc.getPageIndices()
+      );
+      copiedPages.forEach((page) => pdfDoc.addPage(page));
+    } else {
+      throw new Error(`Unsupported file format: ${fileExtension}`);
+    }
   }
 }
 
@@ -690,26 +709,38 @@ function initEventListeners() {
 }
 
 function handleFileInputChange() {
+  const spinner = document.getElementById("spinner"); // Get the spinner element
+  spinner.style.display = "block"; // Show the spinner
+
   Array.from(this.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {
       addedFilesSet.add(file.name);
       selectedFiles.push(file);
     }
   });
+
   updateSelectedFilesList();
+  spinner.style.display = "none"; // Hide the spinner after updating the file list
 }
 
 function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
+
+  const spinner = document.getElementById("spinner"); // Get the spinner element
+  spinner.style.display = "block"; // Show the spinner
+
   Array.from(e.dataTransfer.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {
       addedFilesSet.add(file.name);
       selectedFiles.push(file);
     }
   });
+
   updateSelectedFilesList();
+  spinner.style.display = "none"; // Hide the spinner after updating the file list
 }
+
 
 function isNewFile(file) {
   return (
