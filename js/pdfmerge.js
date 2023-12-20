@@ -640,11 +640,13 @@ function getFormattedCurrentDate() {
 }
 
 
-
 function prepareDownloadLink(pdfBytes) {
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const blobUrl = URL.createObjectURL(blob);
   const filename = `PDFMerge_${getFormattedCurrentDate()}.pdf`;
+
+  // Calculate the size of the PDF using the existing formatFileSize function
+  const fileSize = formatFileSize(blob.size);
 
   // Get the existing download link element
   const downloadLinkElement = document.getElementById("download-link");
@@ -652,7 +654,7 @@ function prepareDownloadLink(pdfBytes) {
   // Update the download link properties
   downloadLinkElement.href = blobUrl;
   downloadLinkElement.download = filename;
-  downloadLinkElement.innerHTML = "Download " + filename;
+  downloadLinkElement.innerHTML = `Download ${filename} (${fileSize})`;
   downloadLinkElement.style.display = "block";
 
   // Hide the other buttons
@@ -667,6 +669,7 @@ function prepareDownloadLink(pdfBytes) {
     downloadLinkElement.style.display = "none";
   }, 60000);
 }
+
 
 // Function to check if the checkbox for print image details is checked
 function shouldPrintImageDetails() {
