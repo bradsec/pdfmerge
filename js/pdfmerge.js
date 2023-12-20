@@ -127,14 +127,14 @@ fileInput.addEventListener("change", () => {
   const newFiles = fileInput.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.type === "application/pdf" || file.size <= 20 * 1024 * 1024) {
+    if (file.type === "application/pdf" || file.size <= 50 * 1024 * 1024) {
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else if (file.type.startsWith("image/")) {
-      displayFlashMessage("Image size exceeds 20MB limit.", "danger");
+      displayFlashMessage("Image size exceeds 50MB limit.", "danger");
     } else {
-      displayFlashMessage("File size exceeds 20MB limit.", "danger");
+      displayFlashMessage("File size exceeds 50MB limit.", "danger");
     }
   }
   updateSelectedFilesList();
