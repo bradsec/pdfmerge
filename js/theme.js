@@ -84,5 +84,5 @@ document.addEventListener("DOMContentLoaded", () => {
     // Hide the banner after a delay
     setTimeout(function () {
       flashBannerContainer.style.display = "none";
-    }, 3000);
+    }, 5000);
   }

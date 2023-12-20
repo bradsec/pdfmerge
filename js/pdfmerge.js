@@ -170,6 +170,7 @@ dropArea.addEventListener("drop", (e) => {
 function updateButtonVisibility() {
   const convertButton = document.getElementById("convert-button");
   const resetButton = document.getElementById("reset-button");
+  const downloadLinkElement = document.getElementById("download-link");
 
   if (selectedFiles.length > 0) {
     convertButton.style.display = "inline-block";
@@ -452,9 +453,10 @@ async function convertToPDF() {
     }
 
     const pdfBytes = await pdfDoc.save();
-    downloadPDF(pdfBytes);
+    //downloadPDF(pdfBytes);
+    prepareDownloadLink(pdfBytes);
 
-    displayFlashMessage("PDF Merge completed.", "success");
+    displayFlashMessage("PDF Merge complete.", "success");
   } catch (error) {
     console.error("Error during conversion:", error);
     displayFlashMessage(`An error occurred: ${error.message}`, "danger");
@@ -629,9 +631,9 @@ async function processFileChunk(chunk, pdfDoc, customFont) {
   }
 }
 
-async function downloadPDF(pdfBytes) {
+function getFormattedCurrentDate() {
   const currentDate = new Date();
-  const formattedDate = currentDate
+  return currentDate
     .toLocaleString("en-GB", {
       day: "2-digit",
       month: "2-digit",
@@ -644,42 +646,32 @@ async function downloadPDF(pdfBytes) {
     .replace(/\//g, "")
     .replace(/, /g, "_")
     .replace(/:/g, "");
-
-  const filename = `pdfmerge_${formattedDate}.pdf`;
-
-  try {
-    if ("showSaveFilePicker" in window) {
-      // Logic for browsers that support the File System Access API
-      const handle = await window.showSaveFilePicker({
-        suggestedName: filename,
-        types: [{ accept: { "application/pdf": [".pdf"] } }],
-      });
-      const writable = await handle.createWritable();
-      await writable.write(pdfBytes);
-      await writable.close();
-    } else {
-      // Fallback logic for browsers that do not support the File System Access API
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const blobUrl = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = blobUrl;
-      downloadLink.download = filename;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(blobUrl);
-    }
-  } catch (error) {
-    console.error("Error during PDF download:", error);
-    displayFlashMessage("File save was cancelled or failed.", "danger");
-  } finally {
-    updateButtonVisibility();
-  }
 }
 
+function prepareDownloadLink(pdfBytes) {
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const blobUrl = URL.createObjectURL(blob);
+  const filename = `pdfmerge_${getFormattedCurrentDate()}.pdf`;
 
-function degrees(degrees) {
-  return (degrees * Math.PI) / 180;
+  // Get the existing download link element
+  const downloadLinkElement = document.getElementById("download-link");
+
+  // Update the download link properties
+  downloadLinkElement.href = blobUrl;
+  downloadLinkElement.download = filename;
+  downloadLinkElement.style.display = "block"; // Make sure it's visible
+
+  // Hide the other buttons
+  const convertButton = document.getElementById("convert-button");
+  const resetButton = document.getElementById("reset-button");
+  convertButton.style.display = "none";
+  resetButton.style.display = "none";
+
+  // Add a cleanup to revoke the blob URL after a delay
+  setTimeout(() => {
+    URL.revokeObjectURL(blobUrl);
+    downloadLinkElement.style.display = "none";
+  }, 60000);
 }
 
 // Function to check if the checkbox for print image details is checked
@@ -710,7 +702,10 @@ function initEventListeners() {
 
 function handleFileInputChange() {
   const spinner = document.getElementById("spinner"); // Get the spinner element
+  const downloadLinkElement = document.getElementById("download-link");
+
   spinner.style.display = "block"; // Show the spinner
+  downloadLinkElement.style.display = "none";
 
   Array.from(this.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {
@@ -728,7 +723,10 @@ function handleDropArea(e) {
   this.classList.remove("drag");
 
   const spinner = document.getElementById("spinner"); // Get the spinner element
+  const downloadLinkElement = document.getElementById("download-link");
+
   spinner.style.display = "block"; // Show the spinner
+  downloadLinkElement.style.display = "none";
 
   Array.from(e.dataTransfer.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {

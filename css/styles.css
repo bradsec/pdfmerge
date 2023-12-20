@@ -573,10 +573,10 @@ select::-ms-expand {
   text-align: center;
   display: block;
   background-color: none;
-  color: var(--color-blue-1);
+  color: var(--color-green-1);
   padding: var(--button-padding);
   cursor: pointer;
-  border: 1px solid var(--color-blue-1);
+  border: 1px solid var(--color-green-1);
   border-radius: 4px;
 }
 
