@@ -362,7 +362,7 @@ button[disabled]:hover {
   justify-content: space-between;
   align-items: center;
   min-width: 180px;
-  margin-right: 10px; 
+  margin-left: 10px; 
 }
 
 .switch {
@@ -370,7 +370,7 @@ button[disabled]:hover {
   display: inline-block;
   width: 40px;
   height: 20px;
-  margin-left: 10px; 
+  margin-right: 10px; 
 }
 
 .switch input {
@@ -567,17 +567,29 @@ select::-ms-expand {
   cursor: pointer;
 }
 
-#download-link {
+#file-link {
+  display: flex;
   margin: 8px 4px 8px 0;
   font-weight: 600;
   text-align: center;
-  display: block;
+  display: inline-block;
   background-color: none;
-  color: var(--color-green-1);
+  color: var(--color-blue-1);
   padding: var(--button-padding);
   cursor: pointer;
-  border: 1px solid var(--color-green-1);
+  border: 0;
   border-radius: 4px;
+  word-break: break-word;
+}
+
+#file-link .material-icons-outlined {
+  margin-right: 8px; /* Space between icon and text */
+  flex-shrink: 0; /* Prevents the icon from shrinking */
+}
+
+#file-link .download-text {
+  margin: 1px solid red;
+  text-align: left; /* Aligns text to the left */
 }
 
 /* Flash on file add */

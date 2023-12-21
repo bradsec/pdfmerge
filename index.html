@@ -12,9 +12,9 @@
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
     <meta name="theme-color" content="#1d1d1d" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <title>PDFMerge.me</title>
     <link href="css/reset.css" rel="stylesheet" />
     <link
@@ -29,100 +29,131 @@
   </head>
   <body>
     <script>
-      (function() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', theme);
+      (function () {
+        const theme = localStorage.getItem("theme") || "light";
+        document.body.setAttribute("data-theme", theme);
       })();
     </script>
     <div id="spinner" class="spinner"></div>
     <div class="wrapper">
       <header>
         <div class="header-top">
-        <div class="branding">PDF<span>Merge</span>.me</div>
-        <div id="theme-switcher">
-          <svg id="sun-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <circle class="sun" cx="12" cy="12" r="6" fill="currentColor" />
-            <g class="sun-beams" stroke="currentColor">
-              <line x1="12" y1="1" x2="12" y2="3" />
-              <line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" />
-              <line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </g>
-          </svg>
-          
-          <svg id="moon-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <mask id="moon-mask" class="moon">
-              <rect x="0" y="0" width="100%" height="100%" fill="currentColor" />
-              <circle cx="12" cy="10" r="6" fill="white" />
-            </mask>
-            <circle class="moon" cx="12" cy="12" r="6" fill="currentColor" />
-          </svg>  
-        </div>
-      </div>
-        <div class="hero">
-        Merge multiple PDF documents, convert images to PDF, or
-        combine PDFs and images into a single PDF document, all within your
-        browser. Free and private with no uploads to servers.
-      </div>
+          <div class="branding">PDF<span>Merge</span>.me</div>
+          <div id="theme-switcher">
+            <svg
+              id="sun-icon"
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <circle class="sun" cx="12" cy="12" r="6" fill="currentColor" />
+              <g class="sun-beams" stroke="currentColor">
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </g>
+            </svg>
 
+            <svg
+              id="moon-icon"
+              class="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <mask id="moon-mask" class="moon">
+                <rect
+                  x="0"
+                  y="0"
+                  width="100%"
+                  height="100%"
+                  fill="currentColor"
+                />
+                <circle cx="12" cy="10" r="6" fill="white" />
+              </mask>
+              <circle class="moon" cx="12" cy="12" r="6" fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+        <div class="hero">
+          Merge multiple PDF documents, convert images to PDF, or combine PDFs
+          and images into a single PDF document, all within your browser. Free
+          and private with no uploads to servers.
+        </div>
       </header>
       <main>
-      <div id="flash-banner" class="flash-banner-container"></div>
-      <label for="file-input" id="file-upload-label">
-        Click to add files...
-      </label>
-      <input
-        accept=".jpg, .jpeg, .png, .pdf"
-        id="file-input"
-        multiple=""
-        type="file"
-      />
-      <div id="drop-area">
-        <p class="bold">Or drag and drop files here...</p>
-      </div>
-      <div id="file-list">
-        <ul id="selected-files-list"></ul>
-      </div>
-      <div id="progress-container">
-        <div id="progress-bar"></div>
-      </div>
-      <button
-        id="convert-button"
-        onclick="convertToPDF()"
-        style="display: none"
-      >
-        Convert and PDF Merge
-      </button>
-      <button id="reset-button" onclick="resetPage()" style="display: none">
-        Clear File List
-      </button>
-      <a id="download-link" style="display: none"> Download PDF Link </a>
-      <div class="toggle-item">
-        <label for="print-image-details"
-          >Include Image Details
-          <div class="switch">
-            <input
-              type="checkbox"
-              id="print-image-details"
-              name="print-image-details"
-            />
-            <span class="slider round"></span>
-          </div>
+        <div id="flash-banner" class="flash-banner-container"></div>
+        <label for="file-input" id="file-upload-label">
+          Click to add files...
         </label>
-      </div>
-    </main>
+        <input
+          accept=".jpg, .jpeg, .png, .pdf"
+          id="file-input"
+          multiple=""
+          type="file"
+        />
+        <div id="drop-area">
+          <p class="bold">Or drag and drop files here...</p>
+        </div>
+        <div id="file-list">
+          <ul id="selected-files-list"></ul>
+        </div>
+        <div id="image-details-toggle" style="display: none">
+          <div class="toggle-group"> 
+            <div class="toggle-item">
+              <label for="print-image-details">
+                <div class="switch">
+                  <input
+                    type="checkbox"
+                    id="print-image-details"
+                    name="print-image-details"
+                  />
+                  <span class="slider round"></span>
+                </div>
+                Include Image Details
+              </label>
+            </div>
+            <div class="toggle-item">
+            <label for="landscape-orientation">
+              <div class="switch">
+                <input type="checkbox" id="landscape-orientation" name="landscape-orientation"/>
+                <span class="slider round"></span>
+              </div>
+              Landscape Image Pages
+            </label>
+          </div>                
+        </div>
+          <p class="small">Include Image Details adds the image name, image hash, and EXIF details including GPS and date (if available) to the top of the page above the image.</p>
+        </div>
+        <div id="progress-container">
+          <div id="progress-bar"></div>
+        </div>
+        <button
+          id="convert-button"
+          onclick="convertToPDF()"
+          style="display: none"
+        >
+          Convert and PDF Merge
+        </button>
+        <button id="reset-button" onclick="resetPage()" style="display: none">
+          Clear File List
+        </button>
+        <a id="file-link" style="display: none">File Link</a>
+      </main>
       <footer>
-      <p>
-        Images will be fit to a standard A4 page size. Filetypes supported: <span class="bold">.pdf, .jpg, .png, .gif, .webp </span>. All processing is done locally within your browser using the
-        <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> javascript
-        library and HTML5 FileReader API. No files or personal data are uploaded
-        to any server.
-      </p>
-    </footer>
+        <p>
+          Images will be fit to a standard A4 page size. Filetypes supported:
+          <span class="bold">.pdf, .jpg, .png, .gif, .webp </span>. All
+          processing is done locally within your browser using the
+          <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a>
+          javascript library and HTML5 FileReader API. No files or personal data
+          are uploaded to any server.
+        </p>
+      </footer>
       <script src="js/fontkit.umd.min.js"></script>
       <script src="js/pdf-lib.min.js"></script>
       <script src="js/exif-reader.js"></script>

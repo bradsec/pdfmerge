@@ -23,6 +23,11 @@ function estimateTextWidth(text, fontSize) {
   return context.measureText(text).width;
 }
 
+function isLandscapeOrientation() {
+  return document.getElementById('landscape-orientation').checked;
+}
+
+
 // Convert hex to RGB
 function hexToRgb(hex) {
   hex = hex.replace(/^#/, ""); // Remove the hash at the start if it's there
@@ -91,6 +96,7 @@ function updateSelectedFilesList() {
 
   // Update button visibility and other UI elements as needed
   updateButtonVisibility();
+  updateToggleItemVisibility();
 }
 
 
@@ -170,7 +176,6 @@ dropArea.addEventListener("drop", (e) => {
 function updateButtonVisibility() {
   const convertButton = document.getElementById("convert-button");
   const resetButton = document.getElementById("reset-button");
-  const downloadLinkElement = document.getElementById("download-link");
 
   if (selectedFiles.length > 0) {
     convertButton.style.display = "inline-block";
@@ -179,6 +184,23 @@ function updateButtonVisibility() {
     convertButton.style.display = "none";
     resetButton.style.display = "none";
   }
+}
+
+function updateToggleItemVisibility() {
+  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"]; // Add more image extensions if needed
+  const selectedFiles = Array.from(document.getElementById("file-input").files);
+
+  // Check if there are any image files in the selected files
+  const hasImageFiles = selectedFiles.some((file) => {
+    const fileName = file.name.toLowerCase();
+    return imageExtensions.some((ext) => fileName.endsWith(ext));
+  });
+
+  // Get the toggle-item div
+  const toggleItem = document.getElementById("image-details-toggle");
+
+  // Show or hide the toggle-item div based on whether there are image files
+  toggleItem.style.display = hasImageFiles ? "block" : "none";
 }
 
 // Function to format date time as "dd mmm yyyy, hh:mm:ss"
@@ -281,11 +303,17 @@ function resizeImageAndConvertToJPEG(originalFile) {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          // Get selected paper size in points
-          const [widthPoints, heightPoints] = getSelectedPaperSize();
+          const isLandscape = isLandscapeOrientation();
+          let pageWidth, pageHeight;
+          if (isLandscape) {
+            [pageHeight, pageWidth] = getSelectedPaperSize(); // Swap dimensions for landscape
+          } else {
+            [pageWidth, pageHeight] = getSelectedPaperSize(); // Keep original dimensions for portrait
+          }
+
           // Convert points to millimeters
-          const widthMM = widthPoints / 2.83465;
-          const heightMM = heightPoints / 2.83465;
+          const widthMM = pageWidth / 2.83465;
+          const heightMM = pageHeight / 2.83465;
           // Calculate max width and height in pixels for 300 DPI
           const maxWidthPixels = widthMM * (300 / 25.4);
           const maxHeightPixels = heightMM * (300 / 25.4);
@@ -457,9 +485,8 @@ async function convertToPDF() {
 
     const pdfBytes = await pdfDoc.save();
     //downloadPDF(pdfBytes);
-    prepareDownloadLink(pdfBytes);
-
     displayFlashMessage("PDF Merge complete.", "success");
+    preparefileLink(pdfBytes);
   } catch (error) {
     console.error("Error during conversion:", error);
     displayFlashMessage(`An error occurred: ${error.message}`, "danger");
@@ -470,6 +497,8 @@ async function convertToPDF() {
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
     clearTimeout(conversionTimeout);
+    updateButtonVisibility();
+    updateToggleItemVisibility();
   }
 }
 
@@ -489,7 +518,13 @@ async function processFileChunk(chunk, pdfDoc, customFont) {
         c.charCodeAt(0)
       );
 
-      const [pageWidth, pageHeight] = getSelectedPaperSize();
+      const isLandscape = isLandscapeOrientation();
+      let pageWidth, pageHeight;
+      if (isLandscape) {
+        [pageHeight, pageWidth] = getSelectedPaperSize(); // Swap dimensions for landscape
+      } else {
+        [pageWidth, pageHeight] = getSelectedPaperSize(); // Keep original dimensions for portrait
+      }
       const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
       const leftMargin = 25;
@@ -639,37 +674,32 @@ function getFormattedCurrentDate() {
   return currentDate.toISOString().replace(/:/g, "").replace(/-/g, "").replace(/\.\d+/, "");
 }
 
-
-function prepareDownloadLink(pdfBytes) {
+function preparefileLink(pdfBytes) {
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const blobUrl = URL.createObjectURL(blob);
   const filename = `PDFMerge_${getFormattedCurrentDate()}.pdf`;
 
-  // Calculate the size of the PDF using the existing formatFileSize function
-  const fileSize = formatFileSize(blob.size);
+  // Trigger the file download
+  const anchor = document.createElement("a");
+  anchor.href = blobUrl;
+  anchor.download = filename;
+  anchor.style.display = "none"; // Hide the anchor element
+  document.body.appendChild(anchor);
+  anchor.click(); // Simulate a click on the anchor to trigger the download
 
-  // Get the existing download link element
-  const downloadLinkElement = document.getElementById("download-link");
+  // Display a link to the downloaded file
+  const fileLink = document.getElementById("file-link");
+  fileLink.href = blobUrl;
+  fileLink.textContent = `View ${filename}`;
+  fileLink.style.display = "block"; // Make sure it's visible
+  displayFlashMessage(`Merged PDF has been saved Downloads.`, "success");
 
-  // Update the download link properties
-  downloadLinkElement.href = blobUrl;
-  downloadLinkElement.download = filename;
-  downloadLinkElement.innerHTML = `Download ${filename} (${fileSize})`;
-  downloadLinkElement.style.display = "block";
-
-  // Hide the other buttons
-  const convertButton = document.getElementById("convert-button");
-  const resetButton = document.getElementById("reset-button");
-  convertButton.style.display = "none";
-  resetButton.style.display = "none";
-
-  // Add a cleanup to revoke the blob URL after a delay
+  // Clean up after a delay
   setTimeout(() => {
     URL.revokeObjectURL(blobUrl);
-    downloadLinkElement.style.display = "none";
-  }, 60000);
+    document.body.removeChild(anchor);
+  }, 60000); // Cleanup after 60 seconds
 }
-
 
 // Function to check if the checkbox for print image details is checked
 function shouldPrintImageDetails() {
@@ -689,20 +719,24 @@ function initEventListeners() {
   );
   dropArea.addEventListener("drop", handleDropArea);
 
-  const printImageDetailsCheckbox = document.getElementById(
+  const imageDetailsCheckbox = document.getElementById(
     "print-image-details"
   );
-  printImageDetailsCheckbox.addEventListener("change", handleCheckboxChange);
+  imageDetailsCheckbox.addEventListener("change", handleImageDetailsCheckboxChange);
+
+  const imageOrientationCheckbox = document.getElementById(
+    "landscape-orientation"
+  );
+  imageOrientationCheckbox.addEventListener("change", handleImageOrientationCheckboxChange);
 
   document.addEventListener("DOMContentLoaded", loadCheckboxState);
 }
 
 function handleFileInputChange() {
   const spinner = document.getElementById("spinner");
-  const downloadLinkElement = document.getElementById("download-link");
-
+  const fileLink = document.getElementById("file-link");
+  fileLink.style.display = "none";
   spinner.style.display = "block";
-  downloadLinkElement.style.display = "none";
 
   Array.from(this.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {
@@ -718,12 +752,10 @@ function handleFileInputChange() {
 function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
-
   const spinner = document.getElementById("spinner");
-  const downloadLinkElement = document.getElementById("download-link");
-
+  const fileLink = document.getElementById("file-link");
+  fileLink.style.display = "none";
   spinner.style.display = "block";
-  downloadLinkElement.style.display = "none";
 
   Array.from(e.dataTransfer.files).forEach((file) => {
     if (isNewFile(file) && !addedFilesSet.has(file.name)) {
@@ -740,7 +772,7 @@ function handleDropArea(e) {
 
 function isNewFile(file) {
   return (
-    (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") &&
+    (file.size <= 50 * 1024 * 1024 || file.type === "application/pdf") &&
     !selectedFiles.find((f) => f.name === file.name)
   );
 }
@@ -750,14 +782,23 @@ function handleDragOverArea(e) {
   this.classList.add("drag");
 }
 
-function handleCheckboxChange() {
-  localStorage.setItem("printFilename", this.checked);
+function handleImageDetailsCheckboxChange() {
+  localStorage.setItem("imageDetails", this.checked);
 }
 
+function handleImageOrientationCheckboxChange() {
+  localStorage.setItem("landscapeOrientation", this.checked);
+}
+
+
 function loadCheckboxState() {
-  const savedState = localStorage.getItem("printFilename");
+  const printImageDetailsState = localStorage.getItem("imageDetails");
   document.getElementById("print-image-details").checked =
-    savedState === null ? false : savedState === "true";
+    printImageDetailsState === "true";
+
+  const landscapeOrientationState = localStorage.getItem("landscapeOrientation");
+  document.getElementById("landscape-orientation").checked =
+    landscapeOrientationState === "true";
 }
 
 // Call this function on page load or before the relevant features are used
