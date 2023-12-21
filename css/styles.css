@@ -361,7 +361,6 @@ button[disabled]:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 180px;
   margin-left: 10px; 
 }
 
@@ -574,10 +573,10 @@ select::-ms-expand {
   text-align: center;
   display: inline-block;
   background-color: none;
-  color: var(--color-blue-1);
+  color: var(--color-green-1);
   padding: var(--button-padding);
   cursor: pointer;
-  border: 0;
+  border: 1px solid var(--color-green-1);
   border-radius: 4px;
   word-break: break-word;
 }

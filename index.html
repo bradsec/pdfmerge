@@ -107,27 +107,41 @@
             <div class="toggle-item">
               <label for="print-image-details">
                 <div class="switch">
-                  <input
-                    type="checkbox"
-                    id="print-image-details"
-                    name="print-image-details"
-                  />
+                  <input type="checkbox" id="print-image-details" name="print-image-details"/>
                   <span class="slider round"></span>
                 </div>
-                Include Image Details
+                Image Details
               </label>
             </div>
             <div class="toggle-item">
-            <label for="landscape-orientation">
+              <label for="landscape-orientation">
+                <div class="switch">
+                  <input type="checkbox" id="landscape-orientation" name="landscape-orientation"/>
+                  <span class="slider round"></span>
+                </div>
+                Image Landscape
+              </label>
+            </div>  
+          <div class="toggle-item">
+            <label for="print-image-page-numbers">
               <div class="switch">
-                <input type="checkbox" id="landscape-orientation" name="landscape-orientation"/>
+                <input type="checkbox" id="print-image-page-numbers" name="print-image-page-numbers"/>
                 <span class="slider round"></span>
               </div>
-              Landscape Image Pages
+              Image Number
             </label>
-          </div>                
+          </div>
+          <div class="toggle-item">
+            <label for="print-image-hash">
+              <div class="switch">
+                <input type="checkbox" id="print-image-hash" name="print-image-hash"/>
+                <span class="slider round"></span>
+              </div>
+              Image Hash
+            </label>
+          </div>
+          <p class="small">The above options apply to new image files in file list only. Image Details adds the image name, and EXIF details including GPS and date (if available) to the top of the page above the image. Image Landscape fits the images to landscape A4 pages (default is portrait). Image number will add an image number in the bottom right of page. Image Hash will add a SHA-256 hash value for the input image.</p>         
         </div>
-          <p class="small">Include Image Details adds the image name, image hash, and EXIF details including GPS and date (if available) to the top of the page above the image.</p>
         </div>
         <div id="progress-container">
           <div id="progress-bar"></div>
