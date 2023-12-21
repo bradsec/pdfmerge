@@ -12,7 +12,7 @@ PDFMerge is a versatile web-based tool developed using JavaScript, HTML, and CSS
 
 ## Getting Started
 - To use PDFMerge, simply visit [pdfmerge.me](https://pdfmerge.me) and add your PDFs and/or images.  
-- Recommended browser [Google Chrome](https://www.google.com.au/chrome/) (see testing below).
+- Recommended browser [Google Chrome](https://www.google.com.au/chrome/) or other Chromium based browser (see testing below).
 
 ## Screenshots
 ![PDFMerge Interface](screenshot.png)
