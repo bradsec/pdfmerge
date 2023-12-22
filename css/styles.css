@@ -594,7 +594,7 @@ select::-ms-expand {
 
 @keyframes flash-success {
   0%, 100% {
-    background-color: var(--bg-color-filelist);
+    background: none;
   }
   50% {
     background-color: var(--color-green-1);
