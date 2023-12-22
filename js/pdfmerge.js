@@ -887,6 +887,7 @@ function initWatermarkControls() {
   watermarkTextInput.value = '';
   watermarkColorInput.value = '#000000';
   watermarkGroup.style.display = "none";
+  watermarkOpacityInput.value = 0.5;
 
   watermarkCheckbox.addEventListener('change', function() {
     isWatermarkEnabled = this.checked;
