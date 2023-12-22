@@ -447,6 +447,10 @@ async function convertToPDF() {
   const boldFontBytes = await boldFontResponse.arrayBuffer();
   const boldFont = await pdfDoc.embedFont(boldFontBytes);
 
+  const blackFontResponse = await fetch("fonts/Roboto-Black.ttf");
+  const blackFontBytes = await blackFontResponse.arrayBuffer();
+  const blackFont = await pdfDoc.embedFont(blackFontBytes);
+
   const spinner = document.getElementById("spinner");
   spinner.style.display = "block";
 
@@ -476,6 +480,13 @@ async function convertToPDF() {
       await sleep(500);
     }
 
+    if (isWatermarkEnabled) {
+      const pages = pdfDoc.getPages();
+      pages.forEach(page => {
+          addWatermarkToPage(page, watermarkText, blackFont);
+      });
+    }
+
     const pdfBytes = await pdfDoc.save();
     //downloadPDF(pdfBytes);
     displayFlashMessage("PDF Merge complete.", "success");
@@ -492,6 +503,7 @@ async function convertToPDF() {
     clearTimeout(conversionTimeout);
     updateButtonVisibility();
     updateToggleItemVisibility();
+    initWatermarkControls();
   }
 }
 
@@ -600,7 +612,7 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
               textY -= lineHeight; // Adjust Y position for spacing
               drawWrappedText(
                 page,
-                `Hash: ${imgHash}`,
+                `SHA-256: ${imgHash}`,
                 textX,
                 textY,
                 maxTextWidth,
@@ -625,7 +637,7 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
               y: pageNumberY,
               size: pageNumberFontSize,
               font: regularFont,
-              color: PDFLib.rgb(0, 0, 0) // Or any color you prefer
+              color: PDFLib.rgb(0, 0, 0)
             });
             currentPageIndex++;
           }
@@ -715,6 +727,7 @@ function preparefileLink(pdfBytes) {
   setTimeout(() => {
     URL.revokeObjectURL(blobUrl);
     fileLink.innerHTML = "";
+    resetPage();
   }, 60000); // Cleanup after 60 seconds
 }
 
@@ -766,6 +779,9 @@ function initEventListeners() {
   );
   imageOrientationCheckbox.addEventListener("change", handleImageOrientationCheckboxChange);
 
+  document.addEventListener('DOMContentLoaded', toggleWatermarkOptions);
+  document.getElementById('add-watermark').addEventListener('change', toggleWatermarkOptions);
+
   document.addEventListener("DOMContentLoaded", loadCheckboxState);
 }
 
@@ -804,7 +820,6 @@ function handleDropArea(e) {
   updateSelectedFilesList();
   spinner.style.display = "none";
 }
-
 
 
 function isNewFile(file) {
@@ -854,6 +869,98 @@ function loadCheckboxState() {
     landscapeOrientationState === "true";
 }
 
+// Add new global variables
+let watermarkText = '';
+let isWatermarkEnabled = false;
+let watermarkColor = '#000000';
+let watermarkOpacity = 0.5;
+
+// Initialize event listeners for the new UI elements
+function initWatermarkControls() {
+  const watermarkCheckbox = document.getElementById('add-watermark');
+  const watermarkTextInput = document.getElementById('watermark-text');
+  const watermarkColorInput = document.getElementById('watermark-color');
+  const watermarkOpacityInput = document.getElementById('watermark-opacity');
+  const watermarkGroup = document.querySelector('.watermark-group');
+
+  watermarkCheckbox.checked = false;
+  watermarkTextInput.value = '';
+  watermarkColorInput.value = '#000000';
+  watermarkGroup.style.display = "none";
+
+  watermarkCheckbox.addEventListener('change', function() {
+    isWatermarkEnabled = this.checked;
+  });
+
+  watermarkTextInput.addEventListener('input', function() {
+    watermarkText = this.value;
+  });
+
+  watermarkColorInput.addEventListener('input', function() {
+      watermarkColor = this.value;
+  });
+
+  watermarkOpacityInput.addEventListener('input', function() {
+    watermarkOpacity = parseFloat(this.value);
+  });
+}
+
+function addWatermarkToPage(page, text, font) {
+    // Set default watermark text if none is specified
+    if (!text || text.trim() === '') {
+      text = 'PDFMerge';
+  }
+
+  const { width, height } = page.getSize();
+  const fontSize = calculateWatermarkFontSize(width, height, text, font);
+  const { r, g, b } = hexToRgb(watermarkColor);
+
+  // Calculate diagonal angle in radians and convert to degrees
+  const angleRadians = Math.atan(height / width);
+  const angleDegrees = angleRadians * (180 / Math.PI);
+
+  // Calculate starting position for the text
+  const textWidth = font.widthOfTextAtSize(text, fontSize);
+  const x = (width - textWidth * Math.cos(angleRadians)) / 2;
+  const y = (height + textWidth * Math.sin(angleRadians)) / 2;
+
+  page.drawText(text, {
+    x: x,
+    y: y,
+    size: fontSize,
+    font: font,
+    color: PDFLib.rgb(r, g, b),
+    rotate: PDFLib.degrees(-angleDegrees),
+    opacity: watermarkOpacity
+  });
+}
+
+
+function calculateWatermarkFontSize(pageWidth, pageHeight, text, font) {
+  let fontSize = 10;
+  let textWidth;
+
+  do {
+    fontSize++;
+    textWidth = font.widthOfTextAtSize(text, fontSize);
+  } while (textWidth < pageWidth && fontSize < 100);
+
+  return fontSize;
+}
+
+function toggleWatermarkOptions() {
+  const watermarkGroup = document.querySelector('.watermark-group');
+  const watermarkCheckbox = document.getElementById('add-watermark');
+
+  if (watermarkCheckbox.checked) {
+    watermarkGroup.style.display = "flex";
+  } else {
+    watermarkGroup.style.display = "none";
+  }
+}
+
+
 // Call this function on page load or before the relevant features are used
 checkFileReaderSupport();
 initEventListeners();
+initWatermarkControls();

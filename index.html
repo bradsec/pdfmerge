@@ -80,7 +80,7 @@
           </div>
         </div>
         <div class="hero">
-          Effortlessly merge PDFs, convert images to PDF, or blend both into a single document - fast, secure, and locally, right in your browser.
+          Effortlessly merge PDFs, watermark PDFs, convert images to PDF, or blend both into a single document - fast, secure, and locally, right in your browser.
         </div>
       </header>
       <main>
@@ -140,6 +140,29 @@
           </div>
           <p class="toggle-description">Image Details adds the image name, and EXIF details including GPS and date (if available). Image Landscape fits the images to landscape A4 pages (default is portrait). Image Number will add an image number in the bottom right. Image Hash will add the unique SHA-256 hash value for the input image.</p>         
         </div>
+        </div>
+        <div class="toggle-item">
+          <label for="add-watermark">
+            <div class="switch">
+              <input type="checkbox" id="add-watermark" name="add-watermark"/>
+              <span class="slider round"></span>
+            </div>
+            Add Watermark
+          </label>
+        </div>
+        <div class="watermark-group" style="display: none">
+          <div class="watermark-item">
+        <input type="text" id="watermark-text" placeholder="Enter watermark text">
+        </div>
+        <div class="watermark-item">
+        <label for="watermark-color">Watermark Color</label>
+        <input type="color" id="watermark-color" value="#000000">
+        </div>
+        <div class="watermark-item">
+        <label for="watermark-opacity">Watermark Opacity (0-1):</label>
+        <input type="number" id="watermark-opacity" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <p class="watermark-description">A text watermark will be added to all PDF pages this includes new images and existing PDF document pages.</p>   
         </div>
         <div id="progress-container">
           <div id="progress-bar"></div>
