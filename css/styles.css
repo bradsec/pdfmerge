@@ -27,7 +27,7 @@
   --font-color-footer: var(--color-gray-5);
   --font-family: "Roboto", sans-serif;
   --base-font-size: 1em;
-  --line-height: 1.4;
+  --line-height: 1.4em;
   /* Branding */
   --branding-font-color: var(--color-gray-8);
   --branding-span-font-color: var(--color-gray-5);
@@ -39,8 +39,8 @@
   --link-hover-color: var(--color-gray-6);
   --link-active-color: var(--color-blue-3);
   /* Hero text settings */
-  --hero-font-size: 1.5em;
-  --hero-line-height: 1.6;
+  --hero-font-size: 1.4em;
+  --hero-line-height: 1.4em;
   --hero-letter-spacing: 0.05em;
   /* Button settings */
   --button-padding: 18px 24px;
@@ -70,8 +70,6 @@
     --bg-color: var(--color-gray-8);
     --font-color: var(--color-gray-4);
     --font-family: "Roboto", sans-serif;
-    --base-font-size: 1em;
-    --line-height: 1.4;
   /* Branding */
   --branding-font-color: var(--color-gray-2);
   --branding-span-font-color: var(--color-gray-4);
@@ -170,16 +168,14 @@ footer {
 .hero {
   text-align: center;
   font-size: var(--hero-font-size);
+  letter-spacing: var(--hero-letter-spacing);
+  line-height: var(--hero-line-height);
   margin-bottom: 15px;
   margin-top: 5px;
-  letter-spacing: -0.03em;
 }
 
 .hero p {
-  font-size: 1.25em;
   margin: 0 auto;
-  letter-spacing: var(--hero-letter-spacing);
-  line-height: var(--hero-line-height);
 }
 
 .wrapper {
@@ -246,13 +242,13 @@ button[type="submit"] {
 }
 
 /* Media query for small screens */
-@media (max-width: 768px) { /* Adjust the max-width as needed for your design */
+@media (max-width: 768px) { 
   .button,
   button,
   button[type="submit"] {
-    display: block; /* Change to block to take the full width */
-    width: 100%; /* Set width to 100% to fill the container */
-    margin: 4px 0; /* Adjust margin as needed */
+    display: block; 
+    width: 100%; 
+    margin: 4px 0; 
   }
 }
 
@@ -344,6 +340,13 @@ button[disabled]:hover {
 
 /* Checkbox toggles */
 
+.toggle-description {
+  color: var(--color-gray-5);
+  font-size: 0.8em;
+  line-height: 1.2em;
+
+}
+
 .toggle-group {
   display: flex;
   align-items: center;
@@ -354,7 +357,7 @@ button[disabled]:hover {
 .toggle-item {
   display: flex;
   align-items: center;
-  margin: 15px;
+  margin: 10px 15px 10px 0;
 }
 
 .toggle-item label {
@@ -567,28 +570,24 @@ select::-ms-expand {
 }
 
 #file-link {
-  display: flex;
-  margin: 8px 4px 8px 0;
-  font-weight: 600;
+  font-weight: bold;
+  margin: 0 auto;
   text-align: center;
-  display: inline-block;
-  background-color: none;
-  color: var(--color-green-1);
-  padding: var(--button-padding);
-  cursor: pointer;
-  border: 1px solid var(--color-green-1);
-  border-radius: 4px;
+  display: inline;
+}
+
+.file-link {
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
   word-break: break-word;
 }
 
-#file-link .material-icons-outlined {
-  margin-right: 8px; /* Space between icon and text */
-  flex-shrink: 0; /* Prevents the icon from shrinking */
-}
-
-#file-link .download-text {
-  margin: 1px solid red;
-  text-align: left; /* Aligns text to the left */
+.file-link span {
+  margin-right: auto;
+  padding-right: 5px;
 }
 
 /* Flash on file add */

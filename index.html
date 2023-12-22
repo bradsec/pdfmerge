@@ -80,7 +80,7 @@
           </div>
         </div>
         <div class="hero">
-          Merge multiple PDF documents, convert images to PDF, or combine PDFs and images into a single PDF document, all within your browser. Free and private with no uploads to servers.
+          Effortlessly merge PDFs, convert images to PDF, or blend both into one document, all free and secure in your browser.
         </div>
       </header>
       <main>
@@ -138,7 +138,7 @@
               Image Hash
             </label>
           </div>
-          <p class="small">The above options apply to new image files in file list only. Image Details adds the image name, and EXIF details including GPS and date (if available) to the top of the page above the image. Image Landscape fits the images to landscape A4 pages (default is portrait). Image number will add an image number in the bottom right of page. Image Hash will add a SHA-256 hash value for the input image.</p>         
+          <p class="toggle-description">Image Details adds the image name, and EXIF details including GPS and date (if available). Image Landscape fits the images to landscape A4 pages (default is portrait). Image Number will add an image number in the bottom right. Image Hash will add the unique SHA-256 hash value for the input image.</p>         
         </div>
         </div>
         <div id="progress-container">
@@ -154,11 +154,11 @@
         <button id="reset-button" onclick="resetPage()" style="display: none">
           Clear File List
         </button>
-        <a id="file-link" style="display: none">File Link</a>
+        <div id="file-link"></div>
       </main>
       <footer>
         <p>
-          Images will be fit to a standard A4 page size. Filetypes supported: <span class="bold">.pdf, .jpg, .png, .gif, .webp </span>. On a desktop PC the new PDF will save automatically into the default downloads folder. On mobile devices the PDF may need to be saved manually. All processing is done locally within your browser using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> javascript library and HTML5 FileReader API. No files or personal data are uploaded to any server. 
+          Filetypes supported: PDF, JPG, PNG, GIF, WEBP. All processing is done locally within your browser using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> javascript library and HTML5 FileReader API. No files or personal data are uploaded to any server.
         </p>
       </footer>
       <script src="js/fontkit.umd.min.js"></script>
