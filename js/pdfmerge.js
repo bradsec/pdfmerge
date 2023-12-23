@@ -30,6 +30,10 @@ function isLandscapeOrientation() {
 
 // Convert hex to RGB
 function hexToRgb(hex) {
+  if (!/^#[0-9A-F]{6}$/i.test(hex)) {
+    console.error("Invalid hex color: " + hex);
+    return null;
+  }
   hex = hex.replace(/^#/, ""); // Remove the hash at the start if it's there
   let bigint = parseInt(hex, 16);
   let r = (bigint >> 16) & 255;
@@ -38,21 +42,24 @@ function hexToRgb(hex) {
   return { r: r / 255, g: g / 255, b: b / 255 };
 }
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const selectedFiles = [];
 const addedFilesSet = new Set();
 let currentPageIndex = 0;
+const fileInput = document.getElementById("file-input");
+const fileList = document.getElementById("selected-files-list");
+const watermarkCheckbox = document.getElementById('add-watermark');
+const progressContainer = document.getElementById("progress-container");
+const progressBar = document.getElementById("progress-bar");
 
 // Function to reset selected files
 function resetFiles() {
   selectedFiles.length = 0;
-  const imageList = document.getElementById("selected-files-list");
-  imageList.innerHTML = "";
-  const fileInput = document.getElementById("file-input");
+  fileList.innerHTML = "";
   fileInput.value = "";
 }
 
 function updateSelectedFilesList() {
-  const imageList = document.getElementById("selected-files-list");
   const fragment = document.createDocumentFragment(); // Create a document fragment
 
   selectedFiles.forEach((file, index) => {
@@ -92,8 +99,8 @@ function updateSelectedFilesList() {
   });
 
   // Clear the existing content and append the new fragment
-  imageList.innerHTML = '';
-  imageList.appendChild(fragment);
+  fileList.innerHTML = '';
+  fileList.appendChild(fragment);
 
   // Update button visibility and other UI elements as needed
   updateButtonVisibility();
@@ -117,7 +124,10 @@ let orderChanged = false;
 
 function handleDrop(e) {
   e.preventDefault();
-  const targetIndex = parseInt(e.target.id.replace("file-", ""));
+  const listItem = e.target.closest("li"); // Find the closest list item ancestor
+  if (!listItem) return;
+
+  const targetIndex = parseInt(listItem.id.replace("file-", ""));
   if (draggedItemIndex !== targetIndex) {
     const itemToMove = selectedFiles[draggedItemIndex];
     selectedFiles.splice(draggedItemIndex, 1); // Remove the item from its original position
@@ -127,21 +137,19 @@ function handleDrop(e) {
   }
 }
 
-const fileInput = document.getElementById("file-input");
-
 // Event listener for file input change
 fileInput.addEventListener("change", () => {
   const newFiles = fileInput.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.type === "application/pdf" || file.size <= 50 * 1024 * 1024) {
+    if (file.type === "application/pdf" || file.size <= MAX_FILE_SIZE) {
       if (!selectedFiles.find((f) => f.name === file.name)) {
         selectedFiles.push(file);
       }
     } else if (file.type.startsWith("image/")) {
-      displayFlashMessage("Image size exceeds 50MB limit.", "danger");
+      displayFlashMessage("Image size exceeds max file size limit.", "danger");
     } else {
-      displayFlashMessage("File size exceeds 50MB limit.", "danger");
+      displayFlashMessage("File size exceeds max file size limit.", "danger");
     }
   }
   updateSelectedFilesList();
@@ -165,10 +173,10 @@ dropArea.addEventListener("drop", (e) => {
   const newFiles = e.dataTransfer.files;
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
-    if (file.size <= 20 * 1024 * 1024 || file.type === "application/pdf") {
+    if (file.size <= MAX_FILE_SIZE || file.type === "application/pdf") {
       selectedFiles.push(file);
     } else if (file.type.startsWith("image/")) {
-      displayFlashMessage("Image size exceeds 20MB limit.", "danger");
+      displayFlashMessage("Image size exceeds max size limit.", "danger");
     }
   }
   updateSelectedFilesList();
@@ -234,12 +242,6 @@ function formatDateTime(dateTime) {
   }
 }
 
-// Function to get selected paper size with A4 as the default
-function getSelectedPaperSize() {
-  const dropdown = document.getElementById("paper-size-dropdown");
-  return dropdown.value || "A4"; // Use A4 as the default if no size is selected
-}
-
 // Function to draw wrapped text
 function drawWrappedText(
   page,
@@ -295,37 +297,34 @@ const paperDimensions = {
 
 function resizeImageAndConvertToJPEG(originalFile) {
   return new Promise((resolve, reject) => {
-    if (window.FileReader) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
+    if (!window.FileReader) {
+      return reject("FileReader API is not supported by your browser.");
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+        try {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
           const isLandscape = isLandscapeOrientation();
           let pageWidth, pageHeight;
           if (isLandscape) {
-            [pageHeight, pageWidth] = getSelectedPaperSize(); // Swap dimensions for landscape
+            [pageHeight, pageWidth] = getSelectedPaperSize();
           } else {
-            [pageWidth, pageHeight] = getSelectedPaperSize(); // Keep original dimensions for portrait
+            [pageWidth, pageHeight] = getSelectedPaperSize();
           }
 
-          // Convert points to millimeters
           const widthMM = pageWidth / 2.83465;
           const heightMM = pageHeight / 2.83465;
-          // Calculate max width and height in pixels for 300 DPI
           const maxWidthPixels = widthMM * (300 / 25.4);
           const maxHeightPixels = heightMM * (300 / 25.4);
 
           let width = img.width;
           let height = img.height;
-
-          // Calculate the scaling factor
-          const scalingFactor = Math.min(
-            maxWidthPixels / width,
-            maxHeightPixels / height
-          );
+          const scalingFactor = Math.min(maxWidthPixels / width, maxHeightPixels / height);
           width = width * scalingFactor;
           height = height * scalingFactor;
 
@@ -333,23 +332,27 @@ function resizeImageAndConvertToJPEG(originalFile) {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG at 90% quality
           const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-              // Cleanup
-              img.src = '';
-              canvas.remove();
-
-              resolve(dataUrl);
-        };
-        img.src = e.target.result;
+          img.src = '';
+          canvas.remove();
+          resolve(dataUrl);
+        } catch (error) {
+          console.error("Error in image processing:", error);
+          reject("Error during image processing.");
+        }
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(originalFile);
-    } else {
-      reject("FileReader API is not supported by your browser.");
-    }
+      img.onerror = () => {
+        reject("Error loading the image file.");
+      };
+      img.src = e.target.result;
+    };
+    reader.onerror = () => {
+      reject("Error reading the file.");
+    };
+    reader.readAsDataURL(originalFile);
   });
 }
+
 
 function getImageDetails(file) {
   return new Promise((resolve, reject) => {
@@ -357,41 +360,32 @@ function getImageDetails(file) {
     reader.onload = async function (e) {
       try {
         const fileExtension = file.name.split(".").pop().toLowerCase();
-        let imgGpsInfo = null,
-          imgDateTime = null,
-          tags = null;
+        let imgGpsInfo = null, imgDateTime = null, tags = null;
 
-        // Only use ExifReader for file types other than .webp and .gif
         if (fileExtension !== "webp" && fileExtension !== "gif") {
           tags = ExifReader.load(e.target.result, { expanded: true });
-          // Check if GPS data exists
           if (tags.gps && tags.gps.Latitude && tags.gps.Longitude) {
             const gpsLat = tags.gps.Latitude;
             const gpsLong = tags.gps.Longitude;
-
             imgGpsInfo = `${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;
           }
-
-          // Check if DateTimeOriginal exists in the EXIF data
           if (tags.exif && tags.exif.DateTimeOriginal) {
             imgDateTime = tags.exif.DateTimeOriginal.description;
           }
         }
-
-        resolve({
-          exifData: tags,
-          imgGpsInfo: imgGpsInfo,
-          imgDateTime: imgDateTime,
-        });
+        resolve({ exifData: tags, imgGpsInfo, imgDateTime });
       } catch (error) {
         console.error("Error in getImageDetails:", error);
-        reject(error);
+        reject("Error processing image details.");
       }
     };
-    reader.onerror = () => reject(reader.error);
+    reader.onerror = () => {
+      reject("Error reading the file for image details.");
+    };
     reader.readAsArrayBuffer(file);
   });
 }
+
 
 // Helper function to format file size
 function formatFileSize(bytes) {
@@ -433,46 +427,44 @@ function sleep(ms) {
 }
 
 async function convertToPDF() {
-  currentPageIndex = 0;
-  const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds)
-  const { PDFDocument, rgb } = PDFLib;
-
-  const pdfDoc = await PDFDocument.create();
-  pdfDoc.registerFontkit(fontkit);
-  const regularFontResponse = await fetch("fonts/Roboto-Regular.ttf");
-  const regularFontBytes = await regularFontResponse.arrayBuffer();
-  const regularFont = await pdfDoc.embedFont(regularFontBytes);
-
-  const boldFontResponse = await fetch("fonts/Roboto-Bold.ttf");
-  const boldFontBytes = await boldFontResponse.arrayBuffer();
-  const boldFont = await pdfDoc.embedFont(boldFontBytes);
-
-  const blackFontResponse = await fetch("fonts/Roboto-Black.ttf");
-  const blackFontBytes = await blackFontResponse.arrayBuffer();
-  const blackFont = await pdfDoc.embedFont(blackFontBytes);
-
-  const spinner = document.getElementById("spinner");
-  spinner.style.display = "block";
-
-  const progressContainer = document.getElementById("progress-container");
-  progressContainer.style.display = "block";
-  const progressBar = document.getElementById("progress-bar");
-
-  // Start the conversion timeout
-  let conversionTimeout = setTimeout(() => {
-    handleConversionTimeout();
-  }, TIMEOUT_DURATION);
-
-  if (selectedFiles.length < 1) {
-    displayFlashMessage("Select at least one image to convert.", "warning");
-    return;
-  }
-
-  const BATCH_SIZE = 5;
-  const fileChunks = chunkArray(selectedFiles, BATCH_SIZE);
-  let processedFiles = 0;
+  let conversionTimeout; 
 
   try {
+    currentPageIndex = 0;
+    const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds)
+    const { PDFDocument, rgb } = PDFLib;
+
+    const pdfDoc = await PDFDocument.create();
+    pdfDoc.registerFontkit(fontkit);
+    const regularFontResponse = await fetch("fonts/Roboto-Regular.ttf");
+    const regularFontBytes = await regularFontResponse.arrayBuffer();
+    const regularFont = await pdfDoc.embedFont(regularFontBytes);
+
+    const boldFontResponse = await fetch("fonts/Roboto-Bold.ttf");
+    const boldFontBytes = await boldFontResponse.arrayBuffer();
+    const boldFont = await pdfDoc.embedFont(boldFontBytes);
+
+    const blackFontResponse = await fetch("fonts/Roboto-Black.ttf");
+    const blackFontBytes = await blackFontResponse.arrayBuffer();
+    const blackFont = await pdfDoc.embedFont(blackFontBytes);
+
+    const spinner = document.getElementById("spinner");
+    spinner.style.display = "block";
+    progressContainer.style.display = "block";
+
+    let conversionTimeout = setTimeout(() => {
+      handleConversionTimeout();
+    }, TIMEOUT_DURATION);
+
+    if (selectedFiles.length < 1) {
+      displayFlashMessage("Select at least one image to convert.", "warning");
+      return;
+    }
+
+    const BATCH_SIZE = 5;
+    const fileChunks = chunkArray(selectedFiles, BATCH_SIZE);
+    let processedFiles = 0;
+
     for (const chunk of fileChunks) {
       await processFileChunk(chunk, pdfDoc, regularFont, boldFont);
       processedFiles += chunk.length;
@@ -482,20 +474,16 @@ async function convertToPDF() {
 
     if (isWatermarkEnabled) {
       const pages = pdfDoc.getPages();
-      pages.forEach(page => {
-          addWatermarkToPage(page, watermarkText, blackFont);
-      });
+      pages.forEach(page => addWatermarkToPage(page, watermarkText, blackFont));
     }
 
     const pdfBytes = await pdfDoc.save();
-    //downloadPDF(pdfBytes);
     displayFlashMessage("PDF Merge complete.", "success");
     preparefileLink(pdfBytes);
   } catch (error) {
-    console.error("Error during conversion:", error);
-    displayFlashMessage(`An error occurred: ${error.message}`, "danger");
+    console.error("Error during PDF conversion:", error);
+    displayFlashMessage(`An error occurred during PDF conversion: ${error.message}`, "danger");
   } finally {
-    // Cleanup, UI updates, and clearing timeout
     resetFiles();
     spinner.style.display = "none";
     progressContainer.style.display = "none";
@@ -503,116 +491,92 @@ async function convertToPDF() {
     clearTimeout(conversionTimeout);
     updateButtonVisibility();
     updateToggleItemVisibility();
-    initWatermarkControls();
+    watermarkCheckbox.checked = false;
   }
 }
 
 async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
 
   for (const file of chunk) {
-    const fileName = file.name;
-    const fileExtension = fileName.split(".").pop().toLowerCase();
-    if (
-      fileExtension === "jpg" ||
-      fileExtension === "jpeg" ||
-      fileExtension === "webp" ||
-      fileExtension === "gif" ||
-      fileExtension === "png"
-    ) {
-      const dataUrl = await resizeImageAndConvertToJPEG(file);
-      const imageBytes = Uint8Array.from(atob(dataUrl.split(",")[1]), (c) =>
-        c.charCodeAt(0)
-      );
+    try {
+      const fileName = file.name;
+      const fileExtension = fileName.split(".").pop().toLowerCase();
+      if (
+        fileExtension === "jpg" ||
+        fileExtension === "jpeg" ||
+        fileExtension === "webp" ||
+        fileExtension === "gif" ||
+        fileExtension === "png"
+      ) {
+        const dataUrl = await resizeImageAndConvertToJPEG(file);
+        const imageBytes = Uint8Array.from(atob(dataUrl.split(",")[1]), (c) =>
+          c.charCodeAt(0)
+        );
 
-      const isLandscape = isLandscapeOrientation();
-      let pageWidth, pageHeight;
-      if (isLandscape) {
-        [pageHeight, pageWidth] = getSelectedPaperSize(); // Swap dimensions for landscape
-      } else {
-        [pageWidth, pageHeight] = getSelectedPaperSize(); // Keep original dimensions for portrait
-      }
-      const page = pdfDoc.addPage([pageWidth, pageHeight]);
+        const isLandscape = isLandscapeOrientation();
+        let pageWidth, pageHeight;
+        if (isLandscape) {
+          [pageHeight, pageWidth] = getSelectedPaperSize(); // Swap dimensions for landscape
+        } else {
+          [pageWidth, pageHeight] = getSelectedPaperSize(); // Keep original dimensions for portrait
+        }
+        const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
-      const leftMargin = 30;
-      const topMargin = 40;
-      const rightMargin = pageWidth - 30;
-      const bottomMargin = pageHeight - 40;
+        const leftMargin = 30;
+        const topMargin = 40;
+        const rightMargin = pageWidth - 30;
+        const bottomMargin = pageHeight - 40;
 
-      const image = await pdfDoc.embedJpg(imageBytes);
+        const image = await pdfDoc.embedJpg(imageBytes);
 
-      if (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash) {
-        const fontSize = 10;
-        const maxTextWidth = rightMargin - leftMargin;
-        const lineHeight = 14;
-        const textX = leftMargin;
-        let textY = pageHeight - 20;
+        if (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash) {
+          const fontSize = 10;
+          const maxTextWidth = rightMargin - leftMargin;
+          const lineHeight = 14;
+          const textX = leftMargin;
+          let textY = pageHeight - 20;
 
-        if (shouldPrintImageDetails()) {
-          // Get image details
-          const imgDetails = await getImageDetails(file);
-          const imgGpsInfo = imgDetails.imgGpsInfo;
-          const imgDateTime = imgDetails.imgDateTime;
+          if (shouldPrintImageDetails()) {
+            // Get image details
+            const imgDetails = await getImageDetails(file);
+            const imgGpsInfo = imgDetails.imgGpsInfo;
+            const imgDateTime = imgDetails.imgDateTime;
 
-          // Draw filename
-          textY -= lineHeight; // Adjust Y position for each detail
-          drawWrappedText(
-            page,
-            `${fileName}`,
-            textX,
-            textY,
-            maxTextWidth,
-            lineHeight,
-            boldFont,
-            fontSize,
-            "#000000"
-          );
-
-          if (imgDateTime !== null) {
-            const formattedDateTime = formatDateTime(imgDateTime);
-            textY -= lineHeight; // Adding an extra line's height for spacing between details
-            drawWrappedText(
-              page,
-              `${formattedDateTime}`,
-              textX,
-              textY,
-              maxTextWidth,
-              lineHeight,
-              regularFont,
-              fontSize,
-              "#000000"
-            );
-          }
-
-          if (imgGpsInfo) {
+            // Draw filename
             textY -= lineHeight; // Adjust Y position for each detail
             drawWrappedText(
               page,
-              `GPS (Lat, Long) ${imgGpsInfo}`,
+              `${fileName}`,
               textX,
               textY,
               maxTextWidth,
               lineHeight,
-              regularFont,
+              boldFont,
               fontSize,
               "#000000"
             );
-          }
-        }
-          
-          if (shouldPrintImageHash()) {
-            // Calculate the SHA256 hash from the file data
-            const fileData = await new Response(file).arrayBuffer();
-            const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const imgHash = hashArray
-              .map((b) => b.toString(16).padStart(2, "0"))
-              .join("");
 
-            if (imgHash !== null) {
-              textY -= lineHeight; // Adjust Y position for spacing
+            if (imgDateTime !== null) {
+              const formattedDateTime = formatDateTime(imgDateTime);
+              textY -= lineHeight; // Adding an extra line's height for spacing between details
               drawWrappedText(
                 page,
-                `SHA-256: ${imgHash}`,
+                `${formattedDateTime}`,
+                textX,
+                textY,
+                maxTextWidth,
+                lineHeight,
+                regularFont,
+                fontSize,
+                "#000000"
+              );
+            }
+
+            if (imgGpsInfo) {
+              textY -= lineHeight; // Adjust Y position for each detail
+              drawWrappedText(
+                page,
+                `GPS (Lat, Long) ${imgGpsInfo}`,
                 textX,
                 textY,
                 maxTextWidth,
@@ -623,31 +587,73 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
               );
             }
           }
+            
+            if (shouldPrintImageHash()) {
+              // Calculate the SHA256 hash from the file data
+              const fileData = await new Response(file).arrayBuffer();
+              const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const imgHash = hashArray
+                .map((b) => b.toString(16).padStart(2, "0"))
+                .join("");
 
-          if (shouldPrintImagePageNumbers()) {
-            const pageNumberText = `Image ${currentPageIndex + 1}`;
-            const pageNumberFontSize = 10;
-            const pageNumberWidth = estimateTextWidth(pageNumberText, pageNumberFontSize);
-            const pageNumberX = pageWidth - pageNumberWidth - 30; // Adjust for right margin
-            const pageNumberY = 30; // Adjust as needed for bottom margin
-          
-            // Use drawText instead of drawWrappedText for precise positioning
-            page.drawText(pageNumberText, {
-              x: pageNumberX,
-              y: pageNumberY,
-              size: pageNumberFontSize,
-              font: regularFont,
-              color: PDFLib.rgb(0, 0, 0)
+              if (imgHash !== null) {
+                textY -= lineHeight; // Adjust Y position for spacing
+                drawWrappedText(
+                  page,
+                  `SHA-256: ${imgHash}`,
+                  textX,
+                  textY,
+                  maxTextWidth,
+                  lineHeight,
+                  regularFont,
+                  fontSize,
+                  "#000000"
+                );
+              }
+            }
+
+            if (shouldPrintImagePageNumbers()) {
+              const pageNumberText = `Image ${currentPageIndex + 1}`;
+              const pageNumberFontSize = 10;
+              const pageNumberWidth = estimateTextWidth(pageNumberText, pageNumberFontSize);
+              const pageNumberX = pageWidth - pageNumberWidth - 30; // Adjust for right margin
+              const pageNumberY = 30; // Adjust as needed for bottom margin
+            
+              // Use drawText instead of drawWrappedText for precise positioning
+              page.drawText(pageNumberText, {
+                x: pageNumberX,
+                y: pageNumberY,
+                size: pageNumberFontSize,
+                font: regularFont,
+                color: PDFLib.rgb(0, 0, 0)
+              });
+              currentPageIndex++;
+            }
+            
+            
+            let imgDetailsPadding = 100;
+
+            let imgDim = image.scaleToFit(
+              rightMargin - leftMargin,
+              bottomMargin - topMargin - imgDetailsPadding
+            );
+
+            let xPosition =
+              (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
+            let yPosition =
+              (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
+
+            page.drawImage(image, {
+              x: xPosition,
+              y: yPosition,
+              width: imgDim.width,
+              height: imgDim.height,
             });
-            currentPageIndex++;
-          }
-          
-          
-          let imgDetailsPadding = 100;
-
+        } else {
           let imgDim = image.scaleToFit(
             rightMargin - leftMargin,
-            bottomMargin - topMargin - imgDetailsPadding
+            bottomMargin - topMargin
           );
 
           let xPosition =
@@ -661,38 +667,24 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
             width: imgDim.width,
             height: imgDim.height,
           });
-      } else {
-        let imgDim = image.scaleToFit(
-          rightMargin - leftMargin,
-          bottomMargin - topMargin
+        }
+      } else if (fileExtension === "pdf") {
+        const fileBytes = await fetch(URL.createObjectURL(file)).then((res) =>
+          res.arrayBuffer()
         );
-
-        let xPosition =
-          (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
-        let yPosition =
-          (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
-
-        page.drawImage(image, {
-          x: xPosition,
-          y: yPosition,
-          width: imgDim.width,
-          height: imgDim.height,
+        const existingPdfDoc = await PDFLib.PDFDocument.load(fileBytes, {
+          ignoreEncryption: true,
         });
+        const copiedPages = await pdfDoc.copyPages(
+          existingPdfDoc,
+          existingPdfDoc.getPageIndices()
+        );
+        copiedPages.forEach((page) => pdfDoc.addPage(page));
+      } else {
+        throw new Error(`Unsupported file format: ${fileExtension}`);
       }
-    } else if (fileExtension === "pdf") {
-      const fileBytes = await fetch(URL.createObjectURL(file)).then((res) =>
-        res.arrayBuffer()
-      );
-      const existingPdfDoc = await PDFLib.PDFDocument.load(fileBytes, {
-        ignoreEncryption: true,
-      });
-      const copiedPages = await pdfDoc.copyPages(
-        existingPdfDoc,
-        existingPdfDoc.getPageIndices()
-      );
-      copiedPages.forEach((page) => pdfDoc.addPage(page));
-    } else {
-      throw new Error(`Unsupported file format: ${fileExtension}`);
+    } catch (error) {
+      console.error("Error processing file chunk:", error);
     }
   }
 }
@@ -749,7 +741,6 @@ function shouldPrintImageHash() {
 
 // Initialize event listeners
 function initEventListeners() {
-  const fileInput = document.getElementById("file-input");
   fileInput.addEventListener("change", handleFileInputChange);
 
   const dropArea = document.getElementById("drop-area");
@@ -759,24 +750,16 @@ function initEventListeners() {
   );
   dropArea.addEventListener("drop", handleDropArea);
 
-  const imageDetailsCheckbox = document.getElementById(
-    "print-image-details"
-  );
+  const imageDetailsCheckbox = document.getElementById("print-image-details");
   imageDetailsCheckbox.addEventListener("change", handleImageDetailsCheckboxChange);
 
-  const imagePageNumbersCheckbox = document.getElementById(
-    "print-image-details"
-  );
+  const imagePageNumbersCheckbox = document.getElementById("print-image-details");
   imagePageNumbersCheckbox.addEventListener("change", handleImagePageNumbersCheckboxChange);
 
-  const imageHashCheckbox = document.getElementById(
-    "print-image-hash"
-  );
+  const imageHashCheckbox = document.getElementById("print-image-hash");
   imageHashCheckbox.addEventListener("change", handleImageHashCheckboxChange);
 
-  const imageOrientationCheckbox = document.getElementById(
-    "landscape-orientation"
-  );
+  const imageOrientationCheckbox = document.getElementById("landscape-orientation");
   imageOrientationCheckbox.addEventListener("change", handleImageOrientationCheckboxChange);
 
   document.addEventListener('DOMContentLoaded', toggleWatermarkOptions);
@@ -824,7 +807,7 @@ function handleDropArea(e) {
 
 function isNewFile(file) {
   return (
-    (file.size <= 50 * 1024 * 1024 || file.type === "application/pdf") &&
+    (file.size <= MAX_FILE_SIZE || file.type === "application/pdf") &&
     !selectedFiles.find((f) => f.name === file.name)
   );
 }
@@ -877,7 +860,6 @@ let watermarkOpacity = 0.5;
 
 // Initialize event listeners for the new UI elements
 function initWatermarkControls() {
-  const watermarkCheckbox = document.getElementById('add-watermark');
   const watermarkTextInput = document.getElementById('watermark-text');
   const watermarkColorInput = document.getElementById('watermark-color');
   const watermarkOpacityInput = document.getElementById('watermark-opacity');
@@ -957,6 +939,7 @@ function toggleWatermarkOptions() {
     watermarkGroup.style.display = "flex";
   } else {
     watermarkGroup.style.display = "none";
+    initWatermarkControls();
   }
 }
 
