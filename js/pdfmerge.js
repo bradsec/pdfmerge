@@ -806,6 +806,7 @@ function initEventListeners() {
     .addEventListener("change", toggleWatermarkOptions);
 
   document.addEventListener("DOMContentLoaded", loadCheckboxState);
+  watermarkCheckbox.addEventListener("change", toggleWatermarkOptions);
 }
 
 function handleFileInputChange() {
@@ -972,9 +973,9 @@ function toggleWatermarkOptions() {
     watermarkGroup.style.display = "flex";
   } else {
     watermarkGroup.style.display = "none";
-    initWatermarkControls();
   }
 }
+
 
 function displayFlashMessage(message, type) {
   const flashBannerContainer = document.querySelector(
