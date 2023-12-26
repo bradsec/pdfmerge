@@ -11,8 +11,10 @@ const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const selectedFiles = [];
 const addedFilesSet = new Set();
+const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("file-input");
 const fileList = document.getElementById("selected-files-list");
+const fileLink = document.getElementById("file-link");
 const watermarkCheckbox = document.getElementById("add-watermark");
 const progressContainer = document.getElementById("progress-container");
 const progressBar = document.getElementById("progress-bar");
@@ -74,8 +76,22 @@ function resetFiles() {
 
 function updateSelectedFilesList() {
   const fragment = document.createDocumentFragment(); // Create a document fragment
+  const fileMap = new Map();
 
-  selectedFiles.forEach((file, index) => {
+  // Filter out duplicates and unsupported files
+  const filteredFiles = selectedFiles.filter((file) => {
+    if (!isSupportedFileType(file) || fileMap.has(file.name)) {
+      return false;
+    }
+    fileMap.set(file.name, true);
+    return true;
+  });
+
+  // Update the original selectedFiles array to hold only filtered files
+  selectedFiles.length = 0;
+  selectedFiles.push(...filteredFiles);
+
+  filteredFiles.forEach((file, index) => {
     const listItem = document.createElement("li");
     listItem.className = "flex-item";
     listItem.draggable = true;
@@ -98,7 +114,7 @@ function updateSelectedFilesList() {
     } else if (fileExtension === "pdf") {
       iconSpan.textContent = "description";
     } else {
-      iconSpan.textContent = "description";
+      iconSpan.textContent = "description"; // Default icon for unsupported file types
     }
 
     const fileSize = formatFileSize(file.size);
@@ -146,7 +162,7 @@ function handleDrop(e) {
 
 // Event listener for file input change
 fileInput.addEventListener("change", () => {
-  const newFiles = fileInput.files;
+  const newFiles = Array.from(fileInput.files).filter(isSupportedFileType);
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
     if (file.type === "application/pdf" || file.size <= MAX_FILE_SIZE) {
@@ -163,7 +179,6 @@ fileInput.addEventListener("change", () => {
 });
 
 // Event listeners for drag and drop
-const dropArea = document.getElementById("drop-area");
 dropArea.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropArea.classList.add("drag");
@@ -177,7 +192,7 @@ dropArea.addEventListener("dragleave", () => {
 dropArea.addEventListener("drop", (e) => {
   e.preventDefault();
   dropArea.classList.remove("drag");
-  const newFiles = e.dataTransfer.files;
+  const newFiles = Array.from(e.dataTransfer.files).filter(isSupportedFileType);
   for (let i = 0; i < newFiles.length; i++) {
     const file = newFiles[i];
     if (file.size <= MAX_FILE_SIZE || file.type === "application/pdf") {
@@ -213,13 +228,16 @@ function updateToggleItemVisibility() {
 
   // Get the toggle-item divs
   const toggleImageItem = document.getElementById("image-details-toggle");
-  const toggleWatermarkItem = document.getElementById("watermark-details-toggle");
+  const toggleWatermarkItem = document.getElementById(
+    "watermark-details-toggle"
+  );
 
   // Show or hide the image details toggle-item div based on whether there are image files
   toggleImageItem.style.display = hasImageFiles ? "block" : "none";
 
   // Show or hide the watermark details toggle-item div based on the number of files
-  toggleWatermarkItem.style.display = selectedFiles.length > 0 ? "block" : "none";
+  toggleWatermarkItem.style.display =
+    selectedFiles.length > 0 ? "block" : "none";
 }
 
 // Function to format date time as "dd mmm yyyy, hh:mm:ss"
@@ -516,6 +534,10 @@ async function convertToPDF() {
 
 async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
   for (const file of chunk) {
+    if (!isSupportedFileType(file)) {
+      console.error(`Unsupported file type: ${file.name}`);
+      continue;
+    }
     try {
       const fileName = file.name;
       const fileExtension = fileName.split(".").pop().toLowerCase();
@@ -727,7 +749,6 @@ function preparefileLink(pdfBytes) {
   const blobUrl = URL.createObjectURL(blob);
   const filename = `PDFMerge_${getFormattedCurrentDate()}.pdf`;
   const fileSize = formatFileSize(blob.size);
-  const fileLink = document.getElementById("file-link");
   const anchor = document.createElement("a");
 
   // Trigger the file download
@@ -812,13 +833,11 @@ function initEventListeners() {
 }
 
 function handleFileInputChange() {
-  const spinner = document.getElementById("spinner");
-  const fileLink = document.getElementById("file-link");
   fileLink.style.display = "none";
   spinner.style.display = "block";
 
-  Array.from(this.files).forEach((file) => {
-    if (isNewFile(file) && !addedFilesSet.has(file.name)) {
+  Array.from(fileInput.files).forEach((file) => {
+    if (isSupportedFileType(file) && isNewFile(file)) {
       addedFilesSet.add(file.name);
       selectedFiles.push(file);
     }
@@ -832,13 +851,17 @@ function handleDropArea(e) {
   e.preventDefault();
   this.classList.remove("drag");
   const spinner = document.getElementById("spinner");
-  const fileLink = document.getElementById("file-link");
+
   fileLink.style.display = "none";
   spinner.style.display = "block";
 
-  Array.from(e.dataTransfer.files).forEach((file) => {
-    if (isNewFile(file) && !addedFilesSet.has(file.name)) {
-      addedFilesSet.add(file.name);
+  const newFiles = Array.from(e.dataTransfer.files).filter(
+    (file) => isSupportedFileType(file) && isNewFile(file)
+  );
+
+  // Push new files that are not already in the selectedFiles array
+  newFiles.forEach((file) => {
+    if (!selectedFiles.some((f) => f.name === file.name)) {
       selectedFiles.push(file);
     }
   });
@@ -847,10 +870,19 @@ function handleDropArea(e) {
   spinner.style.display = "none";
 }
 
+function isSupportedFileType(file) {
+  if (!file) return false;
+  const supportedExtensions = ["pdf", "jpg", "jpeg", "png", "gif", "webp"];
+  const extension = file.name.split(".").pop().toLowerCase();
+  return supportedExtensions.includes(extension);
+}
+
 function isNewFile(file) {
+  if (!file) return false;
+  const fileAlreadyExists = selectedFiles.some((f) => f.name === file.name);
   return (
-    (file.size <= MAX_FILE_SIZE || file.type === "application/pdf") &&
-    !selectedFiles.find((f) => f.name === file.name)
+    !fileAlreadyExists &&
+    (file.size <= MAX_FILE_SIZE || file.type === "application/pdf")
   );
 }
 
@@ -919,7 +951,6 @@ function initWatermarkControls() {
   });
 }
 
-
 function addWatermarkToPage(page, text, font) {
   const { r, g, b } = hexToRgb(watermarkColor);
   const opacity = watermarkOpacity;
@@ -970,7 +1001,6 @@ function toggleWatermarkOptions() {
     watermarkGroup.style.display = "none";
   }
 }
-
 
 function displayFlashMessage(message, type) {
   const flashBannerContainer = document.querySelector(
