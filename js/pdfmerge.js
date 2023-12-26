@@ -17,6 +17,9 @@ const watermarkCheckbox = document.getElementById("add-watermark");
 const progressContainer = document.getElementById("progress-container");
 const progressBar = document.getElementById("progress-bar");
 const spinner = document.getElementById("spinner");
+const watermarkTextInput = document.getElementById("watermark-text");
+const watermarkColorInput = document.getElementById("watermark-color");
+const watermarkOpacityInput = document.getElementById("watermark-opacity");
 
 // Check for FileReader API support
 function checkFileReaderSupport() {
@@ -505,9 +508,9 @@ async function convertToPDF() {
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
     clearTimeout(conversionTimeout);
+    watermarkCheckbox.checked = false;
     updateButtonVisibility();
     updateToggleItemVisibility();
-    watermarkCheckbox.checked = false;
   }
 }
 
@@ -892,19 +895,13 @@ function loadCheckboxState() {
     landscapeOrientationState === "true";
 }
 
-// Initialize event listeners for the new UI elements
 function initWatermarkControls() {
-  const watermarkTextInput = document.getElementById("watermark-text");
-  const watermarkColorInput = document.getElementById("watermark-color");
-  const watermarkOpacityInput = document.getElementById("watermark-opacity");
-  const watermarkGroup = document.querySelector(".watermark-group");
+  // Initialize watermark variables with values from HTML inputs
+  watermarkText = watermarkTextInput.value || "PDFMerge";
+  watermarkColor = watermarkColorInput.value || "#000000";
+  watermarkOpacity = parseFloat(watermarkOpacityInput.value) || 0.5;
 
-  watermarkCheckbox.checked = false;
-  watermarkTextInput.value = "";
-  watermarkColorInput.value = "#000000";
-  watermarkGroup.style.display = "none";
-  watermarkOpacityInput.value = 0.5;
-
+  // Add event listeners to update these variables when the user changes the inputs
   watermarkCheckbox.addEventListener("change", function () {
     isWatermarkEnabled = this.checked;
   });
@@ -922,15 +919,13 @@ function initWatermarkControls() {
   });
 }
 
+
 function addWatermarkToPage(page, text, font) {
-  // Set default watermark text if none is specified
-  if (!text || text.trim() === "") {
-    text = "PDFMerge";
-  }
+  const { r, g, b } = hexToRgb(watermarkColor);
+  const opacity = watermarkOpacity;
 
   const { width, height } = page.getSize();
   const fontSize = calculateWatermarkFontSize(width, height, text, font);
-  const { r, g, b } = hexToRgb(watermarkColor);
 
   // Calculate diagonal angle in radians and convert to degrees
   const angleRadians = Math.atan(height / width);
@@ -948,7 +943,7 @@ function addWatermarkToPage(page, text, font) {
     font: font,
     color: PDFLib.rgb(r, g, b),
     rotate: PDFLib.degrees(-angleDegrees),
-    opacity: watermarkOpacity,
+    opacity: opacity,
   });
 }
 
@@ -970,6 +965,7 @@ function toggleWatermarkOptions() {
 
   if (watermarkCheckbox.checked) {
     watermarkGroup.style.display = "flex";
+    initWatermarkControls();
   } else {
     watermarkGroup.style.display = "none";
   }
