@@ -512,20 +512,20 @@ select::-ms-expand {
 
 #drop-area {
   margin: 8px 4px 8px 0;
-  border: 1px dashed var(--border-color-drop-area);
-  padding: 30px;
+  border: 2px dashed var(--border-color-drop-area);
+  border-radius: 3px;
+  padding: 15px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: var(--font-color-drop-area);
 }
 
 #drop-area.drag {
-  border-color: var(--color-gray-2);
-  color: var(--color-gray-2);
+  border-color: var(--color-green-1);
 }
 
 #file-list {
-  margin: 8px 4px 8px 0;
+  margin: 0;
   display: flex;
   justify-content: center;
 }

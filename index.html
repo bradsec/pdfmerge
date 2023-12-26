@@ -61,9 +61,9 @@
       <input accept=".jpg, .jpeg, .png, .pdf" id="file-input" multiple="" type="file" />
       <div id="drop-area">
         <p class="bold">Or drag and drop files here...</p>
-      </div>
-      <div id="file-list">
-        <ul id="selected-files-list"></ul>
+        <div id="file-list">
+          <ul id="selected-files-list"></ul>
+        </div>
       </div>
       <div id="image-details-toggle" style="display: none">
         <div class="toggle-group">
@@ -106,6 +106,7 @@
           <p class="toggle-description">Image Details adds the image name, and EXIF details including GPS and date (if available). Image Landscape fits the images to landscape A4 pages (default is portrait). Image Number will add an image number in the bottom right. Image Hash will add the unique SHA-256 hash value for the input image.</p>
         </div>
       </div>
+      <div id="watermark-details-toggle" style="display: none">
       <div class="toggle-item">
         <label for="add-watermark">
           <div class="switch">
@@ -129,6 +130,7 @@
         </div>
         <p class="watermark-description">A text watermark will be added to all PDF pages this includes new images and existing PDF document pages.</p>
       </div>
+    </div>
       <div id="progress-container">
         <div id="progress-bar"></div>
       </div>

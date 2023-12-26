@@ -206,11 +206,15 @@ function updateToggleItemVisibility() {
     return imageExtensions.some((ext) => fileName.endsWith(ext));
   });
 
-  // Get the toggle-item div
-  const toggleItem = document.getElementById("image-details-toggle");
+  // Get the toggle-item divs
+  const toggleImageItem = document.getElementById("image-details-toggle");
+  const toggleWatermarkItem = document.getElementById("watermark-details-toggle");
 
-  // Show or hide the toggle-item div based on whether there are image files
-  toggleItem.style.display = hasImageFiles ? "block" : "none";
+  // Show or hide the image details toggle-item div based on whether there are image files
+  toggleImageItem.style.display = hasImageFiles ? "block" : "none";
+
+  // Show or hide the watermark details toggle-item div based on the number of files
+  toggleWatermarkItem.style.display = selectedFiles.length > 0 ? "block" : "none";
 }
 
 // Function to format date time as "dd mmm yyyy, hh:mm:ss"
