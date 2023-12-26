@@ -518,6 +518,7 @@ select::-ms-expand {
   text-align: center;
   margin-bottom: 30px;
   color: var(--font-color-drop-area);
+  min-height: 150px;
 }
 
 #drop-area.drag {
