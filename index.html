@@ -1,129 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="description"
-      content="Merge multiple PDF documents, convert images to PDF, or merge both PDF and images into a single PDF document using your browser."
-    />
-    <meta name="author" content="Mark Bradley" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, user-scalable=no"
-    />
-    <meta name="theme-color" content="#1d1d1d" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <title>PDFMerge.me</title>
-    <link href="css/reset.css" rel="stylesheet" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
-      rel="stylesheet"
-    />
-    <link href="css/styles.css" rel="stylesheet" />
-  </head>
-  <body>
-    <script>
-      (function () {
-        const theme = localStorage.getItem("theme") || "light";
-        document.body.setAttribute("data-theme", theme);
-      })();
-    </script>
-    <div id="spinner" class="spinner"></div>
-    <div class="wrapper">
-      <header>
-        <div class="header-top">
-          <div class="branding">PDF<span>Merge</span>.me</div>
-          <div id="theme-switcher">
-            <svg
-              id="sun-icon"
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <circle class="sun" cx="12" cy="12" r="6" fill="currentColor" />
-              <g class="sun-beams" stroke="currentColor">
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-              </g>
-            </svg>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Merge and watermark PDFs for free, quickly and securely in your browser, with no data uploads to servers." />
+  <meta name="author" content="Mark Bradley" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#1d1d1d" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <title>Merge PDFs Watermark PDFs for free | PDFMerge.me</title>
+  <link href="css/reset.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <script>
+    (function () {
+      const theme = localStorage.getItem("theme") || "light";
+      document.body.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <div id="spinner" class="spinner"></div>
+  <div class="wrapper">
+    <header>
+      <div class="header-top">
+        <div class="branding">PDF<span>Merge</span>.me</div>
+        <div id="theme-switcher">
+          <svg id="sun-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle class="sun" cx="12" cy="12" r="6" fill="currentColor" />
+            <g class="sun-beams" stroke="currentColor">
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </g>
+          </svg>
 
-            <svg
-              id="moon-icon"
-              class="icon"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <mask id="moon-mask" class="moon">
-                <rect
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="100%"
-                  fill="currentColor"
-                />
-                <circle cx="12" cy="10" r="6" fill="white" />
-              </mask>
-              <circle class="moon" cx="12" cy="12" r="6" fill="currentColor" />
-            </svg>
+          <svg id="moon-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <mask id="moon-mask" class="moon">
+              <rect x="0" y="0" width="100%" height="100%" fill="currentColor" />
+              <circle cx="12" cy="10" r="6" fill="white" />
+            </mask>
+            <circle class="moon" cx="12" cy="12" r="6" fill="currentColor" />
+          </svg>
+        </div>
+      </div>
+      <div class="hero">
+        Merge PDFs, convert images to PDFs, or blend both with text watermarks—quickly and securely in your browser, with no data uploads to servers.
+      </div>
+    </header>
+    <main>
+      <div id="flash-banner" class="flash-banner-container"></div>
+      <label for="file-input" id="file-upload-label">Click to add files...</label>
+      <input accept=".jpg, .jpeg, .png, .pdf" id="file-input" multiple="" type="file" />
+      <div id="drop-area">
+        <p class="bold">Or drag and drop files here...</p>
+      </div>
+      <div id="file-list">
+        <ul id="selected-files-list"></ul>
+      </div>
+      <div id="image-details-toggle" style="display: none">
+        <div class="toggle-group">
+          <div class="toggle-item">
+            <label for="print-image-details">
+              <div class="switch">
+                <input type="checkbox" id="print-image-details" name="print-image-details" />
+                <span class="slider round"></span>
+              </div>
+              Image Details
+            </label>
           </div>
-        </div>
-        <div class="hero">
-          Effortlessly merge PDFs, watermark PDFs, convert images to PDF, or blend both into a single document - fast, secure, and locally, right in your browser.
-        </div>
-      </header>
-      <main>
-        <div id="flash-banner" class="flash-banner-container"></div>
-        <label for="file-input" id="file-upload-label">
-          Click to add files...
-        </label>
-        <input
-          accept=".jpg, .jpeg, .png, .pdf"
-          id="file-input"
-          multiple=""
-          type="file"
-        />
-        <div id="drop-area">
-          <p class="bold">Or drag and drop files here...</p>
-        </div>
-        <div id="file-list">
-          <ul id="selected-files-list"></ul>
-        </div>
-        <div id="image-details-toggle" style="display: none">
-          <div class="toggle-group"> 
-            <div class="toggle-item">
-              <label for="print-image-details">
-                <div class="switch">
-                  <input type="checkbox" id="print-image-details" name="print-image-details"/>
-                  <span class="slider round"></span>
-                </div>
-                Image Details
-              </label>
-            </div>
-            <div class="toggle-item">
-              <label for="landscape-orientation">
-                <div class="switch">
-                  <input type="checkbox" id="landscape-orientation" name="landscape-orientation"/>
-                  <span class="slider round"></span>
-                </div>
-                Image Landscape
-              </label>
-            </div>  
+          <div class="toggle-item">
+            <label for="landscape-orientation">
+              <div class="switch">
+                <input type="checkbox" id="landscape-orientation" name="landscape-orientation" />
+                <span class="slider round"></span>
+              </div>
+              Image Landscape
+            </label>
+          </div>
           <div class="toggle-item">
             <label for="print-image-page-numbers">
               <div class="switch">
-                <input type="checkbox" id="print-image-page-numbers" name="print-image-page-numbers"/>
+                <input type="checkbox" id="print-image-page-numbers" name="print-image-page-numbers" />
                 <span class="slider round"></span>
               </div>
               Image Number
@@ -132,63 +97,55 @@
           <div class="toggle-item">
             <label for="print-image-hash">
               <div class="switch">
-                <input type="checkbox" id="print-image-hash" name="print-image-hash"/>
+                <input type="checkbox" id="print-image-hash" name="print-image-hash" />
                 <span class="slider round"></span>
               </div>
               Image Hash
             </label>
           </div>
-          <p class="toggle-description">Image Details adds the image name, and EXIF details including GPS and date (if available). Image Landscape fits the images to landscape A4 pages (default is portrait). Image Number will add an image number in the bottom right. Image Hash will add the unique SHA-256 hash value for the input image.</p>         
+          <p class="toggle-description">Image Details adds the image name, and EXIF details including GPS and date (if available). Image Landscape fits the images to landscape A4 pages (default is portrait). Image Number will add an image number in the bottom right. Image Hash will add the unique SHA-256 hash value for the input image.</p>
         </div>
-        </div>
-        <div class="toggle-item">
-          <label for="add-watermark">
-            <div class="switch">
-              <input type="checkbox" id="add-watermark" name="add-watermark"/>
-              <span class="slider round"></span>
-            </div>
-            Add Watermark
-          </label>
-        </div>
-        <div class="watermark-group" style="display: none">
-          <div class="watermark-item">
-        <input type="text" id="watermark-text" placeholder="Enter watermark text">
+      </div>
+      <div class="toggle-item">
+        <label for="add-watermark">
+          <div class="switch">
+            <input type="checkbox" id="add-watermark" name="add-watermark" />
+            <span class="slider round"></span>
+          </div>
+          Add Watermark
+        </label>
+      </div>
+      <div class="watermark-group" style="display: none">
+        <div class="watermark-item">
+          <input type="text" id="watermark-text" placeholder="Enter watermark text">
         </div>
         <div class="watermark-item">
-        <label for="watermark-color">Watermark Color</label>
-        <input type="color" id="watermark-color" value="#000000">
+          <label for="watermark-color">Watermark Color</label>
+          <input type="color" id="watermark-color" value="#000000">
         </div>
         <div class="watermark-item">
-        <label for="watermark-opacity">Watermark Opacity (0-1):</label>
-        <input type="number" id="watermark-opacity" min="0" max="1" step="0.1" value="0.5">
+          <label for="watermark-opacity">Watermark Opacity (0-1):</label>
+          <input type="number" id="watermark-opacity" min="0" max="1" step="0.1" value="0.5">
         </div>
-        <p class="watermark-description">A text watermark will be added to all PDF pages this includes new images and existing PDF document pages.</p>   
-        </div>
-        <div id="progress-container">
-          <div id="progress-bar"></div>
-        </div>
-        <button
-          id="convert-button"
-          onclick="convertToPDF()"
-          style="display: none"
-        >
-          Convert and PDF Merge
-        </button>
-        <button id="reset-button" onclick="resetPage()" style="display: none">
-          Clear File List
-        </button>
-        <div id="file-link"></div>
-      </main>
-      <footer>
-        <p>
-          Supported File Types: PDF, JPG, PNG, GIF, WEBP. Images are automatically resized to optimally fit A4-sized documents. On desktop browsers, the merged PDF will automatically save to your Downloads. For mobile devices, manual saving of the file may be required. All processing is performed locally in your browser, using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> JavaScript library and the HTML5 FileReader API. No files or personal data are uploaded to any server.
-        </p>
-      </footer>
-      <script src="js/fontkit.umd.min.js"></script>
-      <script src="js/pdf-lib.min.js"></script>
-      <script src="js/exif-reader.js"></script>
-      <script src="js/pdfmerge.js"></script>
-      <script src="js/theme.js"></script>
-    </div>
-  </body>
+        <p class="watermark-description">A text watermark will be added to all PDF pages this includes new images and existing PDF document pages.</p>
+      </div>
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+      </div>
+      <button id="convert-button" onclick="convertToPDF()" style="display: none">Convert and PDF Merge</button>
+      <button id="reset-button" onclick="resetPage()" style="display: none">Clear File List</button>
+      <div id="file-link"></div>
+    </main>
+    <footer>
+      <p>
+        Supported File Types: PDF, JPG, PNG, GIF, WEBP. Images are automatically resized to optimally fit A4-sized documents. On desktop browsers, the new PDF will automatically save to your Downloads. For mobile devices, manual saving of the file may be required. All processing is performed locally in your browser, using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> JavaScript library and the HTML5 FileReader API.
+      </p>
+    </footer>
+    <script src="js/fontkit.umd.min.js"></script>
+    <script src="js/pdf-lib.min.js"></script>
+    <script src="js/exif-reader.js"></script>
+    <script src="js/pdfmerge.js"></script>
+    <script src="js/theme.js"></script>
+  </div>
+</body>
 </html>

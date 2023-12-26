@@ -1,3 +1,21 @@
+// Define global variables
+let currentPageIndex = 0;
+let draggedItemIndex = null;
+let selectedImagePaperSize = "A4";
+let watermarkText = "";
+let isWatermarkEnabled = false;
+let watermarkColor = "#000000";
+let watermarkOpacity = 0.5;
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const selectedFiles = [];
+const addedFilesSet = new Set();
+const fileInput = document.getElementById("file-input");
+const fileList = document.getElementById("selected-files-list");
+const watermarkCheckbox = document.getElementById("add-watermark");
+const progressContainer = document.getElementById("progress-container");
+const progressBar = document.getElementById("progress-bar");
+const spinner = document.getElementById("spinner");
+
 // Check for FileReader API support
 function checkFileReaderSupport() {
   if (window.FileReader) {
@@ -5,7 +23,8 @@ function checkFileReaderSupport() {
   } else {
     console.error("FileReader API is not supported in your browser.");
     displayFlashMessage(
-      "Your browser does not support required features. Please update your browser or try a different one.", "danger"
+      "Your browser does not support required features. Please update your browser or try a different one.",
+      "danger"
     );
   }
 }
@@ -24,9 +43,8 @@ function estimateTextWidth(text, fontSize) {
 }
 
 function isLandscapeOrientation() {
-  return document.getElementById('landscape-orientation').checked;
+  return document.getElementById("landscape-orientation").checked;
 }
-
 
 // Convert hex to RGB
 function hexToRgb(hex) {
@@ -41,16 +59,6 @@ function hexToRgb(hex) {
   let b = bigint & 255;
   return { r: r / 255, g: g / 255, b: b / 255 };
 }
-
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-const selectedFiles = [];
-const addedFilesSet = new Set();
-let currentPageIndex = 0;
-const fileInput = document.getElementById("file-input");
-const fileList = document.getElementById("selected-files-list");
-const watermarkCheckbox = document.getElementById('add-watermark');
-const progressContainer = document.getElementById("progress-container");
-const progressBar = document.getElementById("progress-bar");
 
 // Function to reset selected files
 function resetFiles() {
@@ -99,16 +107,13 @@ function updateSelectedFilesList() {
   });
 
   // Clear the existing content and append the new fragment
-  fileList.innerHTML = '';
+  fileList.innerHTML = "";
   fileList.appendChild(fragment);
 
   // Update button visibility and other UI elements as needed
   updateButtonVisibility();
   updateToggleItemVisibility();
 }
-
-
-let draggedItemIndex = null;
 
 function handleDragStart(e) {
   draggedItemIndex = parseInt(e.target.id.replace("file-", ""));
@@ -120,8 +125,6 @@ function handleDragOver(e) {
   e.dataTransfer.dropEffect = "move";
 }
 
-let orderChanged = false;
-
 function handleDrop(e) {
   e.preventDefault();
   const listItem = e.target.closest("li"); // Find the closest list item ancestor
@@ -132,7 +135,6 @@ function handleDrop(e) {
     const itemToMove = selectedFiles[draggedItemIndex];
     selectedFiles.splice(draggedItemIndex, 1); // Remove the item from its original position
     selectedFiles.splice(targetIndex, 0, itemToMove); // Insert it at the new position
-    orderChanged = true; // Set flag to true when order changes
     updateSelectedFilesList(); // Update the list display
   }
 }
@@ -324,7 +326,10 @@ function resizeImageAndConvertToJPEG(originalFile) {
 
           let width = img.width;
           let height = img.height;
-          const scalingFactor = Math.min(maxWidthPixels / width, maxHeightPixels / height);
+          const scalingFactor = Math.min(
+            maxWidthPixels / width,
+            maxHeightPixels / height
+          );
           width = width * scalingFactor;
           height = height * scalingFactor;
 
@@ -333,7 +338,7 @@ function resizeImageAndConvertToJPEG(originalFile) {
           ctx.drawImage(img, 0, 0, width, height);
 
           const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-          img.src = '';
+          img.src = "";
           canvas.remove();
           resolve(dataUrl);
         } catch (error) {
@@ -353,14 +358,15 @@ function resizeImageAndConvertToJPEG(originalFile) {
   });
 }
 
-
 function getImageDetails(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = async function (e) {
       try {
         const fileExtension = file.name.split(".").pop().toLowerCase();
-        let imgGpsInfo = null, imgDateTime = null, tags = null;
+        let imgGpsInfo = null,
+          imgDateTime = null,
+          tags = null;
 
         if (fileExtension !== "webp" && fileExtension !== "gif") {
           tags = ExifReader.load(e.target.result, { expanded: true });
@@ -386,7 +392,6 @@ function getImageDetails(file) {
   });
 }
 
-
 // Helper function to format file size
 function formatFileSize(bytes) {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -397,7 +402,10 @@ function formatFileSize(bytes) {
 
 function handleConversionTimeout() {
   console.error("Conversion process timed out.");
-  displayFlashMessage("Conversion process took too long and was terminated.", "danger");
+  displayFlashMessage(
+    "Conversion process took too long and was terminated.",
+    "danger"
+  );
 
   // Wait for 3 seconds before reloading the page
   setTimeout(function () {
@@ -407,8 +415,7 @@ function handleConversionTimeout() {
 
 // Function to get selected paper size with A4 as the default
 function getSelectedPaperSize() {
-  selectedSize = "A4";
-  const [widthMM, heightMM] = paperDimensions[selectedSize]; // Get dimensions in millimeters
+  const [widthMM, heightMM] = paperDimensions[selectedImagePaperSize]; // Get dimensions in millimeters
   const widthPoints = widthMM * 2.83465; // Convert width to points
   const heightPoints = heightMM * 2.83465; // Convert height to points
   return [widthPoints, heightPoints];
@@ -423,11 +430,11 @@ function chunkArray(array, size) {
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function convertToPDF() {
-  let conversionTimeout; 
+  let conversionTimeout;
 
   try {
     currentPageIndex = 0;
@@ -448,7 +455,6 @@ async function convertToPDF() {
     const blackFontBytes = await blackFontResponse.arrayBuffer();
     const blackFont = await pdfDoc.embedFont(blackFontBytes);
 
-    const spinner = document.getElementById("spinner");
     spinner.style.display = "block";
     progressContainer.style.display = "block";
 
@@ -468,13 +474,17 @@ async function convertToPDF() {
     for (const chunk of fileChunks) {
       await processFileChunk(chunk, pdfDoc, regularFont, boldFont);
       processedFiles += chunk.length;
-      progressBar.style.width = `${(processedFiles / selectedFiles.length) * 100}%`;
+      progressBar.style.width = `${
+        (processedFiles / selectedFiles.length) * 100
+      }%`;
       await sleep(500);
     }
 
     if (isWatermarkEnabled) {
       const pages = pdfDoc.getPages();
-      pages.forEach(page => addWatermarkToPage(page, watermarkText, blackFont));
+      pages.forEach((page) =>
+        addWatermarkToPage(page, watermarkText, blackFont)
+      );
     }
 
     const pdfBytes = await pdfDoc.save();
@@ -482,7 +492,10 @@ async function convertToPDF() {
     preparefileLink(pdfBytes);
   } catch (error) {
     console.error("Error during PDF conversion:", error);
-    displayFlashMessage(`An error occurred during PDF conversion: ${error.message}`, "danger");
+    displayFlashMessage(
+      `An error occurred during PDF conversion: ${error.message}`,
+      "danger"
+    );
   } finally {
     resetFiles();
     spinner.style.display = "none";
@@ -496,7 +509,6 @@ async function convertToPDF() {
 }
 
 async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
-
   for (const file of chunk) {
     try {
       const fileName = file.name;
@@ -529,7 +541,11 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
 
         const image = await pdfDoc.embedJpg(imageBytes);
 
-        if (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash) {
+        if (
+          shouldPrintImageDetails() ||
+          shouldPrintImagePageNumbers() ||
+          shouldPrintImageHash
+        ) {
           const fontSize = 10;
           const maxTextWidth = rightMargin - leftMargin;
           const lineHeight = 14;
@@ -587,69 +603,71 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
               );
             }
           }
-            
-            if (shouldPrintImageHash()) {
-              // Calculate the SHA256 hash from the file data
-              const fileData = await new Response(file).arrayBuffer();
-              const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
-              const hashArray = Array.from(new Uint8Array(hashBuffer));
-              const imgHash = hashArray
-                .map((b) => b.toString(16).padStart(2, "0"))
-                .join("");
 
-              if (imgHash !== null) {
-                textY -= lineHeight; // Adjust Y position for spacing
-                drawWrappedText(
-                  page,
-                  `SHA-256: ${imgHash}`,
-                  textX,
-                  textY,
-                  maxTextWidth,
-                  lineHeight,
-                  regularFont,
-                  fontSize,
-                  "#000000"
-                );
-              }
+          if (shouldPrintImageHash()) {
+            // Calculate the SHA256 hash from the file data
+            const fileData = await new Response(file).arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest("SHA-256", fileData);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const imgHash = hashArray
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+
+            if (imgHash !== null) {
+              textY -= lineHeight; // Adjust Y position for spacing
+              drawWrappedText(
+                page,
+                `SHA-256: ${imgHash}`,
+                textX,
+                textY,
+                maxTextWidth,
+                lineHeight,
+                regularFont,
+                fontSize,
+                "#000000"
+              );
             }
+          }
 
-            if (shouldPrintImagePageNumbers()) {
-              const pageNumberText = `Image ${currentPageIndex + 1}`;
-              const pageNumberFontSize = 10;
-              const pageNumberWidth = estimateTextWidth(pageNumberText, pageNumberFontSize);
-              const pageNumberX = pageWidth - pageNumberWidth - 30; // Adjust for right margin
-              const pageNumberY = 30; // Adjust as needed for bottom margin
-            
-              // Use drawText instead of drawWrappedText for precise positioning
-              page.drawText(pageNumberText, {
-                x: pageNumberX,
-                y: pageNumberY,
-                size: pageNumberFontSize,
-                font: regularFont,
-                color: PDFLib.rgb(0, 0, 0)
-              });
-              currentPageIndex++;
-            }
-            
-            
-            let imgDetailsPadding = 100;
-
-            let imgDim = image.scaleToFit(
-              rightMargin - leftMargin,
-              bottomMargin - topMargin - imgDetailsPadding
+          if (shouldPrintImagePageNumbers()) {
+            const pageNumberText = `Image ${currentPageIndex + 1}`;
+            const pageNumberFontSize = 10;
+            const pageNumberWidth = estimateTextWidth(
+              pageNumberText,
+              pageNumberFontSize
             );
+            const pageNumberX = pageWidth - pageNumberWidth - 30; // Adjust for right margin
+            const pageNumberY = 30; // Adjust as needed for bottom margin
 
-            let xPosition =
-              (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
-            let yPosition =
-              (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
-
-            page.drawImage(image, {
-              x: xPosition,
-              y: yPosition,
-              width: imgDim.width,
-              height: imgDim.height,
+            // Use drawText instead of drawWrappedText for precise positioning
+            page.drawText(pageNumberText, {
+              x: pageNumberX,
+              y: pageNumberY,
+              size: pageNumberFontSize,
+              font: regularFont,
+              color: PDFLib.rgb(0, 0, 0),
             });
+            currentPageIndex++;
+          }
+
+          let imgDetailsPadding = 100;
+
+          let imgDim = image.scaleToFit(
+            rightMargin - leftMargin,
+            bottomMargin - topMargin - imgDetailsPadding
+          );
+
+          let xPosition =
+            (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
+          let yPosition =
+            (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
+
+          page.drawImage(image, {
+            x: xPosition,
+            y: yPosition,
+            width: imgDim.width,
+            height: imgDim.height,
+          });
         } else {
           let imgDim = image.scaleToFit(
             rightMargin - leftMargin,
@@ -691,7 +709,11 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont) {
 
 function getFormattedCurrentDate() {
   const currentDate = new Date();
-  return currentDate.toISOString().replace(/:/g, "").replace(/-/g, "").replace(/\.\d+/, "");
+  return currentDate
+    .toISOString()
+    .replace(/:/g, "")
+    .replace(/-/g, "")
+    .replace(/\.\d+/, "");
 }
 
 function preparefileLink(pdfBytes) {
@@ -701,7 +723,6 @@ function preparefileLink(pdfBytes) {
   const fileSize = formatFileSize(blob.size);
   const fileLink = document.getElementById("file-link");
   const anchor = document.createElement("a");
-
 
   // Trigger the file download
   anchor.href = blobUrl;
@@ -751,19 +772,34 @@ function initEventListeners() {
   dropArea.addEventListener("drop", handleDropArea);
 
   const imageDetailsCheckbox = document.getElementById("print-image-details");
-  imageDetailsCheckbox.addEventListener("change", handleImageDetailsCheckboxChange);
+  imageDetailsCheckbox.addEventListener(
+    "change",
+    handleImageDetailsCheckboxChange
+  );
 
-  const imagePageNumbersCheckbox = document.getElementById("print-image-details");
-  imagePageNumbersCheckbox.addEventListener("change", handleImagePageNumbersCheckboxChange);
+  const imagePageNumbersCheckbox = document.getElementById(
+    "print-image-details"
+  );
+  imagePageNumbersCheckbox.addEventListener(
+    "change",
+    handleImagePageNumbersCheckboxChange
+  );
 
   const imageHashCheckbox = document.getElementById("print-image-hash");
   imageHashCheckbox.addEventListener("change", handleImageHashCheckboxChange);
 
-  const imageOrientationCheckbox = document.getElementById("landscape-orientation");
-  imageOrientationCheckbox.addEventListener("change", handleImageOrientationCheckboxChange);
+  const imageOrientationCheckbox = document.getElementById(
+    "landscape-orientation"
+  );
+  imageOrientationCheckbox.addEventListener(
+    "change",
+    handleImageOrientationCheckboxChange
+  );
 
-  document.addEventListener('DOMContentLoaded', toggleWatermarkOptions);
-  document.getElementById('add-watermark').addEventListener('change', toggleWatermarkOptions);
+  document.addEventListener("DOMContentLoaded", toggleWatermarkOptions);
+  document
+    .getElementById("add-watermark")
+    .addEventListener("change", toggleWatermarkOptions);
 
   document.addEventListener("DOMContentLoaded", loadCheckboxState);
 }
@@ -804,7 +840,6 @@ function handleDropArea(e) {
   spinner.style.display = "none";
 }
 
-
 function isNewFile(file) {
   return (
     (file.size <= MAX_FILE_SIZE || file.type === "application/pdf") &&
@@ -833,12 +868,11 @@ function handleImageOrientationCheckboxChange() {
   localStorage.setItem("landscapeOrientation", this.checked);
 }
 
-
 function loadCheckboxState() {
   const printImageDetailsState = localStorage.getItem("imageDetails");
   document.getElementById("print-image-details").checked =
     printImageDetailsState === "true";
-  
+
   const printImagePageNumbersState = localStorage.getItem("imagePageNumbers");
   document.getElementById("print-image-page-numbers").checked =
     printImagePageNumbersState === "true";
@@ -847,51 +881,47 @@ function loadCheckboxState() {
   document.getElementById("print-image-hash").checked =
     printImageHashState === "true";
 
-  const landscapeOrientationState = localStorage.getItem("landscapeOrientation");
+  const landscapeOrientationState = localStorage.getItem(
+    "landscapeOrientation"
+  );
   document.getElementById("landscape-orientation").checked =
     landscapeOrientationState === "true";
 }
 
-// Add new global variables
-let watermarkText = '';
-let isWatermarkEnabled = false;
-let watermarkColor = '#000000';
-let watermarkOpacity = 0.5;
-
 // Initialize event listeners for the new UI elements
 function initWatermarkControls() {
-  const watermarkTextInput = document.getElementById('watermark-text');
-  const watermarkColorInput = document.getElementById('watermark-color');
-  const watermarkOpacityInput = document.getElementById('watermark-opacity');
-  const watermarkGroup = document.querySelector('.watermark-group');
+  const watermarkTextInput = document.getElementById("watermark-text");
+  const watermarkColorInput = document.getElementById("watermark-color");
+  const watermarkOpacityInput = document.getElementById("watermark-opacity");
+  const watermarkGroup = document.querySelector(".watermark-group");
 
   watermarkCheckbox.checked = false;
-  watermarkTextInput.value = '';
-  watermarkColorInput.value = '#000000';
+  watermarkTextInput.value = "";
+  watermarkColorInput.value = "#000000";
   watermarkGroup.style.display = "none";
   watermarkOpacityInput.value = 0.5;
 
-  watermarkCheckbox.addEventListener('change', function() {
+  watermarkCheckbox.addEventListener("change", function () {
     isWatermarkEnabled = this.checked;
   });
 
-  watermarkTextInput.addEventListener('input', function() {
+  watermarkTextInput.addEventListener("input", function () {
     watermarkText = this.value;
   });
 
-  watermarkColorInput.addEventListener('input', function() {
-      watermarkColor = this.value;
+  watermarkColorInput.addEventListener("input", function () {
+    watermarkColor = this.value;
   });
 
-  watermarkOpacityInput.addEventListener('input', function() {
+  watermarkOpacityInput.addEventListener("input", function () {
     watermarkOpacity = parseFloat(this.value);
   });
 }
 
 function addWatermarkToPage(page, text, font) {
-    // Set default watermark text if none is specified
-    if (!text || text.trim() === '') {
-      text = 'PDFMerge';
+  // Set default watermark text if none is specified
+  if (!text || text.trim() === "") {
+    text = "PDFMerge";
   }
 
   const { width, height } = page.getSize();
@@ -914,10 +944,9 @@ function addWatermarkToPage(page, text, font) {
     font: font,
     color: PDFLib.rgb(r, g, b),
     rotate: PDFLib.degrees(-angleDegrees),
-    opacity: watermarkOpacity
+    opacity: watermarkOpacity,
   });
 }
-
 
 function calculateWatermarkFontSize(pageWidth, pageHeight, text, font) {
   let fontSize = 10;
@@ -932,8 +961,8 @@ function calculateWatermarkFontSize(pageWidth, pageHeight, text, font) {
 }
 
 function toggleWatermarkOptions() {
-  const watermarkGroup = document.querySelector('.watermark-group');
-  const watermarkCheckbox = document.getElementById('add-watermark');
+  const watermarkGroup = document.querySelector(".watermark-group");
+  const watermarkCheckbox = document.getElementById("add-watermark");
 
   if (watermarkCheckbox.checked) {
     watermarkGroup.style.display = "flex";
@@ -943,6 +972,42 @@ function toggleWatermarkOptions() {
   }
 }
 
+function displayFlashMessage(message, type) {
+  const flashBannerContainer = document.querySelector(
+    ".flash-banner-container"
+  );
+
+  flashBannerContainer.classList.remove(
+    "flash-banner-success",
+    "flash-banner-danger",
+    "flash-banner-warning",
+    "flash-banner-info"
+  );
+
+  switch (type) {
+    case "danger":
+      flashBannerContainer.classList.add("flash-banner-danger");
+      break;
+    case "warning":
+      flashBannerContainer.classList.add("flash-banner-warning");
+      break;
+    case "success":
+      flashBannerContainer.classList.add("flash-banner-success");
+      break;
+    case "info":
+      flashBannerContainer.classList.add("flash-banner-info");
+      break;
+    default:
+      flashBannerContainer.classList.add("flash-banner-success");
+  }
+
+  flashBannerContainer.textContent = message;
+  flashBannerContainer.style.display = "block";
+
+  setTimeout(function () {
+    flashBannerContainer.style.display = "none";
+  }, 5000);
+}
 
 // Call this function on page load or before the relevant features are used
 checkFileReaderSupport();

@@ -1,7 +1,6 @@
 /* Custom CSS Reset */
 /* Modified 10 DEC 2023 */
 
-
 /* Box Sizing */
 *,
 *::before,
@@ -11,20 +10,20 @@
 
 /* Base Styles */
 html {
-  line-height: 1.15; /* A normalized line-height */
-  -webkit-text-size-adjust: 100%; /* Prevent adjustments of text size in Safari */
-  -moz-text-size-adjust: none; /* Prevent font size inflation in Firefox */
-  text-size-adjust: none; /* Prevent font size inflation in other browsers */
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
 }
 
 body {
-  margin: 0; /* Remove default margin */
-  min-height: 100vh; /* Ensure at least the viewport height */
-  font-family: inherit; /* Use a font-family consistent with the rest of the design */
-  -webkit-font-smoothing: antialiased; /* Improve font rendering in MacOS browsers */
-  color: black; /* Set default text color */
-  background: white; /* Set default background */
-  line-height: 1.5; /* Set a more legible line-height */
+  margin: 0;
+  min-height: 100vh;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  color: black;
+  background: white;
+  line-height: 1.5;
 }
 
 /* Typography */
@@ -34,10 +33,10 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 0; /* Remove default margin */
-  font-size: 1em; /* Normalize font size */
-  font-weight: normal; /* Normalize font weight */
-  line-height: 1.1; /* Set a shorter line-height for headings */
+  margin: 0;
+  font-size: 1em;
+  font-weight: normal;
+  line-height: 1.1;
 }
 
 /* Balance text wrapping on headings */
@@ -60,24 +59,24 @@ aside,
 footer,
 header,
 section {
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
-  font: inherit; /* Inherit font styles */
-  font-size: 100%; /* Ensure consistent font size */
-  vertical-align: baseline; /* Align elements to the baseline */
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
 }
 
 /* Media Defaults */
 img {
-  display: block; /* Avoid inline gaps */
-  max-width: 100%; /* Prevent overflowing */
-  height: auto; /* Maintain aspect ratio */
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 /* List Styles */
 ul[role="list"],
 ol[role="list"] {
-  list-style: none; /* Remove default list styling */
+  list-style: none;
 }
 
 /* Button and Input Styles */
@@ -85,34 +84,34 @@ button,
 input,
 textarea,
 select {
-  border: none; /* Remove default border */
-  background-color: transparent; /* Remove default background */
-  padding: 0; /* Remove default padding */
-  font: inherit; /* Inherit font styles */
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  font: inherit;
 }
 
 a {
-  color: inherit; /* Inherit link color */
-  text-decoration: none; /* Remove underline */
-  text-decoration-skip-ink: auto; /* Avoid text decoration interfering with text */
+  color: inherit;
+  text-decoration: none;
+  text-decoration-skip-ink: auto;
 }
 
 button {
-  cursor: pointer; /* Indicate clickable items */
+  cursor: pointer;
 }
 
 /* Additional Resets */
 table {
-  border-collapse: collapse; /* Prevent double borders in tables */
-  border-spacing: 0; /* Remove default border spacing */
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 /* Override browser default styles */
 ::-moz-selection,
 ::selection {
-  background-color: #b3d4fc; /* Set selection background color */
-  color: #000000; /* Set selection text color */
-  text-shadow: none; /* Remove text shadow on selection */
+  background-color: #b3d4fc;
+  color: #000000;
+  text-shadow: none;
 }
 
 /* Additional Form Element Styles */
