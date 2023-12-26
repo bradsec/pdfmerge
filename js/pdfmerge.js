@@ -6,6 +6,8 @@ let watermarkText = "";
 let isWatermarkEnabled = false;
 let watermarkColor = "#000000";
 let watermarkOpacity = 0.5;
+let conversionTimeout;
+const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const selectedFiles = [];
 const addedFilesSet = new Set();
@@ -438,11 +440,12 @@ function sleep(ms) {
 }
 
 async function convertToPDF() {
-  let conversionTimeout;
+  conversionTimeout = setTimeout(() => {
+    handleConversionTimeout();
+  }, TIMEOUT_DURATION);
 
   try {
     currentPageIndex = 0;
-    const TIMEOUT_DURATION = 60000; // Timeout duration in milliseconds (60 seconds)
     const { PDFDocument, rgb } = PDFLib;
 
     const pdfDoc = await PDFDocument.create();
@@ -461,10 +464,6 @@ async function convertToPDF() {
 
     spinner.style.display = "block";
     progressContainer.style.display = "block";
-
-    let conversionTimeout = setTimeout(() => {
-      handleConversionTimeout();
-    }, TIMEOUT_DURATION);
 
     if (selectedFiles.length < 1) {
       displayFlashMessage("Select at least one image to convert.", "warning");
