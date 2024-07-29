@@ -1,3 +1,8 @@
+(function () {
+  const theme = localStorage.getItem("theme") || "light";
+  document.body.setAttribute("data-theme", theme);
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
   const themeSwitcher = document.getElementById("theme-switcher");
 
@@ -9,14 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (theme === "dark") {
       body.setAttribute("data-theme", "dark");
-      themeColorMeta.content = "#202020";
-      sunIcon.style.display = "none";
-      moonIcon.style.display = "block";
+      if (themeColorMeta) themeColorMeta.content = "#202020";
+      if (sunIcon) sunIcon.style.display = "none";
+      if (moonIcon) moonIcon.style.display = "block";
     } else {
-      body.removeAttribute("data-theme");
-      themeColorMeta.content = "#FFFFFF";
-      sunIcon.style.display = "block";
-      moonIcon.style.display = "none";
+      body.setAttribute("data-theme", "light");
+      if (themeColorMeta) themeColorMeta.content = "#FFFFFF";
+      if (sunIcon) sunIcon.style.display = "block";
+      if (moonIcon) moonIcon.style.display = "none";
     }
   }
 
@@ -28,19 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const cookieTheme = getCookieTheme();
-  const savedTheme = cookieTheme || localStorage.getItem("theme");
-  if (savedTheme) {
-    setTheme(savedTheme);
-  } else {
-    setTheme("light");
-  }
+  const savedTheme = cookieTheme || localStorage.getItem("theme") || "light";
+  setTheme(savedTheme);
 
-  themeSwitcher.addEventListener("click", () => {
-    const body = document.body;
-    const currentTheme = body.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.cookie = `theme=${newTheme}; path=/; max-age=31536000`;
-  });
+  if (themeSwitcher) {
+    themeSwitcher.addEventListener("click", () => {
+      const body = document.body;
+      const currentTheme = body.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      setTheme(newTheme);
+      localStorage.setItem("theme", newTheme);
+      document.cookie = `theme=${newTheme}; path=/; max-age=31536000`;
+    });
+  }
 });

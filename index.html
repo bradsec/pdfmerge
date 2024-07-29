@@ -16,12 +16,6 @@
   <link href="css/styles.css" rel="stylesheet" />
 </head>
 <body>
-  <script>
-    (function () {
-      const theme = localStorage.getItem("theme") || "light";
-      document.body.setAttribute("data-theme", theme);
-    })();
-  </script>
   <div id="spinner" class="spinner"></div>
   <div class="wrapper">
     <header>
@@ -134,8 +128,8 @@
       <div id="progress-container">
         <div id="progress-bar"></div>
       </div>
-      <button id="convert-button" onclick="convertToPDF()" style="display: none">Convert and PDF Merge</button>
-      <button id="reset-button" onclick="resetPage()" style="display: none">Clear File List</button>
+      <button id="convert-button" class="button primary">Convert and PDF Merge</button>
+      <button id="reset-button" class="button secondary">Clear File List</button>
       <div id="file-link"></div>
     </main>
     <footer>
@@ -143,11 +137,15 @@
         Supported File Types: PDF, JPG, PNG, GIF, WEBP. Images are automatically resized to optimally fit A4-sized documents. On desktop browsers, the new PDF will automatically save to your Downloads. For mobile devices, manual saving of the file may be required. All processing is performed locally in your browser, using the <a href="https://pdf-lib.js.org/" target="_blank">pdf-lib</a> JavaScript library and the HTML5 FileReader API.
       </p>
     </footer>
-    <script src="js/fontkit.umd.min.js"></script>
-    <script src="js/pdf-lib.min.js"></script>
-    <script src="js/exif-reader.js"></script>
-    <script src="js/pdfmerge.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/fileHandling.js" type="module"></script>
+    <script src="js/watermark.js" type="module"></script>
+    <script src="js/pdfProcessing.js" type="module"></script>
+    <script src="js/theme.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
   </div>
 </body>
 </html>
