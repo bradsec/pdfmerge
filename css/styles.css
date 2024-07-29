@@ -138,12 +138,18 @@ footer {
 }
 
 .branding {
+  display: flex;
+  align-items: center; /* Aligns items vertically centered */
   padding: 20px 10px;
   font-size: var(--branding-font-size);
   letter-spacing: var(--branding-letter-spacing);
   color: var(--branding-font-color);
   border-radius: 5px;
   font-weight: bold;
+}
+
+.branding img {
+  margin-right: 10px; /* Adjust the spacing between the icon and the text */
 }
 
 .branding span {

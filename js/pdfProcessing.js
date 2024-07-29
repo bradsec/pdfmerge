@@ -316,7 +316,7 @@ function prepareFileLink(pdfBytes) {
 
     const fileLink = document.getElementById("file-link");
     fileLink.href = blobUrl;
-    fileLink.innerHTML = `<a href="${blobUrl}" class="file-link flash-success"><span class="material-icons-outlined" style="font-size:45px;">picture_as_pdf</span>${filename} (${fileSize})</a>`;
+    fileLink.innerHTML = `<a href="${blobUrl}" class="file-link flash-success"><span><img src="images/PDF_32.png" alt="PDF file icon" /></span>${filename} (${fileSize})</a>`;
     fileLink.style.display = "block";
 
     setTimeout(() => {
