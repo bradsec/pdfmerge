@@ -1,0 +1,1511 @@
+/**
+ * PDFMERGE Stylesheet
+ */
+
+/* ====================================
+ * 1. CSS CUSTOM PROPERTIES (VARIABLES)
+ * Centralized design tokens for consistency
+ * ==================================== */
+
+:root {
+  /* Color Palette - Organized from lightest to darkest */
+  --color-white: #ffffff;
+  --color-blue-1: #0071e3;
+  --color-blue-2: #005ab5;
+  --color-blue-3: #004085;
+  --color-cyan-1: #1fb2d3;
+  --color-red-1: #c44438;
+  --color-red-2: #913128;
+  --color-green-1: #529a4a;
+  --color-orange-1: #d76f24;
+  --color-gray-1: #fafafa;
+  --color-gray-2: #ebebeb;
+  --color-gray-3: #bebebe;
+  --color-gray-4: #999999;
+  --color-gray-5: #666666;
+  --color-gray-6: #4e4e4e;
+  --color-gray-7: #303030;
+  --color-gray-8: #1d1d1d;
+  
+  /* Typography */
+  --font-family: "Roboto", sans-serif;
+  --base-font-size: 1rem;
+  --line-height: 1.4;
+  
+  /* Theme Variables - Light Mode */
+  --bg-color: var(--color-white);
+  --font-color: var(--color-gray-8);
+  --font-color-footer: var(--color-gray-5);
+  
+  /* Component-Specific Variables */
+  --branding-font-color: var(--color-gray-8);
+  --branding-span-font-color: var(--color-gray-5);
+  --branding-font-size: 2.2rem;
+  --branding-letter-spacing: -0.025em;
+  
+  --link-font-color: var(--color-blue-2);
+  --link-hover-color: var(--color-gray-6);
+  --link-active-color: var(--color-blue-3);
+  
+  --hero-font-size: 1.6rem;
+  --hero-line-height: 1.4;
+  --hero-letter-spacing: 0.05em;
+  
+  --button-padding: 1.125rem 1.5rem;
+  --button-border-radius: 4px;
+  --button-bg-color: var(--color-blue-1);
+  --button-hover-bg-color: var(--color-blue-2);
+  --button-active-bg-color: var(--color-blue-3);
+  --button-font-color: var(--color-gray-1);
+  --button-disabled-font-color: var(--color-gray-6);
+  --button-disabled-bg-color: var(--color-gray-4);
+  
+  --font-color-filelist: var(--color-gray-5);
+  --bg-color-filelist: var(--color-gray-2);
+  
+  --border-color-drop-area: var(--color-gray-3);
+  --font-color-drop-area: var(--color-gray-3);
+  
+  --form-input-font-color: var(--color-gray-6);
+  --form-input-bg-color: var(--color-gray-2);
+  --form-input-border: 1px solid var(--color-gray-3);
+  --form-placeholder-color: var(--color-gray-4);
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 10px 30px rgba(0, 0, 0, 0.4);
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --bg-color: var(--color-gray-8);
+  --font-color: var(--color-gray-2);
+  --branding-font-color: var(--color-gray-1);
+  --branding-span-font-color: var(--color-gray-3);
+  --font-color-filelist: var(--color-gray-2);
+  --bg-color-filelist: var(--color-gray-7);
+  --border-color-drop-area: var(--color-gray-5);
+  --font-color-drop-area: var(--color-gray-4);
+  --form-input-font-color: var(--color-gray-2);
+  --form-input-bg-color: var(--color-gray-7);
+  --form-placeholder-color: var(--color-gray-4);
+  --font-color-footer: var(--color-gray-4);
+}
+
+/* ====================================
+ * 2. BASE STYLES
+ * Foundation styles applied globally
+ * ==================================== */
+
+body {
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0.9375rem;
+  color: var(--font-color);
+  background-color: var(--bg-color);
+  font-size: var(--base-font-size);
+  line-height: var(--line-height);
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0.625rem 0.3125rem;
+}
+
+a,
+a:link,
+a:visited {
+  color: var(--link-font-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+a:active {
+  color: var(--link-active-color);
+}
+
+/* ====================================
+ * 3. LAYOUT COMPONENTS
+ * Structural elements for page layout
+ * ==================================== */
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 960px;
+}
+
+header {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+main {
+  color: var(--font-color);
+}
+
+footer {
+  color: var(--font-color-footer);
+}
+
+/* ====================================
+ * 4. UI COMPONENTS
+ * Reusable interface elements
+ * ==================================== */
+
+/* Utility Classes */
+.bold {
+  font-weight: 600;
+}
+
+.hidden {
+  display: none;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Branding */
+.branding {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 0.625rem;
+  font-size: var(--branding-font-size);
+  letter-spacing: var(--branding-letter-spacing);
+  color: var(--branding-font-color);
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.branding img {
+  margin-right: 0.625rem;
+}
+
+.branding span {
+  color: var(--branding-span-font-color);
+}
+
+.branding a,
+.branding a:link,
+.branding a:active,
+.branding a:visited,
+.branding a:hover {
+  color: var(--branding-font-color);
+  text-decoration: none;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  font-size: var(--hero-font-size);
+  letter-spacing: var(--hero-letter-spacing);
+  line-height: var(--hero-line-height);
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  padding: 1rem 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero p {
+  margin: 0 auto;
+}
+
+/* Theme Switcher */
+#theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0;
+  background: transparent;
+  border: none;
+  padding: var(--spacing-sm);
+  width: auto;
+  height: auto;
+  outline: none;
+  transform: none;
+  box-shadow: none;
+}
+
+#sun-icon,
+#moon-icon {
+  display: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  color: var(--color-gray-6);
+}
+
+[data-theme="dark"] #sun-icon,
+[data-theme="dark"] #moon-icon {
+  color: var(--color-gray-3);
+}
+
+/* Buttons */
+.button,
+button,
+button[type="submit"] {
+  margin: var(--spacing-md) var(--spacing-xs) var(--spacing-md) 0;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--button-bg-color), var(--button-hover-bg-color));
+  color: var(--button-font-color);
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.15);
+  transform: translateY(0);
+}
+
+.button:focus,
+button:focus,
+button[type="submit"]:focus {
+  outline: 2px solid var(--color-blue-1);
+  outline-offset: 2px;
+}
+
+.button:hover,
+button:hover {
+  background: linear-gradient(135deg, var(--button-hover-bg-color), var(--button-active-bg-color));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 113, 227, 0.25);
+}
+
+.button:active,
+button:active {
+  background: linear-gradient(135deg, var(--button-active-bg-color), var(--button-hover-bg-color));
+  color: var(--button-font-color);
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
+}
+
+.button[disabled],
+button[disabled],
+button[disabled]:hover {
+  background-color: var(--button-disabled-bg-color);
+  color: var(--button-disabled-font-color);
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* File Upload Label */
+#file-upload-label {
+  margin: var(--spacing-lg) var(--spacing-xs) var(--spacing-lg) 0;
+  font-weight: 600;
+  text-align: center;
+  display: block;
+  background: linear-gradient(135deg, var(--color-blue-1), var(--color-blue-2));
+  color: var(--color-gray-1);
+  padding: 1.25rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.2);
+  font-size: 1.1rem;
+  transform: translateY(0);
+}
+
+#file-upload-label:hover {
+  background: linear-gradient(135deg, var(--color-blue-2), var(--color-blue-3));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 113, 227, 0.3);
+}
+
+#file-upload-label:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
+}
+
+#file-upload-label:focus-within {
+  outline: 3px solid var(--color-blue-1);
+  outline-offset: 2px;
+}
+
+/* Hide file input but keep it accessible */
+#file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Flash Messages */
+.flash-banner-container {
+  color: var(--color-white);
+  padding: 0.625rem 0;
+  margin: var(--spacing-sm) var(--spacing-xs) var(--spacing-sm) 0;
+  font-weight: 600;
+  text-align: center;
+  padding: var(--button-padding);
+  display: none;
+  border-radius: var(--button-border-radius);
+}
+
+.flash-banner-success {
+  background-color: var(--color-green-1);
+}
+
+.flash-banner-danger {
+  background-color: var(--color-red-1);
+}
+
+.flash-banner-warning {
+  background-color: var(--color-orange-1);
+}
+
+.flash-banner-info {
+  background-color: var(--color-cyan-1);
+}
+
+/* Progress Bar */
+#progress-container {
+  display: none;
+  margin: 20px 0 10px 0;
+}
+
+#progress-bar {
+  width: 0;
+  height: 20px;
+  background-color: var(--color-blue-1);
+  transition: width var(--transition-normal);
+}
+
+/* Spinner */
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--color-blue-1);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  display: none;
+  will-change: transform;
+}
+
+.spinner::after {
+  content: 'Loading...';
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ====================================
+ * 5. FORM ELEMENTS
+ * Form inputs and controls
+ * ==================================== */
+
+form {
+  margin: 0 auto;
+  max-width: 720px;
+}
+
+input[type="text"],
+input[type="email"], 
+input[type="number"],
+textarea {
+  color: var(--form-input-font-color);
+  display: block;
+  background-color: var(--form-input-bg-color);
+  border: var(--form-input-border);
+  border-radius: 3px;
+  padding: 0.9375rem 1rem;
+  font-size: 16px;
+  transition: var(--transition-fast);
+}
+
+input[type="color"] {
+  width: 60px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--color-gray-3);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+/* iOS Safari specific fixes for color input */
+@supports (-webkit-touch-callout: none) {
+  input[type="color"] {
+    -webkit-appearance: none;
+    border-radius: 6px !important;
+    width: 60px;
+    height: 40px;
+    border: 2px solid var(--color-gray-3);
+    outline: none;
+    background-color: transparent;
+  }
+  
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border: none;
+    border-radius: 4px !important;
+    width: 100%;
+    height: 100%;
+  }
+  
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px !important;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Additional iOS fixes using user agent detection */
+@media screen and (-webkit-min-device-pixel-ratio: 2) and (max-device-width: 812px) {
+  input[type="color"] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-radius: 6px !important;
+    overflow: hidden;
+  }
+  
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    border-radius: 4px !important;
+  }
+  
+  input[type="color"]::-webkit-color-swatch {
+    border-radius: 4px !important;
+  }
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="color"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+textarea {
+  margin: 10px 0;
+  resize: none;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color: var(--form-input-font-color);
+  width: 100%;
+  background-color: var(--form-input-bg-color);
+  border: var(--form-input-border);
+  padding: 0.8rem 1rem;
+  font-size: 16px;
+  border-radius: 3px;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+/* Toggle Switches */
+.toggle-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  gap: var(--spacing-md);
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-item label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 10px; 
+  cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+  transition: var(--transition-normal);
+}
+
+.switch:hover {
+  transform: scale(1.05);
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-gray-3);
+  transition: var(--transition-normal);
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--color-gray-1);
+  transition: var(--transition-normal);
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--color-blue-1);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--color-blue-2);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-description {
+  color: var(--color-gray-5);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+/* ====================================
+ * 6. APPLICATION-SPECIFIC COMPONENTS
+ * Components unique to PDFMERGE
+ * ==================================== */
+
+/* Drop Area */
+#drop-area {
+  margin: var(--spacing-xl) var(--spacing-xs) var(--spacing-xl) 0;
+  border: 2px dashed var(--border-color-drop-area);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--font-color-drop-area);
+  min-height: 180px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  cursor: pointer;
+  outline: none;
+  background: rgba(0, 113, 227, 0.02);
+}
+
+#drop-area:hover {
+  border-color: var(--color-blue-1);
+  background: rgba(0, 113, 227, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.1);
+}
+
+#drop-area:focus {
+  border-color: var(--color-blue-1);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+}
+
+#drop-area .drop-icon,
+#drop-area > p {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#drop-area.has-files .drop-icon,
+#drop-area.has-files > p {
+  opacity: 0.2;
+  transition: opacity var(--transition-normal);
+}
+
+#drop-area.drag .drop-icon,
+#drop-area.drag > p {
+  opacity: 0.3;
+}
+
+.drop-icon {
+  font-size: 48px;
+  display: block;
+  margin: 20px auto 15px auto;
+  color: var(--font-color-drop-area);
+  animation: float 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* File List Container */
+#file-list {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+/* File List - Modern CSS Grid Layout */
+#selected-files-list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: fit-content;
+  box-sizing: border-box;
+  justify-items: center;
+  place-content: start center;
+}
+
+/* File Cards with Drag and Drop */
+#selected-files-list li {
+  background-color: var(--bg-color-filelist);
+  color: var(--font-color-filelist);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  min-height: 240px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  pointer-events: auto;
+  transform-origin: center;
+  cursor: grab;
+  user-select: none;
+}
+
+/* Enhanced dragging state */
+#selected-files-list li.dragging,
+#selected-files-list li.is-dragging {
+  opacity: 0.9;
+  transform: rotate(2deg) scale(1.02);
+  z-index: 1000;
+  cursor: grabbing;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  transition: none;
+  border-color: var(--color-blue-1);
+}
+
+/* Idle items during drag */
+#selected-files-list li.is-idle {
+  transition: transform 0.2s ease;
+}
+
+/* Drop zone styling */
+.drop-zone {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+  pointer-events: auto;
+}
+
+.drop-zone.drag-highlight {
+  background: linear-gradient(135deg, rgba(0, 113, 227, 0.1), rgba(0, 113, 227, 0.05));
+  border-color: var(--color-blue-1);
+  transform: scaleY(1.5);
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
+}
+
+.drop-zone.drag-highlight::before {
+  content: 'Drop here to reorder';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Card hover effects */
+#selected-files-list li:not(.dragging) {
+  cursor: grab;
+}
+
+#selected-files-list li:not(.dragging):hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Smooth transitions for reordering */
+#selected-files-list li {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1), opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Click to reorder animation */
+#selected-files-list li.reordering {
+  animation: reorderPulse 0.4s ease;
+}
+
+@keyframes reorderPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0, 113, 227, 0.4); }
+  100% { transform: scale(1); }
+}
+
+/* Card explosion animation styles */
+.card-exploding {
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Subtle pre-explosion effect */
+@keyframes preExplode {
+  0% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+  100% { 
+    transform: scale(1.01);
+    filter: brightness(1.05);
+  }
+}
+
+.card-pre-explode {
+  animation: preExplode 0.2s ease-in-out;
+}
+
+#selected-files-list li:hover::after {
+  opacity: 1;
+}
+
+/* View Transition API styles */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* All card transitions - matches any view-transition-name starting with 'card-' */
+::view-transition-group(*) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#selected-files-list li:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(0, 113, 227, 0.2);
+}
+
+#selected-files-list li:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 113, 227, 0.3);
+}
+
+[data-theme="dark"] #selected-files-list li {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] #selected-files-list li:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 113, 227, 0.4);
+}
+
+
+
+/* File Card Components */
+.file-info-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.card-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+/* Order Number Badge */
+.order-number {
+  color: var(--color-gray-5);
+  padding: 6px;
+  font-size: 1rem;
+  font-weight: 800;
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  box-shadow: none;
+  border: none;
+  order: -1;
+  cursor: pointer;
+}
+
+.file-type-badge {
+  background-color: var(--color-gray-4);
+  color: var(--color-white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.file-type-badge.pdf {
+  background-color: var(--color-red-1);
+}
+
+.file-type-badge.image {
+  background-color: var(--color-green-1);
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  padding-top: 12px;
+  min-height: 32px;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.file-name {
+  font-weight: 600;
+  color: inherit;
+  font-size: 0.95rem;
+  display: -webkit-box;
+  line-height: 1.3;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 200px;
+  max-height: 2.6rem;
+}
+
+.file-size {
+  font-size: 0.8rem;
+  color: var(--color-gray-5);
+  font-weight: 500;
+  flex-shrink: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  min-width: fit-content;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-pages {
+  font-size: 0.8rem;
+  color: var(--color-gray-5);
+  font-weight: 400;
+  flex-shrink: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  min-width: fit-content;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdf-page-range-input {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  color: var(--form-input-font-color);
+  background-color: var(--form-input-bg-color);
+  width: 100%;
+  max-width: 220px;
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.pdf-page-range-input:focus, 
+.pdf-page-range-input:hover {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.pdf-page-range-input::placeholder {
+  color: var(--form-placeholder-color);
+  font-size: 0.8rem;
+}
+
+.image-resolution-display {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  color: var(--form-input-font-color);
+  background-color: var(--form-input-bg-color);
+  width: 100%;
+  max-width: 220px;
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 4px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Delete Button */
+.delete-file-button {
+  background: transparent !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--color-gray-5);
+  padding: 4px;
+  outline: none;
+  box-shadow: none !important;
+  border-radius: 4px;
+  transition: var(--transition-fast);
+  opacity: 0.7;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+}
+
+.delete-file-button:hover {
+  background-color: var(--color-red-1) !important;
+  color: var(--color-white) !important;
+  opacity: 1;
+  transform: none;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.delete-file-button:focus {
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.delete-file-button:active {
+  background-color: var(--color-red-2) !important;
+  color: var(--color-white) !important;
+  box-shadow: none !important;
+  border: none !important;
+  transform: scale(0.95);
+}
+
+.delete-file-button span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Watermark Controls */
+#watermark-details-toggle {
+  padding: 15px 0;  
+}
+
+.watermark-description {
+  color: var(--color-gray-5);
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.watermark-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  gap: var(--spacing-md);
+}
+
+.watermark-item {
+  display: flex;
+  align-items: center;
+}
+
+.watermark-item label {
+  margin-right: 10px;
+}
+
+.watermark-tiled-item {
+  align-items: flex-start;
+}
+
+.watermark-tiled-item label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Paper Size Selection */
+.paper-size-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 15px 0;
+  gap: var(--spacing-md);
+}
+
+.paper-size-item {
+  display: flex;
+  align-items: center;
+}
+
+.paper-size-item label {
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+.paper-size-item select {
+  width: 200px;
+  margin: 0;
+}
+
+.paper-size-description {
+  color: var(--color-gray-5);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  margin: 5px 0;
+  width: 100%;
+}
+
+/* File Link */
+#file-link {
+  font-weight: bold;
+  margin: 0 auto;
+  text-align: center;
+  display: inline;
+}
+
+.file-link {
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  word-break: break-word;
+}
+
+.file-link span {
+  margin-right: auto;
+  padding-right: 5px;
+}
+
+.flash-success {
+  animation: flash-success 1s ease;
+}
+
+/* ====================================
+ * 7. ANIMATIONS & KEYFRAMES
+ * Motion and visual feedback
+ * ==================================== */
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes flash-success {
+  0%, 100% {
+    background: none;
+  }
+  50% {
+    background-color: var(--color-green-1);
+    color: #ffffff;
+  }
+}
+
+/* ====================================
+ * 8. RESPONSIVE DESIGN
+ * Adaptive layouts for different screen sizes
+ * ==================================== */
+
+/* Mobile: Stack cards vertically, smaller size */
+@media (max-width: 640px) {
+  .button,
+  button,
+  button[type="submit"] {
+    display: block; 
+    width: 100%; 
+    margin: var(--spacing-xs) 0; 
+  }
+
+  #selected-files-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  #selected-files-list li {
+    width: 100%;
+    max-width: 400px;
+    min-height: 220px;
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+  
+  
+  .card-header {
+    margin-bottom: 6px;
+  }
+  
+  .card-body {
+    gap: 6px;
+  }
+  
+  .file-name {
+    font-size: 0.85rem;
+    max-height: 2.4rem;
+  }
+  
+  .file-size,
+  .file-pages {
+    font-size: 0.7rem;
+  }
+  
+  .pdf-page-range-input {
+    font-size: 0.7rem;
+  }
+  
+  .delete-file-button {
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+  
+  .delete-file-button span {
+    font-size: 26px;
+  }
+  
+  .watermark-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .watermark-item {
+    margin: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .watermark-item input[type="text"],
+  .watermark-item input[type="number"] {
+    width: 100%;
+    margin-top: 4px;
+  }
+  
+  .watermark-item input[type="color"] {
+    width: 80px;
+    height: 40px;
+    margin-top: 4px;
+    border-radius: 8px;
+  }
+  
+  .watermark-item label {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  
+  .watermark-tiled-item label {
+    flex-direction: row;
+    margin-bottom: 8px;
+  }
+  
+  .paper-size-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .paper-size-item {
+    margin: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .paper-size-item label {
+    margin-bottom: 4px;
+    margin-right: 0;
+  }
+  
+  .paper-size-item select {
+    width: 100%;
+  }
+  
+  .hero {
+    font-size: 1.3rem;
+    line-height: 1.3;
+    margin-bottom: 20px;
+  }
+  
+  .branding {
+    font-size: 1.8rem;
+    padding: 15px 5px;
+  }
+}
+
+
+
+/* Tablet: 2-column grid layout */
+@media (min-width: 641px) and (max-width: 1024px) {
+  #selected-files-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  
+  #selected-files-list li {
+    width: 100%;
+    max-width: 350px;
+    min-width: 300px;
+    min-height: 220px;
+  }
+  
+  
+  .file-size,
+  .file-pages {
+    font-size: 0.8rem;
+    max-width: 100px;
+  }
+  
+  .pdf-page-range-input {
+    font-size: 0.8rem;
+  }
+  
+  .delete-file-button {
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    padding: 2px;
+  }
+  
+  .delete-file-button span {
+    font-size: 22px;
+  }
+}
+
+/* Desktop: 3-column grid layout that doesn't break */
+@media (min-width: 1025px) {
+  #selected-files-list {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 320px));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+  
+  #selected-files-list li {
+    width: 320px;
+    max-width: 320px;
+    min-height: 240px;
+  }
+  
+  
+  .delete-file-button {
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+  }
+  
+  .delete-file-button span {
+    font-size: 24px;
+  }
+}
+
+/* Extra Large Desktop: 4-column layout */
+@media (min-width: 1400px) {
+  #selected-files-list {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 320px));
+    gap: 32px;
+    max-width: 1600px;
+    justify-content: center;
+  }
+  
+  #selected-files-list li {
+    width: 320px;
+    max-width: 320px;
+    min-height: 240px;
+  }
+}

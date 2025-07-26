@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Free online PDF merger tool. Merge, combine, and watermark PDFs or images securely in your browser. No uploads, no sign-up, completely private. Works on desktop and mobile." />
+  <meta name="keywords" content="pdf merge, pdf merger, combine pdf, merge pdf files, pdf joiner, pdf combiner, watermark pdf, merge images to pdf, online pdf tools, free pdf merger, client-side pdf processing" />
+  <meta name="author" content="BRADSEC" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+  <meta name="revisit-after" content="7 days" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#1d1d1d" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pdfmerge.me/" />
+  <meta property="og:title" content="PDFMerge - Free Online PDF Merger Tool" />
+  <meta property="og:description" content="Merge, combine, and watermark PDFs or images securely in your browser. No uploads, completely private and free to use." />
+  <meta property="og:image" content="https://pdfmerge.me/images/pdfmerge-social-preview.png" />
+  <meta property="og:site_name" content="PDFMerge" />
+  <meta property="og:locale" content="en_US" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://pdfmerge.me/" />
+  <meta property="twitter:title" content="PDFMerge - Free Online PDF Merger Tool" />
+  <meta property="twitter:description" content="Merge, combine, and watermark PDFs or images securely in your browser. No uploads, completely private and free." />
+  <meta property="twitter:image" content="https://pdfmerge.me/images/pdfmerge-social-preview.png" />
+  
+  <!-- Additional SEO Meta Tags -->
+  <meta name="application-name" content="PDFMerge" />
+  <meta name="apple-mobile-web-app-title" content="PDFMerge" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+  
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PDFMerge",
+    "url": "https://pdfmerge.me",
+    "description": "Free online PDF merger tool to combine, merge, and watermark PDFs or images securely in your browser",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "BRADSEC"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "PDFMerge"
+    },
+    "featureList": [
+      "Merge PDF files",
+      "Combine images to PDF", 
+      "Add watermarks to PDF",
+      "Client-side processing",
+      "No file uploads required",
+      "Privacy-focused",
+      "Free to use"
+    ],
+    "screenshot": "https://pdfmerge.me/images/pdfmerge-screenshot.png"
+  }
+  </script>
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://pdfmerge.me/" />
+  
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png" />
+  
+  <!-- Optimized Title -->
+  <title>Free PDF Merger Tool - Combine PDFs & Images Online | PDFMerge Me</title>
+  <link href="css/reset.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined&display=swap" rel="stylesheet" />
+  <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="spinner" class="spinner"></div>
+  <div class="wrapper">
+    <header>
+      <div class="header-top">
+        <div class="branding"><img src="images/pdfmerge-icon.png" alt="PDFMERGE logo" />PDF<span>MERGE</span></div>
+        <button id="theme-switcher" aria-label="Toggle dark mode" type="button">
+          <svg id="sun-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Light mode icon" role="img">
+            <title>Light mode</title>
+            <circle class="sun" cx="12" cy="12" r="6" fill="currentColor" />
+            <g class="sun-beams" stroke="currentColor">
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </g>
+          </svg>
+
+          <svg id="moon-icon" class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Dark mode icon" role="img">
+            <title>Dark mode</title>
+            <mask id="moon-mask" class="moon">
+              <rect x="0" y="0" width="100%" height="100%" fill="currentColor" />
+              <circle cx="12" cy="10" r="6" fill="white" />
+            </mask>
+            <circle class="moon" cx="12" cy="12" r="6" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+      <div class="hero">
+        Merge, trim, and watermark PDFs or images — securely in your browser. Free to use. No ads, no sign-up required.
+      </div>
+    </header>
+    <main>
+      <div id="flash-banner" class="flash-banner-container"></div>
+      <label for="file-input" id="file-upload-label">Click to add files...</label>
+      <input accept=".jpg,.jpeg,.png,.pdf,.gif,.webp" id="file-input" multiple type="file" aria-describedby="file-types-info" />
+      <div id="drop-area" tabindex="0" role="button" aria-describedby="file-types-info drop-area-instructions" aria-label="Drag and drop files here or press Enter to select files">
+        <span class="material-icons-outlined drop-icon" aria-hidden="true">cloud_upload</span>
+        <p class="bold">Or drag and drop files here...</p>
+        <p id="drop-area-instructions" class="sr-only">Press Enter or Space to open file selector, or drag and drop files directly onto this area</p>
+        <div id="file-list">
+          <ul id="selected-files-list" role="list"></ul>
+        </div>
+      </div>
+      <div id="image-details-toggle" style="display: none">
+        <div class="toggle-group" role="group" aria-labelledby="image-options-heading">
+          <h3 id="image-options-heading" class="sr-only">Image Processing Options</h3>
+          <div class="toggle-item">
+            <label for="print-image-details">
+              <div class="switch">
+                <input type="checkbox" id="print-image-details" name="print-image-details" aria-describedby="image-details-desc" />
+                <span class="slider round"></span>
+              </div>
+              Image Details
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label for="landscape-orientation">
+              <div class="switch">
+                <input type="checkbox" id="landscape-orientation" name="landscape-orientation" aria-describedby="landscape-desc" />
+                <span class="slider round"></span>
+              </div>
+              Image Landscape
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label for="print-image-page-numbers">
+              <div class="switch">
+                <input type="checkbox" id="print-image-page-numbers" name="print-image-page-numbers" aria-describedby="page-numbers-desc" />
+                <span class="slider round"></span>
+              </div>
+              Image Number
+            </label>
+          </div>
+          <div class="toggle-item">
+            <label for="print-image-hash">
+              <div class="switch">
+                <input type="checkbox" id="print-image-hash" name="print-image-hash" aria-describedby="image-hash-desc" />
+                <span class="slider round"></span>
+              </div>
+              Image Hash
+            </label>
+          </div>
+          <div class="toggle-descriptions">
+            <p id="image-details-desc" class="toggle-description">Adds the image name and EXIF details including GPS and date if available</p>
+            <p id="landscape-desc" class="toggle-description">Fits images to landscape orientation instead of default portrait</p>
+            <p id="page-numbers-desc" class="toggle-description">Adds an image number in the bottom right corner</p>
+            <p id="image-hash-desc" class="toggle-description">Adds the unique SHA-256 hash value for verification</p>
+          </div>
+        </div>
+      </div>
+      <div id="paper-size-selection" style="display: none">
+        <div class="paper-size-group">
+          <div class="paper-size-item">
+            <label for="paper-size-select">Output Paper Size:</label>
+            <select id="paper-size-select">
+              <option value="A4">A4 (210 x 297 mm)</option>
+              <option value="A3">A3 (297 x 420 mm)</option>
+              <option value="A2">A2 (420 x 594 mm)</option>
+              <option value="A1">A1 (594 x 841 mm)</option>
+              <option value="A0">A0 (841 x 1189 mm)</option>
+            </select>
+          </div>
+          <p class="paper-size-description">Select the output paper size. Images and content will be scaled appropriately to fit the selected size.</p>
+        </div>
+      </div>
+      <div id="watermark-details-toggle" style="display: none">
+      <div class="toggle-item">
+        <label for="add-watermark">
+          <div class="switch">
+            <input type="checkbox" id="add-watermark" name="add-watermark" aria-describedby="watermark-desc" />
+            <span class="slider round"></span>
+          </div>
+          Add Watermark
+        </label>
+      </div>
+      <div class="watermark-group" style="display: none" role="group" aria-labelledby="watermark-options-heading">
+        <h3 id="watermark-options-heading" class="sr-only">Watermark Configuration Options</h3>
+        <div class="watermark-item">
+          <input type="text" id="watermark-text" placeholder="Enter watermark text" aria-label="Watermark text" aria-describedby="watermark-text-desc">
+        </div>
+        <div class="watermark-item">
+          <label for="watermark-color">Watermark Color</label>
+          <input type="color" id="watermark-color" value="#000000" aria-describedby="watermark-color-desc">
+        </div>
+        <div class="watermark-item">
+          <label for="watermark-opacity">Watermark Opacity (0-1):</label>
+          <input type="number" id="watermark-opacity" min="0" max="1" step="0.1" value="0.5" aria-describedby="watermark-opacity-desc">
+        </div>
+        <div class="watermark-item">
+          <label for="watermark-rotation">Rotation Angle (degrees):</label>
+          <input type="number" id="watermark-rotation" min="-180" max="180" step="15" value="-45" aria-describedby="watermark-rotation-desc">
+        </div>
+        <div class="watermark-item">
+          <label for="watermark-scale">Scale Factor:</label>
+          <input type="number" id="watermark-scale" min="0.1" max="3.0" step="0.1" value="1.0" aria-describedby="watermark-scale-desc">
+        </div>
+        <div class="watermark-item watermark-tiled-item">
+          <label for="watermark-tiled">
+            <div class="switch">
+              <input type="checkbox" id="watermark-tiled" name="watermark-tiled" aria-describedby="watermark-tiled-desc" />
+              <span class="slider round"></span>
+            </div>
+            Tiled Watermark
+          </label>
+        </div>
+        <div class="watermark-descriptions">
+          <p id="watermark-desc" class="watermark-description">Adds a text watermark to all PDF pages including images and existing documents</p>
+          <p id="watermark-text-desc" class="sr-only">The text that will appear as a watermark on each page</p>
+          <p id="watermark-color-desc" class="sr-only">Choose the color of the watermark text</p>
+          <p id="watermark-opacity-desc" class="sr-only">Controls transparency: 0 is fully transparent, 1 is fully opaque</p>
+          <p id="watermark-rotation-desc" class="sr-only">Angle of rotation for the watermark text in degrees</p>
+          <p id="watermark-scale-desc" class="sr-only">Size multiplier for the watermark text</p>
+          <p id="watermark-tiled-desc" class="sr-only">When enabled, covers the entire page with repeated watermarks for copy protection</p>
+        </div>
+      </div>
+    </div>
+      <div id="progress-container">
+        <div id="progress-bar"></div>
+      </div>
+      <button id="convert-button" class="button primary">Convert and PDF Merge</button>
+      <button id="reset-button" class="button secondary">Clear File List</button>
+      <div id="file-link"></div>
+    </main>
+    <footer>
+      <p id="file-types-info">
+        <strong>PDFMERGE</strong> Supported File Types: PDF, JPG, PNG, GIF, WEBP. No data is uploaded, stored, or transmitted to any server. Everything stays on your device. Processing is performed in your browser, using the <a href="https://pdf-lib.js.org/" target="_blank" rel="noopener">pdf-lib</a> JavaScript library and the HTML5 FileReader API. Source code for this application is available on <a href="https://github.com/bradsec/pdfmerge" target="_blank" rel="noopener">GitHub</a>.
+      </p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <script src="js/dom-cache.js" type="module"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/card-explosion.js" type="module"></script>
+    <script src="js/card-drag-manager.js" type="module"></script>
+    <script src="js/file-handling.js" type="module"></script>
+    <script src="js/watermark.js" type="module"></script>
+    <script src="js/pdf-processing.js" type="module"></script>
+    <script src="js/theme.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+  </div>
+</body>
+</html>
