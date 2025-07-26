@@ -112,8 +112,5 @@ anthropic/
 memories.json
 reflections.json
 
-# Project specific temporary files
-js/dom-cache.js
-
 # Essential project files (keep these tracked)
 !screenshot.png
