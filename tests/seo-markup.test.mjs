@@ -10,7 +10,7 @@ test('page keeps canonical url for pdfmerge.me', () => {
 
 test('page keeps refreshed social metadata for pdfmerge.me', () => {
   assert.match(html, /property="og:url" content="https:\/\/pdfmerge\.me\/"/);
-  assert.match(html, /property="twitter:url" content="https:\/\/pdfmerge\.me\/"/);
+  assert.match(html, /name="twitter:url" content="https:\/\/pdfmerge\.me\/"/);
 });
 
 test('page includes a single product-focused h1', () => {
