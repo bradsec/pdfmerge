@@ -362,12 +362,12 @@ test('compensateWatermarkDrawForPageTransform cancels imported PDF scaling befor
     assert.deepEqual(
         compensateWatermarkDrawForPageTransform(
             { x: 985, y: 1832, size: 120 },
-            { scale: 3.9732344166666664, translateX: -397, translateY: -795 }
+            { scale: 3.973234416666666, translateX: -397, translateY: -795 }
         ),
         {
-            x: (985 + 397) / 3.9732344166666664,
-            y: (1832 + 795) / 3.9732344166666664,
-            size: 120 / 3.9732344166666664
+            x: (985 + 397) / 3.973234416666666,
+            y: (1832 + 795) / 3.973234416666666,
+            size: 120 / 3.973234416666666
         }
     );
 });

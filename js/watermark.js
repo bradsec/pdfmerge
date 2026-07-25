@@ -228,7 +228,7 @@ function getWatermarkTextBounds(text, font, fontSize) {
             maxX: maxX * scale,
             maxY: maxY * scale
         };
-    } catch (error) {
+    } catch {
         const textWidth = font.widthOfTextAtSize(text, fontSize);
         const textHeight = font.heightAtSize(fontSize);
         return {

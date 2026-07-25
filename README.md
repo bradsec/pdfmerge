@@ -55,6 +55,13 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 - **Optimal**: Google Chrome (latest)
 - **Good**: Firefox, Safari, Edge (latest versions)
 
+## Development
+
+Install the pinned development tools with `npm ci`, then run:
+
+- `npm run lint` to lint first-party JavaScript and tests
+- `npm test` to run the regression test suite
+
 ## Known Limitations
 
 PDFMerge runs client-side, so performance is limited by your device and browser. Image files are capped at 50 MB due to browser memory constraints when resizing via the Canvas API. For very large images, reduce size or resolution before uploading. Chrome generally handles larger batches better than Firefox.

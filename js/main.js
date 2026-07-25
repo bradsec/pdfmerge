@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { handleFileInputChange, handleDropArea, resetFiles, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, updateToggleItemVisibility, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js';
+import { handleFileInputChange, handleDropArea, resetFiles, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js';
 import { convertToPDF } from './pdf-processing.js';
 import { initWatermarkControls } from './watermark.js';
 import { DOMCache } from './dom-cache.js';

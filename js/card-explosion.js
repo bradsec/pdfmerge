@@ -158,7 +158,7 @@ class CardExplosion {
         const isSmallViewport = window.innerWidth < 768;
         
         // Base configuration
-        let config = {
+        const config = {
             particleSize: 5,
             density: 0.6,
             maxParticles: 200

@@ -155,6 +155,6 @@ class ThemeManager {
 }
 
 // Initialize theme manager immediately
-const themeManager = new ThemeManager();
+new ThemeManager();
 
 // No exports needed - theme manager is self-contained

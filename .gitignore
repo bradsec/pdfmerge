@@ -5,8 +5,6 @@ node_modules/
 .eslintcache
 .eslintrc.json
 .eslintrc.js
-package-lock.json
-package.json
 yarn.lock
 
 # Environment configuration files

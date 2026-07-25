@@ -75,7 +75,7 @@ async function convertToPDF() {
         }
         
         currentPageIndex = 0;
-        const { PDFDocument, rgb } = PDFLib;
+        const { PDFDocument } = PDFLib;
 
         const pdfDoc = await PDFDocument.create();
         pdfDoc.registerFontkit(fontkit);
@@ -175,7 +175,7 @@ async function loadFont(pdfDoc, fontPath, signal) {
         return await pdfDoc.embedFont(fontBytes);
     } catch (error) {
         console.error(`Failed to load font from ${fontPath}:`, error);
-        throw new Error(`Font loading failed for ${fontPath}: ${error.message}`);
+        throw new Error(`Font loading failed for ${fontPath}: ${error.message}`, { cause: error });
     }
 }
 
@@ -243,7 +243,7 @@ async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal
         });
         const imageBytes = Uint8Array.from(atob(dataUrl.split(",")[1]), (c) => c.charCodeAt(0));
 
-        let [pageWidth, pageHeight] = getSelectedPaperSize();
+        const [pageWidth, pageHeight] = getSelectedPaperSize();
         const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
         // Printer-safe margins: 0.75 inches (54 points) for wide printer compatibility
@@ -286,7 +286,7 @@ async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal
     } catch (error) {
         if (error.name === 'AbortError') throw error;
         console.error(`Failed to process image file ${fileEntry.name}:`, error);
-        throw new Error(`Image processing failed for ${fileEntry.name}: ${error.message}`);
+        throw new Error(`Image processing failed for ${fileEntry.name}: ${error.message}`, { cause: error });
     }
 }
 
@@ -338,7 +338,7 @@ async function processPdfFile(fileEntry, pdfDoc, signal) {
     } catch (error) {
         if (error.name === 'AbortError') throw error;
         console.error(`Failed to process PDF file ${fileEntry.name}:`, error);
-        throw new Error(`PDF processing failed for ${fileEntry.name}: ${error.message}`);
+        throw new Error(`PDF processing failed for ${fileEntry.name}: ${error.message}`, { cause: error });
     }
 }
 
@@ -614,8 +614,6 @@ async function prepareFileLink(pdfBytes) {
     const fileSize = formatFileSize(blob.size);
     
     let savedSuccessfully = false;
-    let actualFilename = defaultFilename;
-    
     // Try to use the File System Access API for modern browsers
     if ('showSaveFilePicker' in window) {
         try {
@@ -636,7 +634,7 @@ async function prepareFileLink(pdfBytes) {
             await writableStream.close();
             
             savedSuccessfully = true;
-            actualFilename = fileHandle.name;
+            const actualFilename = fileHandle.name;
             
             displayFlashMessage(`Successfully saved "${actualFilename}" (${fileSize})`, "success", 8000);
             

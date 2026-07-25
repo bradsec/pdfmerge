@@ -588,8 +588,6 @@ async function createFileCard(fileEntry, index) {
 
     // Thumbnail preview (image or PDF page 1) in an overflow-clip wrapper
     let thumbnail = null;
-    let thumbnailPage = null;
-    let thumbnailSurface = null;
     let thumbnailContentElement = null;
     const isPdfFile = fileExtension === "pdf";
     fileInfoContainer.appendChild(cardHeader);
@@ -612,15 +610,11 @@ async function createFileCard(fileEntry, index) {
 
         const page = document.createElement("div");
         page.className = "card-thumbnail-page";
-        thumbnailPage = page;
-
         const pageSurface = document.createElement("div");
         pageSurface.className = "card-thumbnail-surface";
         if (isPdfFile) {
             pageSurface.classList.add("card-thumbnail-surface--pdf");
         }
-        thumbnailSurface = pageSurface;
-
         const thumbnailContent = document.createElement("div");
         thumbnailContent.className = "card-thumbnail-content";
         if (isPdfFile) {
