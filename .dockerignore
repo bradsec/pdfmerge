@@ -1,0 +1,9 @@
+.git
+node_modules
+tests
+*.md
+LICENCE.txt
+eslint.config.js
+package.json
+package-lock.json
+.env
