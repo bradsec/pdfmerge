@@ -5,7 +5,6 @@
 
 import { 
     formatDateTime, 
-    sleep, 
     getFormattedCurrentDate, 
     displayFlashMessage, 
     formatFileSize, 
@@ -79,9 +78,16 @@ async function convertToPDF() {
 
         const pdfDoc = await PDFDocument.create();
         pdfDoc.registerFontkit(fontkit);
-        const regularFont = await loadFont(pdfDoc, 'fonts/Roboto-Regular.ttf', signal);
-        const boldFont = await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal);
-        const blackFont = await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal);
+        // pdf-lib writes every embedded font into the output, used or not, so
+        // embed only the fonts this run draws with.
+        const hasImages = selectedFiles.some(isImageEntry);
+        const needsTextFont = hasImages &&
+            (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash());
+        const regularFont = needsTextFont ? await loadFont(pdfDoc, 'fonts/Roboto-Regular.ttf', signal) : null;
+        const boldFont = hasImages && shouldPrintImageDetails()
+            ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal)
+            : null;
+        const blackFont = isWatermarkEnabled() ? await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal) : null;
 
         const spinner = DOMCache.getElementById("spinner");
         const progressContainer = DOMCache.getElementById("progress-container");
@@ -112,7 +118,6 @@ async function convertToPDF() {
             processedFiles += chunk.length;
             const progressBar = DOMCache.getElementById("progress-bar");
             progressBar.style.width = `${(processedFiles / selectedFiles.length) * 100}%`;
-            await sleep(500);
         }
 
         // Guard: if every file failed to process there is nothing to save
@@ -135,6 +140,11 @@ async function convertToPDF() {
         throwIfAborted(signal);
 
         const pdfBytes = await pdfDoc.save();
+        throwIfAborted(signal);
+
+        // The merge is done; time spent in the save dialog must not trip the
+        // conversion timeout and abort a finished run.
+        clearTimeout(runTimeout);
 
         // Report any partial failures alongside the success
         if (failedFiles.length > 0) {
@@ -142,11 +152,13 @@ async function convertToPDF() {
         } else {
             displayFlashMessage("PDF Merge complete.", "success");
         }
-        prepareFileLink(pdfBytes);
-        resetAllSettingsToDefaults();
-        
-        // Clear the file list after successful merge
-        resetFiles();
+        clearLegacyPageRangeStorage();
+
+        // Keep the file list when the save dialog is cancelled so the user can
+        // merge again without re-adding everything.
+        if (await prepareFileLink(pdfBytes)) {
+            resetFiles();
+        }
     } catch (error) {
         if (error.name === 'AbortError' || signal.aborted) {
             // Cancellation feedback is handled by the cancel/timeout paths
@@ -165,6 +177,12 @@ async function convertToPDF() {
     }
 }
 
+function isImageEntry(fileEntry) {
+    if (fileEntry.type === 'blank') return false;
+    const extension = fileEntry.extension || fileEntry.name.split(".").pop().toLowerCase();
+    return PDF_CONFIG.IMAGE_EXTENSIONS.includes(extension);
+}
+
 async function loadFont(pdfDoc, fontPath, signal) {
     try {
         const fontResponse = await fetch(fontPath, { signal });
@@ -172,7 +190,7 @@ async function loadFont(pdfDoc, fontPath, signal) {
             throw new Error(`Failed to fetch font: ${fontResponse.status} ${fontResponse.statusText}`);
         }
         const fontBytes = await fontResponse.arrayBuffer();
-        return await pdfDoc.embedFont(fontBytes);
+        return await pdfDoc.embedFont(fontBytes, { subset: true });
     } catch (error) {
         console.error(`Failed to load font from ${fontPath}:`, error);
         throw new Error(`Font loading failed for ${fontPath}: ${error.message}`, { cause: error });
@@ -434,7 +452,7 @@ async function addImageDetailsToPage(page, file, regularFont, boldFont, pageWidt
 function handleConversionTimeout(controller) {
     console.error("Conversion process timed out.");
     // Actually abort the in-flight operation so the heavy work stops instead of
-    // continuing to run (and racing the resetPage below) after the timeout fires.
+    // continuing to run after the timeout fires.
     if (controller) controller.abort();
     displayFlashMessage("Conversion process took too long and was terminated.", "danger");
     // Reset only the conversion UI; the user's file list must survive a
@@ -467,8 +485,7 @@ function resetConversionState() {
     if (abortController) {
         abortController = null;
     }
-    
-    DOMCache.getElementById("add-watermark").checked = false;
+
     updateButtonVisibility();
     updateToggleItemVisibility();
     updateDropAreaState();
@@ -486,124 +503,23 @@ function cancelPDFProcessing() {
 }
 
 /**
- * Resets all form settings to their default values
+ * Removes page ranges saved to localStorage by earlier versions, which keyed
+ * them per file. Page ranges now live on each file entry.
  */
-function resetAllSettingsToDefaults() {
-    // Reset all checkboxes to unchecked
-    const checkboxes = [
-        'print-image-details',
-        'print-image-page-numbers',
-        'print-image-hash',
-        'add-watermark',
-        'watermark-tiled'
-    ];
-    
-    checkboxes.forEach(id => {
-        const checkbox = DOMCache.getElementById(id);
-        if (checkbox) {
-            checkbox.checked = false;
-            // Trigger change event to update UI visibility
-            checkbox.dispatchEvent(new Event('change'));
-            // Remove from localStorage if it exists
-            try {
-                localStorage.removeItem(id);
-            } catch (error) {
-                console.warn(`Failed to remove localStorage item ${id}:`, error);
-            }
-        }
-    });
-    
-    // Reset watermark text input
-    const watermarkText = DOMCache.getElementById('watermark-text');
-    if (watermarkText) {
-        watermarkText.value = '';
-    }
-    
-    // Reset watermark color to default black
-    const watermarkColor = DOMCache.getElementById('watermark-color');
-    if (watermarkColor) {
-        watermarkColor.value = '#000000';
-    }
-    
-    // Reset watermark opacity to default 0.5
-    const watermarkOpacity = DOMCache.getElementById('watermark-opacity');
-    if (watermarkOpacity) {
-        watermarkOpacity.value = '0.5';
-    }
-    
-    // Reset watermark rotation to default -45
-    const watermarkRotation = DOMCache.getElementById('watermark-rotation');
-    if (watermarkRotation) {
-        watermarkRotation.value = '-45';
-    }
-    
-    // Reset watermark scale to default 1
-    const watermarkScale = DOMCache.getElementById('watermark-scale');
-    if (watermarkScale) {
-        watermarkScale.value = '1';
-    }
-    
-    // Reset paper size to default A4
-    const paperSizeSelect = DOMCache.getElementById('paper-size-select');
-    if (paperSizeSelect) {
-        paperSizeSelect.value = 'A4';
-        try {
-            localStorage.removeItem('paper-size-select');
-        } catch (error) {
-            console.warn('Failed to remove paper-size-select from localStorage:', error);
-        }
-    }
-
-    // Remove all watermark-related localStorage entries
-    const watermarkKeys = [
-        'watermark-text',
-        'watermark-color', 
-        'watermark-opacity',
-        'watermark-rotation',
-        'watermark-scale'
-    ];
-    
-    watermarkKeys.forEach(key => {
-        try {
-            localStorage.removeItem(key);
-        } catch (error) {
-            console.warn(`Failed to remove localStorage item ${key}:`, error);
-        }
-    });
-    
-    // Clear all PDF page range localStorage entries
+function clearLegacyPageRangeStorage() {
     try {
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith('pdf-page-range-')) {
-                try {
-                    localStorage.removeItem(key);
-                } catch (error) {
-                    console.warn(`Failed to remove localStorage key ${key}:`, error);
-                }
-            }
-        });
+        Object.keys(localStorage)
+            .filter(key => key.startsWith('pdf-page-range-'))
+            .forEach(key => localStorage.removeItem(key));
     } catch (error) {
-        console.warn('Failed to access localStorage keys:', error);
+        console.warn('Failed to clear saved page ranges:', error);
     }
 }
 
-function resetPage() {
-    resetConversionState();
-    resetFiles();
-    
-    // Clear file input
-    const fileInput = DOMCache.getElementById("file-input");
-    if (fileInput) {
-        fileInput.value = "";
-    }
-    
-    const fileLink = DOMCache.getElementById("file-link");
-    if (fileLink) {
-        fileLink.style.display = "none";
-        fileLink.innerHTML = "";
-    }
-}
-
+/**
+ * Saves the merged PDF via the save picker, or falls back to a download link.
+ * @returns {Promise<boolean>} false when the user cancelled the save dialog
+ */
 async function prepareFileLink(pdfBytes) {
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const defaultFilename = `PDFMerge_${getFormattedCurrentDate()}.pdf`;
@@ -643,10 +559,8 @@ async function prepareFileLink(pdfBytes) {
                 console.warn('File System Access API failed, falling back to download:', error);
                 // Fall through to traditional download
             } else {
-                // User cancelled the save dialog
-                displayFlashMessage("Save cancelled by user", "info");
-                resetPage();
-                return;
+                displayFlashMessage("Save cancelled. Your files are still listed, merge again to save.", "info", 8000);
+                return false;
             }
         }
     }
@@ -698,15 +612,15 @@ async function prepareFileLink(pdfBytes) {
         const cleanupDelay = isMobile ? 120000 : 60000; // 2 minutes on mobile, 1 minute on desktop
         setTimeout(() => {
             URL.revokeObjectURL(blobUrl);
-            fileLink.innerHTML = "";
+            // A later merge may have replaced this link; leave that one alone
+            if (dlAnchor.isConnected) {
+                fileLink.replaceChildren();
+                fileLink.style.display = "none";
+            }
         }, cleanupDelay);
     }
-    
-    // Reset the page after appropriate delay based on device
-    const resetDelay = isMobileDevice() ? 15000 : 5000; // 15 seconds on mobile, 5 seconds on desktop
-    setTimeout(() => {
-        resetPage();
-    }, resetDelay);
+
+    return true;
 }
 
 function getImageLayout(fileEntry = null) {
@@ -865,8 +779,9 @@ function getWatermarkText() {
  * Parses a page range string (e.g. "1-3,5,8") into 0-based page indices.
  * @param {string} pageRangeValue - The raw page range input
  * @param {number} totalPages - Number of pages in the source PDF
- * @returns {{pageIndices: number[], invalidTokens: string[]}} Sorted unique
- *   indices plus any tokens that could not be parsed or are out of range
+ * @returns {{pageIndices: number[], invalidTokens: string[]}} Indices in the
+ *   order typed (repeats kept) plus any tokens that could not be parsed or are
+ *   out of range
  */
 function parsePageRangeSelection(pageRangeValue, totalPages) {
     const pageIndices = [];
@@ -893,22 +808,12 @@ function parsePageRangeSelection(pageRangeValue, totalPages) {
         }
     }
 
-    // Remove duplicates and sort
-    return {
-        pageIndices: [...new Set(pageIndices)].sort((a, b) => a - b),
-        invalidTokens
-    };
+    // Order and repeats are kept as typed so "3,1,2" reorders and "1,1" duplicates
+    return { pageIndices, invalidTokens };
 }
 
 function getSelectedPageIndicesForFile(file, totalPages) {
-    // Find the corresponding page range input for this file
-    const pageRangeInput = DOMCache.querySelector(`input.pdf-page-range-input[data-file-id="${file.id}"]`);
-
-    if (!pageRangeInput) {
-        return null; // If no input found, use all pages
-    }
-
-    const pageRangeValue = pageRangeInput.value.trim();
+    const pageRangeValue = (file.pageRange ?? '').trim();
     if (!pageRangeValue) {
         return null; // Empty input means use all pages
     }

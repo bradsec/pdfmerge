@@ -3,16 +3,16 @@ import assert from 'node:assert/strict';
 
 import { parsePageRangeSelection } from '../js/pdf-processing.js';
 
-test('mixed ranges and single pages parse to sorted unique 0-based indices', () => {
+test('mixed ranges and single pages parse to 0-based indices', () => {
     assert.deepEqual(parsePageRangeSelection('1-3,5', 10), {
         pageIndices: [0, 1, 2, 4],
         invalidTokens: []
     });
 });
 
-test('duplicate and unordered tokens are deduplicated and sorted', () => {
+test('pages keep the order typed, including repeats', () => {
     assert.deepEqual(parsePageRangeSelection('3,1,1-2', 10), {
-        pageIndices: [0, 1, 2],
+        pageIndices: [2, 0, 0, 1],
         invalidTokens: []
     });
 });

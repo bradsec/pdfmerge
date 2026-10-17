@@ -11,8 +11,9 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 ### File Handling
 
 - **PDF and Image Merging**: Combine PDFs with JPG, PNG, WEBP, and GIF images
-- **Drag and Drop**: Add files by dragging onto the page, or reorder cards by dragging
-- **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF
+- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging
+- **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page
+- **Duplicate Files**: Add the same file more than once, for example to take different page ranges from one PDF
 - **Blank Page Insertion**: Add blank separator pages to the output
 - **Individual File Removal**: Delete specific files with per-card remove buttons
 
@@ -44,11 +45,13 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 
 - No server uploads: all PDF and image processing happens locally in your browser; your files are never uploaded
 - Self-hosted assets: all fonts, scripts, and assets are served from the same origin (no third-party CDNs)
+- Security headers (CSP with `frame-ancestors 'none'`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) set through the Cloudflare Pages `_headers` file
 - The only external request is to Cloudflare Web Analytics (`cloudflareinsights.com`), a cookieless, privacy-preserving page-view counter that collects no personal data and no file content
 - Cancel mid-merge at any time
 - Progress bar with 60-second timeout protection
 - Dark and light mode, persisted across sessions
-- All settings persisted to localStorage and reset to defaults after a successful merge
+- Option toggles and watermark settings persisted to localStorage across merges and sessions
+- Cancelling the save dialog keeps the file list so the merge can be run again
 
 ## Browser Compatibility
 

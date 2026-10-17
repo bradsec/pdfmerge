@@ -81,7 +81,16 @@ function initializeApp() {
         }
     });
 
-    dropArea.addEventListener("drop", handleDropArea);
+    // Drops anywhere on the page add files. Without this, a drop that misses
+    // the drop area navigates the tab to the file and discards the list.
+    const isFileDrag = (e) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
+    document.addEventListener("dragover", (e) => {
+        if (isFileDrag(e)) e.preventDefault();
+    });
+    document.addEventListener("drop", (e) => {
+        if (!isFileDrag(e)) return;
+        handleDropArea(e);
+    });
 
     // Add keyboard accessibility for file input
     dropArea.addEventListener("keydown", (e) => {

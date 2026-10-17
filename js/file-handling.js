@@ -24,7 +24,6 @@ const FILE_CONFIG = {
 
 // Application state
 const selectedFiles = [];
-const addedFilesSet = new Set();
 let nextSelectedFileId = 0;
 
 /**
@@ -53,7 +52,9 @@ function createSelectedFileEntry(file) {
         imageLayout: FILE_CONFIG.IMAGE_EXTENSIONS.includes(`.${extension}`) ? getDefaultImageLayout() : null,
         imageRotation: 0,
         rotation: 0,
-        fingerprint: createFileFingerprint(file)
+        // Held on the entry, not in storage, so two copies of the same file
+        // can use different ranges and the value survives card re-renders
+        pageRange: ''
     };
 }
 
@@ -69,10 +70,6 @@ function createBlankPageEntry() {
 
 function findSelectedFileIndexById(fileId) {
     return selectedFiles.findIndex((fileEntry) => fileEntry.id === fileId);
-}
-
-function getPageRangeStorageKey(fileEntry) {
-    return `pdf-page-range-${fileEntry.fingerprint ?? fileEntry.id}`;
 }
 
 function getDefaultImageLayout() {
@@ -242,7 +239,7 @@ async function handleFileInputChange(event) {
 
 async function handleDropArea(event) {
     event.preventDefault();
-    event.currentTarget.classList.remove("drag");
+    DOMCache.getElementById("drop-area").classList.remove("drag");
     const spinner = DOMCache.getElementById("spinner");
     const fileLink = DOMCache.getElementById("file-link");
 
@@ -291,16 +288,9 @@ async function appendFilesToSelection(files) {
             continue;
         }
 
-        if (!isBlankPage(file)) {
-            if (addedFilesSet.has(createFileFingerprint(file))) {
-                skippedFiles.push(`${file.name} (already added)`);
-                continue;
-            }
-
-            if (file.size > FILE_CONFIG.MAX_FILE_SIZE && !isPdfFileObject(file)) {
-                skippedFiles.push(`${file.name} (over the 50 MB image size limit)`);
-                continue;
-            }
+        if (!isBlankPage(file) && file.size > FILE_CONFIG.MAX_FILE_SIZE && !isPdfFileObject(file)) {
+            skippedFiles.push(`${file.name} (over the 50 MB image size limit)`);
+            continue;
         }
 
         // Reject password-protected (open-password) PDFs: they cannot be read,
@@ -311,7 +301,6 @@ async function appendFilesToSelection(files) {
         }
 
         const fileEntry = createSelectedFileEntry(file);
-        addedFilesSet.add(fileEntry.fingerprint);
         selectedFiles.push(fileEntry);
         appendedEntries.push(fileEntry);
     }
@@ -468,23 +457,9 @@ async function createFileCard(fileEntry, index) {
         pageRangeInput.setAttribute("data-file-id", fileEntry.id);
         pageRangeInput.title = "Ranges (1-5), individual pages (1,3,7), or mixed (1-3,5,8). Leave empty for all pages.";
         
-        // Load saved page range if exists
-        try {
-            const savedRange = localStorage.getItem(getPageRangeStorageKey(fileEntry));
-            if (savedRange && typeof savedRange === 'string') {
-                pageRangeInput.value = savedRange;
-            }
-        } catch (error) {
-            console.warn('Failed to load saved page range:', error);
-        }
-        
-        // Save page range on change
+        pageRangeInput.value = fileEntry.pageRange ?? '';
         pageRangeInput.addEventListener("input", function() {
-            try {
-                localStorage.setItem(getPageRangeStorageKey(fileEntry), this.value);
-            } catch (error) {
-                console.warn('Failed to save page range:', error);
-            }
+            fileEntry.pageRange = this.value;
         });
         
         cardBody.appendChild(pageRangeInput);
@@ -989,25 +964,11 @@ async function completeFileRemoval(fileId) {
     const fileEntry = selectedFiles[index];
     const cardElement = DOMCache.getElementById(fileId);
 
-    // Remove from addedFilesSet to allow re-adding
-    if (fileEntry.fingerprint) {
-        addedFilesSet.delete(fileEntry.fingerprint);
-    }
     revokeThumbnailUrl(fileEntry);
-    
+
     // Remove from selectedFiles array
     selectedFiles.splice(index, 1);
-    
-    // Remove saved page range from localStorage if it's a PDF
-    const fileExtension = fileEntry.extension || fileEntry.name.split(".").pop().toLowerCase();
-    if (fileExtension === "pdf") {
-        try {
-            localStorage.removeItem(getPageRangeStorageKey(fileEntry));
-        } catch (error) {
-            console.warn('Failed to remove saved page range:', error);
-        }
-    }
-    
+
     cardElement?.remove();
     if (dragManager) {
         dragManager.makeDraggable();
@@ -1021,7 +982,6 @@ async function completeFileRemoval(fileId) {
 function resetFiles() {
     selectedFiles.forEach((fileEntry) => revokeThumbnailUrl(fileEntry));
     selectedFiles.length = 0;
-    addedFilesSet.clear();
     const fileList = DOMCache.getElementById("selected-files-list");
     fileList.innerHTML = "";
     const fileInput = DOMCache.getElementById("file-input");
@@ -1295,7 +1255,6 @@ export {
     updateButtonVisibility,
     updateToggleItemVisibility,
     updateDropAreaState,
-    addedFilesSet,
     initializeDragManager,
     updateSelectedFilesList,
     appendSelectedFileEntriesToList,
