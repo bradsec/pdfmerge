@@ -77,6 +77,10 @@ PDFMerge runs client-side, so performance is limited by your device and browser.
 - **EXIF Extraction**: exif-js reads metadata from JPEG files before embedding
 - **Security**: Content Security Policy restricts `default-src` to `'self'`; the only permitted external origin is Cloudflare Web Analytics (`script-src`/`connect-src`). No third-party scripts, fonts, or trackers are loaded
 
+## Support
+
+If pdfmerge is useful to you, please consider starring the repository to help others discover it. You can also support its development on [Ko-fi](https://ko-fi.com/bradsec).
+
 ## Credits and Third-Party Licensing
 
 - **[pdf-lib](https://pdf-lib.js.org/)** v1.17.1 by Andrew Dillon | [MIT License](https://opensource.org/licenses/MIT)
