@@ -1,0 +1,74 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'LICENCE.txt']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+
+  bump:
+    needs: test
+    if: >-
+      ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')) &&
+      !contains(github.event.head_commit.message || '', '[skip ci]') &&
+      !startsWith(github.event.head_commit.message || '', 'chore: bump version')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: version-bump
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Bump and sync version
+        env:
+          BUMP_TYPE: ${{ inputs.bump || 'patch' }}
+        run: |
+          git config user.name "BRADSEC"
+          git config user.email "7948876+bradsec@users.noreply.github.com"
+          git pull --ff-only origin main
+          npm version "$BUMP_TYPE" --no-git-tag-version
+          npm run version:sync
+          npm test
+          version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')
+          git add package.json index.html
+          if [ -f package-lock.json ]; then
+            git add package-lock.json
+          fi
+          git commit -m "chore: bump version to $version [skip ci]"
+          if ! git push origin main; then
+            git pull --rebase origin main
+            git push origin main
+          fi

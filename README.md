@@ -1,5 +1,10 @@
 # PDFMerge
 
+[![Tests](https://github.com/bradsec/pdfmerge/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/bradsec/pdfmerge/actions/workflows/tests.yml)
+[![Version](https://img.shields.io/github/package-json/v/bradsec/pdfmerge)](package.json)
+[![License: MIT](https://img.shields.io/github/license/bradsec/pdfmerge)](LICENCE.txt)
+[![Live site](https://img.shields.io/website?url=https%3A%2F%2Fpdfmerge.me&label=pdfmerge.me)](https://pdfmerge.me)
+
 PDFMerge is a free, privacy-first web app for merging PDFs and images into a single document. All processing runs entirely in your browser: nothing is uploaded to any server.
 
 Live at [pdfmerge.me](https://pdfmerge.me)
@@ -64,6 +69,10 @@ Install the pinned development tools with `npm ci`, then run:
 
 - `npm run lint` to lint first-party JavaScript and tests
 - `npm test` to run the regression test suite
+
+### Versioning
+
+The version lives in `package.json`. CI bumps the patch version on every push to `main` that changes app files, after tests and lint pass. Pushes containing only Markdown, `docs/`, or `LICENCE.txt` changes are ignored. The footer is synced with `npm run version:sync`. For a manual minor or major bump, use the Tests workflow's **Run workflow** button on `main` and select the bump type.
 
 ## Known Limitations
 

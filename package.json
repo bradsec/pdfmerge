@@ -1,9 +1,11 @@
 {
   "private": true,
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
-    "lint": "eslint eslint.config.js js tests",
-    "test": "node --test tests/*.test.mjs"
+    "lint": "eslint eslint.config.js js tests scripts",
+    "test": "node --test tests/*.test.mjs",
+    "version:sync": "node scripts/sync-version.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
