@@ -79,7 +79,9 @@ PDFMerge runs client-side, so performance is limited by your device and browser.
 
 ## Support
 
-If pdfmerge is useful to you, please consider starring the repository to help others discover it. You can also support its development on [Ko-fi](https://ko-fi.com/bradsec).
+If pdfmerge is useful to you, please consider starring the repository to help others discover it.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C8G129FZKM)
 
 ## Credits and Third-Party Licensing
 
