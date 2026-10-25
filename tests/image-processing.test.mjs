@@ -1,12 +1,13 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
+const {
     applyPixelBudgetToBounds,
     calculateImageProcessingBounds,
     getImageProcessingPixelBudget,
     getImageProcessingCapabilities
-} from '../js/image-processing.js';
+} = await importApp('image-processing.js');
 
 test('worker image processing only enables when all required APIs exist', () => {
     assert.equal(

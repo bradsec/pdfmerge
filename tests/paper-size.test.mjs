@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getDefaultPaperSizeValue, initializePaperSizeSelect } from '../js/paper-size.js';
+const { getDefaultPaperSizeValue, initializePaperSizeSelect } = await importApp('paper-size.js');
 
 test('paper size defaults to A4', () => {
     assert.equal(getDefaultPaperSizeValue(), 'A4');

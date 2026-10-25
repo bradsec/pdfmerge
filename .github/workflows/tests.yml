@@ -63,11 +63,8 @@ jobs:
           npm run version:sync
           npm test
           version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')
-          git add package.json index.html
-          if [ -f package-lock.json ]; then
-            git add package-lock.json
-          fi
-          git commit -m "chore: bump version to $version [skip ci]"
+          git add -A -- package.json package-lock.json index.html js css
+          git commit -m "chore: bump version to $version"
           if ! git push origin main; then
             git pull --rebase origin main
             git push origin main

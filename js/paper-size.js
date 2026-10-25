@@ -1,4 +1,4 @@
-import { DOMCache } from './dom-cache.js';
+import { DOMCache } from './dom-cache.js?v=1.2.1';
 
 const PAPER_DIMENSIONS_MM = {
     A0: [841, 1189],

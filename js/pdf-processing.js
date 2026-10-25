@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js';
+import { createIcon } from './icons.js?v=1.2.1';
 import { 
     formatDateTime, 
     getFormattedCurrentDate, 
@@ -12,9 +12,9 @@ import {
     hexToRgb,
     estimateTextWidth,
     isMobileDevice 
-} from './utils.js';
-import { resizeImageAndConvertToJPEG } from './image-processing.js';
-import { getSelectedPaperSizePoints } from './paper-size.js';
+} from './utils.js?v=1.2.1';
+import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.2.1';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.2.1';
 
 import { 
     selectedFiles, 
@@ -23,10 +23,10 @@ import {
     updateButtonVisibility, 
     updateToggleItemVisibility,
     updateDropAreaState
-} from './file-handling.js';
+} from './file-handling.js?v=1.2.1';
 
-import { addWatermarkToPage } from './watermark.js';
-import { DOMCache } from './dom-cache.js';
+import { addWatermarkToPage } from './watermark.js?v=1.2.1';
+import { DOMCache } from './dom-cache.js?v=1.2.1';
 
 // PDF Processing constants
 const PDF_CONFIG = {

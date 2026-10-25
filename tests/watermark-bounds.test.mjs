@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
+const {
     calculateSingleWatermarkFontSize,
     calculateTiledWatermarkFontSize,
     compensateWatermarkDrawForPageTransform,
@@ -12,7 +13,7 @@ import {
     getSingleWatermarkDrawPosition,
     getTiledWatermarkPositions,
     getWatermarkReferenceBounds
-} from '../js/watermark.js';
+} = await importApp('watermark.js');
 
 test('watermark bounds use media box origin for imported PDF pages', () => {
     const page = {

@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parsePageRangeSelection } from '../js/pdf-processing.js';
+const { parsePageRangeSelection } = await importApp('pdf-processing.js');
 
 test('mixed ranges and single pages parse to 0-based indices', () => {
     assert.deepEqual(parsePageRangeSelection('1-3,5', 10), {

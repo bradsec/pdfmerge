@@ -72,7 +72,7 @@ Install the pinned development tools with `npm ci`, then run:
 
 ### Versioning
 
-The version lives in `package.json`. CI bumps the patch version on every push to `main` that changes app files, after tests and lint pass. Pushes containing only Markdown, `docs/`, or `LICENCE.txt` changes are ignored. The footer is synced with `npm run version:sync`. For a manual minor or major bump, use the Tests workflow's **Run workflow** button on `main` and select the bump type.
+The version lives in `package.json`. CI bumps the patch version on every push to `main` that changes app files, after tests and lint pass. Pushes containing only Markdown, `docs/`, or `LICENCE.txt` changes are ignored. Local assets and module URLs carry `?v=<version>` to prevent stale CSS and JavaScript after deploys. Run `npm run version:sync` after editing to sync the footer and asset URLs; never hand-edit `?v=`. CI commits these synced files with the version bump so Cloudflare Pages deploys them. For a manual minor or major bump, use the Tests workflow's **Run workflow** button on `main` and select the bump type.
 
 ## Known Limitations
 

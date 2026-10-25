@@ -1,4 +1,4 @@
-import { DOMCache } from './dom-cache.js';
+import { DOMCache } from './dom-cache.js?v=1.2.1';
 
 /**
  * Formats file size from bytes to human-readable format

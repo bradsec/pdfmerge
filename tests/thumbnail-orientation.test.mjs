@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getPdfThumbnailPreviewState } from '../js/thumbnail-orientation.js';
+const { getPdfThumbnailPreviewState } = await importApp('thumbnail-orientation.js');
 
 test('landscape PDF thumbnails keep a landscape shell without rotating content by default', () => {
     assert.deepEqual(getPdfThumbnailPreviewState('landscape', 0), {

@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { normalizePageBoxes, resizePdfPageToOutputSize } from '../js/pdf-processing.js';
+const { normalizePageBoxes, resizePdfPageToOutputSize } = await importApp('pdf-processing.js');
 
 test('normalizePageBoxes resets imported PDF page boxes to the final output size', () => {
     const calls = [];

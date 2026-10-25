@@ -1,6 +1,10 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIcon } from '../js/icons.js';
+import { readFileSync } from 'node:fs';
+
+const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const { createIcon } = await importApp('icons.js');
 
 test('dynamic icons use SVG elements and a local sprite reference', () => {
     const previousDocument = globalThis.document;
@@ -21,7 +25,7 @@ test('dynamic icons use SVG elements and a local sprite reference', () => {
         assert.equal(icon.children.length, 1);
         assert.equal(icon.children[0].namespace, icon.namespace);
         assert.equal(icon.children[0].tag, 'use');
-        assert.equal(icon.children[0].attributes.href, 'images/icons.svg#trash-2');
+        assert.equal(icon.children[0].attributes.href, `images/icons.svg?v=${version}#trash-2`);
     } finally {
         globalThis.document = previousDocument;
     }

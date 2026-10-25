@@ -1,7 +1,8 @@
+import { importApp } from './import-app.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { formatExifGpsCoordinates } from '../js/pdf-processing.js';
+const { formatExifGpsCoordinates } = await importApp('pdf-processing.js');
 
 test('northern and eastern coordinates stay positive', () => {
     assert.equal(
