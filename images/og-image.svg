@@ -1,0 +1,36 @@
+<!-- Derived from brand-mark.svg; Lucide ISC license: ../js/vendor/lucide-LICENSE -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="0%" r="75%">
+      <stop stop-color="#0071e3" stop-opacity=".13" />
+      <stop offset="1" stop-color="#0071e3" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="wash" x2="0" y2="1">
+      <stop stop-color="white" stop-opacity=".55" />
+      <stop offset="1" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#f3f4f6" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+  <rect width="1200" height="240" fill="url(#wash)" />
+  <g transform="translate(90 155) scale(3.2)">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#168bff" />
+      <stop offset="1" stop-color="#0061cc" />
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="11" fill="url(#accent)" />
+  <g transform="translate(9 9) scale(.916667)" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+  </g>
+  </g>
+  <g font-family="Liberation Sans, sans-serif">
+    <text x="252" y="244" font-size="76" fill="#1d1d1d"><tspan font-weight="700">PDF</tspan><tspan font-weight="400">Merge</tspan></text>
+    <text x="90" y="365" font-size="36" fill="#42464d">Merge PDFs and images in your browser.</text>
+    <rect x="90" y="437" width="48" height="4" rx="2" fill="#0071e3" />
+    <text x="90" y="500" font-size="25" fill="#616771">pdfmerge.me</text>
+  </g>
+</svg>

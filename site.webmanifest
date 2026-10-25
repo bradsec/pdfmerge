@@ -1,21 +1,23 @@
 {
-  "name": "PDF Merge",
+  "name": "PDFMerge",
   "short_name": "PDFMerge",
   "description": "Merge PDFs and images in your browser with no uploads or server processing.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#16181c",
-  "theme_color": "#16181c",
+  "background_color": "#f3f4f6",
+  "theme_color": "#0071e3",
   "icons": [
     {
       "src": "images/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "images/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

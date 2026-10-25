@@ -73,7 +73,7 @@ PDFMerge runs client-side, so performance is limited by your device and browser.
 
 - **Architecture**: Static single-page app with vanilla JavaScript ES modules: no build step, no framework, no server
 - **PDF Engine**: pdf-lib for PDF creation and manipulation; PDF.js for thumbnail rendering
-- **Font Handling**: UI fonts (Roboto, JetBrains Mono, Material Icons Outlined) are self-hosted in `fonts/web/`. Roboto is also embedded in output PDFs via fontkit using files in `fonts/`
+- **Font Handling**: UI fonts (Roboto, JetBrains Mono) are self-hosted in `fonts/web/`. Roboto is also embedded in output PDFs via fontkit using files in `fonts/`
 - **EXIF Extraction**: exif-js reads metadata from JPEG files before embedding
 - **Security**: Content Security Policy restricts `default-src` to `'self'`; the only permitted external origin is Cloudflare Web Analytics (`script-src`/`connect-src`). No third-party scripts, fonts, or trackers are loaded
 
@@ -91,4 +91,4 @@ If pdfmerge is useful to you, please consider starring the repository to help ot
 - **[fontkit](https://github.com/foliojs/fontkit)** v1.1.1 | [MIT License](https://opensource.org/licenses/MIT)
 - **Roboto Font** by Christian Robertson | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - **JetBrains Mono** by JetBrains | [SIL Open Font License 1.1](https://openfontlicense.org/)
-- **Material Icons** by Google | [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **[Lucide](https://lucide.dev/)** v1.61.0 | [ISC licence](js/vendor/lucide-LICENSE). Icons are self-hosted in `images/icons.svg`; no external icon requests

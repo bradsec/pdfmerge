@@ -3,6 +3,7 @@
  * @author BRADSEC
  */
 
+import { createIcon } from './icons.js';
 import { 
     formatDateTime, 
     getFormattedCurrentDate, 
@@ -591,10 +592,8 @@ async function prepareFileLink(pdfBytes) {
         dlAnchor.href = blobUrl;
         dlAnchor.className = "file-link flash-success";
         dlAnchor.download = outputFilename;
-        const icon = document.createElement("span");
-        icon.className = "material-icons-outlined";
+        const icon = createIcon('file-text');
         icon.style.fontSize = "45px";
-        icon.textContent = "picture_as_pdf";
         const label = document.createTextNode(` ${outputFilename} (${fileSize}) - ${downloadText}`);
         dlAnchor.appendChild(icon);
         dlAnchor.appendChild(label);

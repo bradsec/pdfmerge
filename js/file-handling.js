@@ -3,6 +3,7 @@
  * @author BRADSEC
  */
 
+import { createIcon } from './icons.js';
 import { formatFileSize, displayFlashMessage, getFormattedCurrentDate } from './utils.js';
 import { CardDragManager } from './card-drag-manager.js';
 import { CardExplosion } from './card-explosion.js';
@@ -371,7 +372,7 @@ async function createFileCard(fileEntry, index) {
 
         const thumbnailWrapper = document.createElement("div");
         thumbnailWrapper.className = "card-thumbnail-wrapper blank-page-preview";
-        thumbnailWrapper.innerHTML = `<span class="material-icons-outlined">article</span>`;
+        thumbnailWrapper.appendChild(createIcon('file-text'));
 
         const blankCard = document.createElement("div");
         blankCard.className = "blank-page-card file-info-container";
@@ -380,7 +381,7 @@ async function createFileCard(fileEntry, index) {
         const deleteButton = document.createElement("button");
         deleteButton.className = "delete-file-button";
         deleteButton.type = "button";
-        deleteButton.innerHTML = '<span class="material-icons-outlined">delete</span>';
+        deleteButton.appendChild(createIcon('trash-2'));
         deleteButton.title = "Remove blank page";
         deleteButton.setAttribute("data-file-id", fileEntry.id);
         deleteButton.addEventListener("click", (e) => {
@@ -518,7 +519,7 @@ async function createFileCard(fileEntry, index) {
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-file-button";
     deleteButton.type = "button";
-    deleteButton.innerHTML = '<span class="material-icons-outlined">delete</span>';
+    deleteButton.appendChild(createIcon('trash-2'));
     deleteButton.title = "Remove file";
     deleteButton.setAttribute("data-file-id", fileEntry.id);
     deleteButton.addEventListener("click", (e) => {
@@ -637,7 +638,7 @@ async function createFileCard(fileEntry, index) {
     const orientationToggleBtn = document.createElement("button");
     orientationToggleBtn.type = "button";
     orientationToggleBtn.className = "orientation-toggle-btn";
-    orientationToggleBtn.innerHTML = '<span class="material-icons-outlined">screen_rotation</span>';
+    orientationToggleBtn.appendChild(createIcon('rotate-cw-square'));
 
     const syncPreviewFrameOrientation = () => {
         if (!fileInfoContainer) {
@@ -712,7 +713,7 @@ async function createFileCard(fileEntry, index) {
         const imageRotationBtn = document.createElement("button");
         imageRotationBtn.type = "button";
         imageRotationBtn.className = "orientation-toggle-btn";
-        imageRotationBtn.innerHTML = '<span class="material-icons-outlined">rotate_right</span>';
+        imageRotationBtn.appendChild(createIcon('rotate-cw'));
         const syncImageRotationBtn = () => {
             const state = getNextImageRotationState(fileEntry.imageRotation);
             imageRotationBtn.title = state.title;
