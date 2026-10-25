@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { DOMCache } from './dom-cache.js?v=1.2.1';
+import { DOMCache } from './dom-cache.js?v=1.2.2';
 
 class CardDragManager {
     constructor(containerSelector, onReorder) {
