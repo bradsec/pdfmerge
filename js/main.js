@@ -3,11 +3,11 @@
  * @author BRADSEC
  */
 
-import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.0';
-import { convertToPDF } from './pdf-processing.js?v=1.3.0';
-import { initWatermarkControls } from './watermark.js?v=1.3.0';
-import { DOMCache } from './dom-cache.js?v=1.3.0';
-import { initializePaperSizeSelect } from './paper-size.js?v=1.3.0';
+import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.1';
+import { convertToPDF } from './pdf-processing.js?v=1.3.1';
+import { initWatermarkControls } from './watermark.js?v=1.3.1';
+import { DOMCache } from './dom-cache.js?v=1.3.1';
+import { initializePaperSizeSelect } from './paper-size.js?v=1.3.1';
 
 // Application constants
 const APP_CONFIG = {
