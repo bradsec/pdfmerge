@@ -1,5 +1,20 @@
 <!-- Lucide 1.61.0, ISC license: ../js/vendor/lucide-LICENSE -->
 <svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="circle-alert" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" />
+  </symbol>
+  <symbol id="circle-check" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" /><path d="m8 12 2.5 2.5L16 9" />
+  </symbol>
+  <symbol id="info" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
+  </symbol>
+  <symbol id="triangle-alert" viewBox="0 0 24 24">
+    <path d="m10.3 3.9-8.4 14.5A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.6L13.7 3.9a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4" /><path d="M12 17h.01" />
+  </symbol>
+  <symbol id="x" viewBox="0 0 24 24">
+    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+  </symbol>
   <symbol id="cloud-upload" viewBox="0 0 24 24">
     <path d="M12 13v8" />
   <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />

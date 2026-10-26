@@ -791,6 +791,7 @@ async function updateSelectedFilesList(skipDragReinit = false) {
         updateToggleItemVisibility();
     } catch (error) {
         console.error("Error updating file list:", error);
+        displayFlashMessage("Could not update the file list. Please try adding the files again.", "danger");
         if (selectedFiles.length > 0) {
             updateButtonVisibility();
         }

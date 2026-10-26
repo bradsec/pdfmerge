@@ -1,4 +1,4 @@
-import { DOMCache } from './dom-cache.js?v=1.2.2';
+import { showToast } from './toast.js?v=1.2.2';
 
 /**
  * Formats file size from bytes to human-readable format
@@ -109,47 +109,8 @@ function getFormattedCurrentDate() {
         .replace(/\.\d+/, "");
 }
 
-let _flashHideTimer = null;
-
-function displayFlashMessage(message, type = 'info', duration = 5000) {
-    const flashBannerContainer = DOMCache.querySelector('.flash-banner-container');
-
-    if (!flashBannerContainer) {
-        console.warn('Flash banner container not found');
-        return;
-    }
-
-    if (!message || typeof message !== 'string') {
-        console.warn('Invalid message for flash banner');
-        return;
-    }
-
-    const validTypes = ['success', 'danger', 'warning', 'info'];
-    if (!validTypes.includes(type)) {
-        console.warn(`Invalid flash message type: ${type}`);
-        type = 'info';
-    }
-
-    // Cancel any pending hide so a new message appears immediately
-    if (_flashHideTimer) {
-        clearTimeout(_flashHideTimer);
-        _flashHideTimer = null;
-    }
-
-    flashBannerContainer.classList.remove(
-        'flash-banner-success',
-        'flash-banner-danger',
-        'flash-banner-warning',
-        'flash-banner-info'
-    );
-    flashBannerContainer.classList.add(`flash-banner-${type}`);
-    flashBannerContainer.textContent = message;
-    flashBannerContainer.classList.add('flash-visible');
-
-    _flashHideTimer = setTimeout(() => {
-        flashBannerContainer.classList.remove('flash-visible');
-        _flashHideTimer = null;
-    }, duration);
+function displayFlashMessage(message, type = 'info', duration) {
+    showToast(message, { type: type === 'danger' ? 'error' : type, duration });
 }
 
 /**
