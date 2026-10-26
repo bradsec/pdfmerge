@@ -3,11 +3,11 @@
  * @author BRADSEC
  */
 
-import { handleFileInputChange, handleDropArea, resetFiles, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.2.2';
-import { convertToPDF } from './pdf-processing.js?v=1.2.2';
-import { initWatermarkControls } from './watermark.js?v=1.2.2';
-import { DOMCache } from './dom-cache.js?v=1.2.2';
-import { initializePaperSizeSelect } from './paper-size.js?v=1.2.2';
+import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.0';
+import { convertToPDF } from './pdf-processing.js?v=1.3.0';
+import { initWatermarkControls } from './watermark.js?v=1.3.0';
+import { DOMCache } from './dom-cache.js?v=1.3.0';
+import { initializePaperSizeSelect } from './paper-size.js?v=1.3.0';
 
 // Application constants
 const APP_CONFIG = {
@@ -92,25 +92,17 @@ function initializeApp() {
         handleDropArea(e);
     });
 
-    // Add keyboard accessibility for file input
-    dropArea.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            fileInput.click();
-        }
-    });
-
-    // Make drop area focusable for keyboard navigation
-    dropArea.setAttribute("tabindex", "0");
-    dropArea.setAttribute("role", "button");
-    dropArea.setAttribute("aria-label", "Drop files here or press Enter to select files");
+    // The drop area is not a button: it contains the file cards, and a button
+    // role would hide their controls from assistive tech and swallow their
+    // Enter/Space keys. Keyboard users pick files with the native #file-input.
 
     convertButton.addEventListener("click", convertToPDF);
-    resetButton.addEventListener("click", resetFiles);
+    resetButton.addEventListener("click", () => resetFiles());
 
     const blankPageButton = DOMCache.getElementById("blank-page-button");
     if (blankPageButton) {
         blankPageButton.addEventListener("click", async () => {
+            clearResultLink();
             const entry = createBlankPageEntry();
             selectedFiles.push(entry);
             try {

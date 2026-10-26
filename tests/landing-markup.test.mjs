@@ -24,6 +24,13 @@ test('landing shell keeps the merge workflow mount points', () => {
   assert.match(html, /id="convert-button"/);
 });
 
+test('drop area is not a button, so card controls inside it stay operable', () => {
+  const main = readFileSync(new URL('../js/main.js', import.meta.url), 'utf8');
+  const dropArea = html.match(/<div id="drop-area"[^>]*>/)[0];
+  assert.doesNotMatch(dropArea, /role=|tabindex=/);
+  assert.doesNotMatch(main, /dropArea\.(setAttribute\("(role|tabindex)"|addEventListener\("keydown")/);
+});
+
 test('page imports JetBrains Mono alongside Roboto', () => {
   assert.match(css, /JetBrains Mono/);
 });

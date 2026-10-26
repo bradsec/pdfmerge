@@ -16,7 +16,7 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 ### File Handling
 
 - **PDF and Image Merging**: Combine PDFs with JPG, PNG, WEBP, and GIF images
-- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging
+- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files to start** and move a card to the end with its order-number button
 - **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page
 - **Duplicate Files**: Add the same file more than once, for example to take different page ranges from one PDF
 - **Blank Page Insertion**: Add blank separator pages to the output
@@ -57,11 +57,15 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 - Dark and light mode, persisted across sessions
 - Option toggles and watermark settings persisted to localStorage across merges and sessions
 - Cancelling the save dialog keeps the file list so the merge can be run again
+- The download-again link stays available until you change files, start another merge, or reset
+- **Notifications**: Dismissible toast messages that close on time, including on iOS Safari
+- **Accessibility**: Visible keyboard focus, 44px touch targets, screen-reader status for long operations, and reduced-motion support
 
 ## Browser Compatibility
 
-- **Optimal**: Google Chrome (latest)
-- **Good**: Firefox, Safari, Edge (latest versions)
+- **Optimal**: Google Chrome and other current Chromium-based browsers
+- **Good**: Firefox, Safari (including iOS and iPadOS), and Microsoft Edge (latest versions)
+- **Requirement**: A modern browser with ES module, File API, and Web Crypto support
 
 ## Development
 

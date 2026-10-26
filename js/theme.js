@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { DOMCache } from './dom-cache.js?v=1.2.2';
+import { DOMCache } from './dom-cache.js?v=1.3.0';
 
 // Theme constants
 const THEMES = {

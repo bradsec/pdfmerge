@@ -3,13 +3,13 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js?v=1.2.2';
-import { formatFileSize, displayFlashMessage, getFormattedCurrentDate } from './utils.js?v=1.2.2';
-import { CardDragManager } from './card-drag-manager.js?v=1.2.2';
-import { CardExplosion } from './card-explosion.js?v=1.2.2';
-import { DOMCache } from './dom-cache.js?v=1.2.2';
-import { renderPdfThumbnail, isPdfPasswordProtected } from './pdf-thumbnail.js?v=1.2.2';
-import { getPdfThumbnailPreviewState } from './thumbnail-orientation.js?v=1.2.2';
+import { createIcon } from './icons.js?v=1.3.0';
+import { formatFileSize, displayFlashMessage, getFormattedCurrentDate } from './utils.js?v=1.3.0';
+import { CardDragManager } from './card-drag-manager.js?v=1.3.0';
+import { CardExplosion } from './card-explosion.js?v=1.3.0';
+import { DOMCache } from './dom-cache.js?v=1.3.0';
+import { renderPdfThumbnail, isPdfPasswordProtected } from './pdf-thumbnail.js?v=1.3.0';
+import { getPdfThumbnailPreviewState } from './thumbnail-orientation.js?v=1.3.0';
 
 // File handling constants
 const FILE_CONFIG = {
@@ -302,6 +302,7 @@ async function appendFilesToSelection(files) {
         }
 
         const fileEntry = createSelectedFileEntry(file);
+        clearResultLink();
         selectedFiles.push(fileEntry);
         appendedEntries.push(fileEntry);
     }
@@ -351,10 +352,7 @@ async function createFileCard(fileEntry, index) {
         const cardMetaTopRow = document.createElement("div");
         cardMetaTopRow.className = "card-meta-top-row";
 
-        const orderNumber = document.createElement("span");
-        orderNumber.className = "order-number";
-        orderNumber.textContent = (index + 1).toString();
-        orderNumber.title = `Merge order: ${index + 1} (Click to move to end)`;
+        const orderNumber = createOrderButton(fileEntry, index);
 
         const typeBadge = document.createElement("span");
         typeBadge.className = "file-type-badge blank";
@@ -418,11 +416,8 @@ async function createFileCard(fileEntry, index) {
     const cardMetaTopRow = document.createElement("div");
     cardMetaTopRow.className = "card-meta-top-row";
     
-    const orderNumber = document.createElement("span");
-    orderNumber.className = "order-number";
-    orderNumber.textContent = (index + 1).toString();
-    orderNumber.title = `Merge order: ${index + 1} (Click to move to end)`;
-    
+    const orderNumber = createOrderButton(fileEntry, index);
+
     const typeBadge = document.createElement("span");
     typeBadge.className = `file-type-badge ${isImageFile ? 'image' : 'pdf'}`;
     typeBadge.textContent = fileExtension.toUpperCase();
@@ -462,8 +457,14 @@ async function createFileCard(fileEntry, index) {
         pageRangeInput.addEventListener("input", function() {
             fileEntry.pageRange = this.value;
         });
-        
-        cardBody.appendChild(pageRangeInput);
+
+        // A persistent label: the placeholder alone disappears once typed in
+        // and is not a reliable accessible name.
+        const pageRangeLabel = document.createElement("label");
+        pageRangeLabel.className = "pdf-page-range-label";
+        pageRangeLabel.append("Pages", pageRangeInput);
+
+        cardBody.appendChild(pageRangeLabel);
     } else if (isImageFile) {
         const imageLayoutSelect = document.createElement("select");
         imageLayoutSelect.className = "image-layout-card-select";
@@ -529,38 +530,10 @@ async function createFileCard(fileEntry, index) {
     cardHeader.appendChild(deleteButton);
 
     // Add unique view transition name for smooth animations
-    listItem.style.setProperty('--card-id', `card-${fileEntry.id}`);
     listItem.style.viewTransitionName = `card-${fileEntry.id}`;
 
     // Add unique ID for drag tracking
     listItem.dataset.fileId = fileEntry.id;
-
-    // Add click handler for reordering with animation
-    orderNumber.addEventListener("click", (e) => {
-        // Don't trigger on delete button or input clicks
-        if (e.target.classList.contains('delete-file-button') ||
-            e.target.closest('.delete-file-button') ||
-            e.target.tagName === 'INPUT') {
-            return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Use drag manager for smooth animation if available
-        if (dragManager) {
-            const currentIndex = findSelectedFileIndexById(fileEntry.id);
-            if (currentIndex >= 0) {
-                dragManager.animateClickReorder(currentIndex);
-            }
-        } else {
-            // Fallback to original behavior
-            const currentIndex = findSelectedFileIndexById(fileEntry.id);
-            if (currentIndex >= 0) {
-                moveCardToEnd(currentIndex);
-            }
-        }
-    });
 
     // Thumbnail preview (image or PDF page 1) in an overflow-clip wrapper
     let thumbnail = null;
@@ -969,6 +942,7 @@ async function completeFileRemoval(fileId) {
     revokeThumbnailUrl(fileEntry);
 
     // Remove from selectedFiles array
+    clearResultLink();
     selectedFiles.splice(index, 1);
 
     cardElement?.remove();
@@ -981,7 +955,24 @@ async function completeFileRemoval(fileId) {
     updateToggleItemVisibility();
 }
 
-function resetFiles() {
+function clearResultLink() {
+    const fileLink = DOMCache.getElementById("file-link");
+    if (fileLink?.dataset.blobUrl) URL.revokeObjectURL(fileLink.dataset.blobUrl);
+    if (fileLink) {
+        delete fileLink.dataset.blobUrl;
+        fileLink.replaceChildren();
+        fileLink.style.display = "none";
+    }
+}
+
+function resetFiles(preserveResult = false) {
+    // Safari and Firefox move focus to <body> when the focused convert button
+    // is disabled during a merge, so treat <body> as focus to restore too.
+    const active = document.activeElement;
+    const hadFocus = !active || active === document.body ||
+        active === DOMCache.getElementById("reset-button") ||
+        active === DOMCache.getElementById("convert-button");
+    if (!preserveResult) clearResultLink();
     selectedFiles.forEach((fileEntry) => revokeThumbnailUrl(fileEntry));
     selectedFiles.length = 0;
     const fileList = DOMCache.getElementById("selected-files-list");
@@ -992,6 +983,10 @@ function resetFiles() {
     updateDropAreaState();
     updateButtonVisibility();
     updateToggleItemVisibility();
+    if (hadFocus) {
+        const download = preserveResult ? DOMCache.getElementById("file-link")?.querySelector("a") : null;
+        (download || DOMCache.getElementById("file-input")).focus();
+    }
 }
 
 /**
@@ -1238,10 +1233,61 @@ function updateCardOrderLabels() {
             return;
         }
 
-        const order = index + 1;
-        orderNumber.textContent = order.toString();
-        orderNumber.title = `Merge order: ${order} (Click to move to end)`;
+        const fileEntry = selectedFiles[findSelectedFileIndexById(cardElement.dataset.fileId)];
+        setOrderButtonLabel(orderNumber, fileEntry?.name ?? "file", index + 1);
     });
+
+    // Reordering can rebuild or move the card, which drops focus; return it to
+    // the moved card's order button and announce the new position.
+    if (pendingOrderFocusId) {
+        const movedButton = fileList.querySelector(`li[data-file-id="${CSS.escape(pendingOrderFocusId)}"] .order-number`);
+        const movedEntry = selectedFiles[findSelectedFileIndexById(pendingOrderFocusId)];
+        pendingOrderFocusId = null;
+        if (movedButton && movedEntry) {
+            movedButton.focus();
+            announceToolStatus(`${movedEntry.name} moved to position ${selectedFiles.length} of ${selectedFiles.length}`);
+        }
+    }
+}
+
+let pendingOrderFocusId = null;
+
+function announceToolStatus(message) {
+    const status = DOMCache.getElementById("tool-status");
+    if (status) status.textContent = message;
+}
+
+function setOrderButtonLabel(button, fileName, order) {
+    button.textContent = order.toString();
+    button.title = `Merge order: ${order} (Click to move to end)`;
+    button.setAttribute("aria-label", `Merge order ${order}: move ${fileName} to end`);
+}
+
+function createOrderButton(fileEntry, index) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "order-number";
+    setOrderButtonLabel(button, fileEntry.name, index + 1);
+    button.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const currentIndex = findSelectedFileIndexById(fileEntry.id);
+        if (currentIndex < 0) return;
+        if (currentIndex === selectedFiles.length - 1) {
+            announceToolStatus(`${fileEntry.name} is already last`);
+            return;
+        }
+
+        pendingOrderFocusId = fileEntry.id;
+        // Use drag manager for smooth animation if available
+        if (dragManager) {
+            dragManager.animateClickReorder(currentIndex);
+        } else {
+            moveCardToEnd(currentIndex);
+        }
+    });
+    return button;
 }
 
 
@@ -1251,6 +1297,7 @@ export {
     handleFileInputChange,
     handleDropArea,
     resetFiles,
+    clearResultLink,
     createBlankPageEntry,
     selectedFiles,
     isSupportedFileType,

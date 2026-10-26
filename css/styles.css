@@ -38,153 +38,152 @@
  * Centralized design tokens for consistency
  * ==================================== */
 
+/* Shared design tokens: keep this block identical in both apps. */
 :root {
-  /* Color Palette - Organized from lightest to darkest */
   --color-white: #ffffff;
-  --color-blue-1: #0183ff;
+  --color-black: #000000;
+  --color-ink: #111827;
+  --color-blue-1: #0071e3;
   --color-blue-2: #005ab5;
   --color-blue-3: #004085;
-  --color-cyan-1: #1fb2d3;
+  --color-blue-text: #005ab5;
   --color-red-1: #c44438;
   --color-red-2: #913128;
-  --color-green-1: #529a4a;
-  --color-orange-1: #d76f24;
+  --color-green-1: #35752e;
+  --color-green-text: #35752e;
+  --color-red-text: #a13027;
+  --color-amber-text: #8a4c00;
+  --color-amber-1: #b45309;
   --color-gray-1: #fafafa;
-  --color-gray-2: #ebebeb;
   --color-gray-3: #bebebe;
-  --color-gray-4: #999999;
   --color-gray-5: #666666;
   --color-gray-6: #4e4e4e;
-  --color-gray-7: #303030;
   --color-gray-8: #1d1d1d;
-  
-  /* Typography */
-  --font-family: "Roboto", sans-serif;
-  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-family: 'Roboto', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --base-font-size: 1rem;
   --line-height: 1.4;
-  
-  /* Theme Variables - Light Mode */
   --bg-color: #f3f4f6;
-  --surface-color: #ffffff;
+  --surface-color: var(--color-white);
   --surface2-color: #f6f7f9;
-  --border-color: rgba(17, 24, 39, 0.08);
+  --border-color: #858b94;
+  --card-shell-border: var(--border-color);
   --font-color: var(--color-gray-8);
   --font-color-2: var(--color-gray-5);
   --font-color-footer: var(--color-gray-5);
-  
-  /* Component-Specific Variables */
-  --branding-font-color: var(--color-gray-8);
+  --branding-font-color: var(--font-color);
   --branding-span-font-color: var(--color-blue-1);
-  --branding-font-size: 2.2rem;
-  --branding-letter-spacing: -0.025em;
-  
-  --link-font-color: var(--font-color-2);
-  --link-hover-color: var(--color-blue-2);
-  --link-active-color: var(--color-blue-3);
-  
-  --hero-font-size: 1.6rem;
-  --hero-line-height: 1.4;
-  --hero-letter-spacing: 0.05em;
-  
-  --button-padding: 1.125rem 1.5rem;
-  --button-border-radius: 4px;
+  --link-hover-color: var(--color-blue-text);
   --button-bg-color: var(--color-blue-1);
   --button-hover-bg-color: var(--color-blue-2);
   --button-active-bg-color: var(--color-blue-3);
-  --button-font-color: var(--color-gray-1);
+  --button-font-color: var(--color-white);
+  --button-disabled-bg-color: #d5d8de;
   --button-disabled-font-color: var(--color-gray-6);
-  --button-disabled-bg-color: var(--color-gray-4);
+  --form-input-bg-color: var(--color-gray-1);
+  --form-input-font-color: var(--color-gray-6);
+  --form-input-border: 1px solid var(--border-color);
+  --form-placeholder-color: var(--color-gray-5);
   --accent: var(--color-blue-1);
-  --accent-dim: rgba(1, 131, 255, 0.1);
-  --accent-glow: rgba(1, 131, 255, 0.2);
-  
+  --accent-dim: rgb(0 113 227 / 10%);
+  --body-glow: rgb(0 113 227 / 8%);
+  --body-sheen: rgb(255 255 255 / 55%);
+  --drop-tint: rgb(0 113 227 / 4%);
+  --drop-tint-hover: rgb(0 113 227 / 10%);
+  --border-color-drop-area: var(--focus-color);
+  --focus-color: var(--color-blue-1);
+}
+
+/* Shared dark theme tokens: keep this block identical in both apps. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-blue-text: #9ac7ff;
+  --color-green-text: #8fd38b;
+  --color-red-text: #ff8d82;
+  --color-amber-text: #ffc078;
+  --bg-color: #16181c;
+  --surface-color: #22252b;
+  --surface2-color: #2d3138;
+  --border-color: #7b828c;
+  --card-shell-border: var(--border-color);
+  --font-color: #f1f3f5;
+  --font-color-2: #b5bac2;
+  --font-color-footer: #a6acb4;
+  --branding-font-color: var(--font-color);
+  --branding-span-font-color: var(--color-blue-1);
+  --link-hover-color: var(--color-blue-text);
+  --button-disabled-bg-color: #444a53;
+  --button-disabled-font-color: var(--font-color);
+  --form-input-bg-color: #181b20;
+  --form-input-font-color: var(--font-color);
+  --form-input-border: 1px solid var(--border-color);
+  --form-placeholder-color: var(--font-color-2);
+  --accent-dim: rgb(0 113 227 / 10%);
+  --body-glow: rgb(0 113 227 / 14%);
+  --body-sheen: rgb(255 255 255 / 3%);
+  --border-color-drop-area: var(--focus-color);
+  --focus-color: #9ac7ff;
+}
+
+/* pdfmerge tokens */
+:root {
+  --link-font-color: var(--font-color-2);
+  --link-active-color: var(--color-blue-text);
   --font-color-filelist: var(--color-gray-6);
   --bg-color-filelist: var(--surface-color);
-  --card-shell-border: rgba(17, 24, 39, 0.08);
-  --card-preview-stage-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(0, 0, 0, 0.03));
-  --card-preview-stage-border: rgba(0, 0, 0, 0.06);
-  --card-preview-frame-bg: rgba(255, 255, 255, 0.82);
-  --card-action-bg: rgba(255, 255, 255, 0.58);
-  --card-action-border: rgba(0, 0, 0, 0.1);
-  --orientation-portrait-bg: rgba(53, 120, 229, 0.12);
+  --card-preview-stage-bg: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 72%, transparent), color-mix(in srgb, var(--color-black) 3%, transparent));
+  --card-preview-stage-border: color-mix(in srgb, var(--color-black) 6%, transparent);
+  --card-preview-frame-bg: color-mix(in srgb, var(--color-white) 82%, transparent);
+  --card-action-bg: color-mix(in srgb, var(--color-white) 58%, transparent);
+  --card-action-border: var(--border-color);
+  --orientation-portrait-bg: color-mix(in srgb, var(--color-orientation-blue) 12%, transparent);
   --orientation-portrait-color: #2457a6;
-  --orientation-landscape-bg: rgba(82, 154, 74, 0.14);
+  --orientation-landscape-bg: color-mix(in srgb, var(--color-orientation-green-wash) 14%, transparent);
   --orientation-landscape-color: #2b6d38;
-  --orientation-neutral-bg: rgba(0, 0, 0, 0.05);
+  --orientation-neutral-bg: color-mix(in srgb, var(--color-black) 5%, transparent);
   --orientation-neutral-color: #5b6472;
-  --orientation-toggle-bg: rgba(1, 131, 255, 0.1);
-  --orientation-toggle-bg-hover: rgba(1, 131, 255, 0.16);
-  --orientation-toggle-border: rgba(1, 131, 255, 0.35);
+  --orientation-toggle-bg: color-mix(in srgb, var(--color-blue-1) 10%, transparent);
+  --orientation-toggle-bg-hover: color-mix(in srgb, var(--color-blue-1) 16%, transparent);
+  --orientation-toggle-border: var(--focus-color);
   --orientation-toggle-color: #0c4f99;
-  
-  --border-color-drop-area: rgba(1, 131, 255, 0.28);
   --font-color-drop-area: var(--color-gray-5);
-  
-  --form-input-font-color: var(--color-gray-6);
-  --form-input-bg-color: var(--color-gray-1);
-  --form-input-border: 1px solid rgba(17, 24, 39, 0.12);
-  --form-placeholder-color: var(--color-gray-4);
-  
-  /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 10px 30px rgba(0, 0, 0, 0.4);
-  
-  /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
+  --color-orientation-blue: #3578e5;
+  --color-orientation-green-wash: #529a4a;
+  --color-dark-card-muted: #9aa3af;
+  --color-dark-card-bg: #3a3f47;
+  --color-dark-select-bg: #40454e;
+  --color-dark-contrast: #e6f1ff;
+  --color-dark-danger-hover: #b94a3f;
 }
 
-/* Dark Theme Overrides */
 [data-theme="dark"] {
-  color-scheme: dark;
-  --bg-color: #16181c;
-  --surface-color: #22252b;
-  --surface2-color: #2d3138;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --font-color: #f1f3f5;
-  --font-color-2: #b5bac2;
-  --branding-font-color: #f1f3f5;
-  --branding-span-font-color: #0183ff;
-  --link-hover-color: #0183ff;
-  --font-color-filelist: #f1f3f5;
+  --color-orientation-green-wash: #4daa71;
+  --font-color-filelist: var(--font-color);
   --bg-color-filelist: #262a31;
-  --card-shell-border: rgba(1, 131, 255, 0.12);
-  --card-preview-stage-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.16));
-  --card-preview-stage-border: rgba(255, 255, 255, 0.055);
-  --card-preview-frame-bg: rgba(248, 250, 252, 0.96);
-  --card-action-bg: rgba(255, 255, 255, 0.03);
-  --card-action-border: rgba(255, 255, 255, 0.08);
-  --orientation-portrait-bg: rgba(53, 120, 229, 0.16);
+  --card-preview-stage-bg: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 3.5%, transparent), color-mix(in srgb, var(--color-black) 16%, transparent));
+  --card-preview-stage-border: color-mix(in srgb, var(--color-white) 5.5%, transparent);
+  --card-preview-frame-bg: color-mix(in srgb, var(--color-gray-1) 96%, transparent);
+  --card-action-bg: color-mix(in srgb, var(--color-white) 3%, transparent);
+  --card-action-border: var(--border-color);
+  --orientation-portrait-bg: color-mix(in srgb, var(--color-orientation-blue) 16%, transparent);
   --orientation-portrait-color: #b7d7ff;
-  --orientation-landscape-bg: rgba(77, 170, 113, 0.16);
+  --orientation-landscape-bg: color-mix(in srgb, var(--color-orientation-green-wash) 16%, transparent);
   --orientation-landscape-color: #b7f2c7;
-  --orientation-neutral-bg: rgba(255, 255, 255, 0.08);
-  --orientation-neutral-color: rgba(255, 255, 255, 0.78);
-  --orientation-toggle-bg: rgba(1, 131, 255, 0.12);
-  --orientation-toggle-bg-hover: rgba(1, 131, 255, 0.2);
-  --orientation-toggle-border: rgba(1, 131, 255, 0.35);
+  --orientation-neutral-bg: color-mix(in srgb, var(--color-white) 8%, transparent);
+  --orientation-neutral-color: color-mix(in srgb, var(--color-white) 78%, transparent);
+  --orientation-toggle-bg: color-mix(in srgb, var(--color-blue-1) 12%, transparent);
+  --orientation-toggle-bg-hover: color-mix(in srgb, var(--color-blue-1) 20%, transparent);
+  --orientation-toggle-border: var(--focus-color);
   --orientation-toggle-color: #d9eaff;
-  --border-color-drop-area: rgba(1, 131, 255, 0.38);
-  --font-color-drop-area: #b5bac2;
-  --form-input-font-color: #f1f3f5;
-  --form-input-bg-color: #181b20;
-  --form-input-border: 1px solid rgba(255, 255, 255, 0.1);
-  --form-placeholder-color: var(--color-gray-4);
-  --font-color-footer: #a6acb4;
-  --accent-dim: rgba(1, 131, 255, 0.16);
-  --accent-glow: rgba(1, 131, 255, 0.28);
+  --font-color-drop-area: var(--font-color-2);
 }
+
 
 /* ====================================
  * 2. BASE STYLES
@@ -197,8 +196,8 @@ body {
   padding: 0.9375rem;
   color: var(--font-color);
   background:
-    radial-gradient(circle at top, rgba(1, 131, 255, 0.08), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent 28%),
+    radial-gradient(circle at top, var(--body-glow), transparent 30%),
+    linear-gradient(180deg, var(--body-sheen), transparent 28%),
     var(--bg-color);
   font-size: var(--base-font-size);
   line-height: var(--line-height);
@@ -208,8 +207,8 @@ body {
 
 [data-theme="dark"] body {
   background:
-    radial-gradient(circle at top, rgba(1, 131, 255, 0.14), transparent 30%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+    radial-gradient(circle at top, var(--body-glow), transparent 30%),
+    linear-gradient(180deg, var(--body-sheen), transparent 28%),
     var(--bg-color);
 }
 
@@ -377,7 +376,7 @@ footer a:hover {
   border: 1px solid var(--border-color);
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface-color) 86%, transparent);
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--color-ink) 6%, transparent);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
@@ -388,7 +387,7 @@ footer a:hover {
 .hero h1 {
   margin: 1rem auto 0;
   max-width: 12ch;
-  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
   font-weight: 700;
@@ -398,7 +397,7 @@ footer a:hover {
 .hero p {
   margin: 1rem auto 0;
   max-width: 38rem;
-  font-size: 1.12rem;
+  font-size: 1.16rem;
   line-height: 1.55;
   color: var(--font-color-2);
   text-wrap: balance;
@@ -437,8 +436,8 @@ footer a:hover {
   background: transparent;
   border: none;
   padding: var(--spacing-sm);
-  width: auto;
-  height: auto;
+  min-width: 44px;
+  min-height: 44px;
   outline: none;
   transform: none;
   box-shadow: none;
@@ -452,13 +451,13 @@ footer a:hover {
 }
 
 #theme-switcher:focus-visible {
-  outline: 2px solid var(--color-blue-1);
-  outline-offset: 4px;
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
   border-radius: 8px;
 }
 
 #theme-switcher .icon {
-  font-size: 1.5rem !important;
+  font-size: 1.5rem;
 }
 
 .icon-light {
@@ -499,14 +498,14 @@ button[type="submit"] {
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(1, 131, 255, 0.15);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-blue-1) 15%, transparent);
   transform: translateY(0);
 }
 
-.button:focus,
-button:focus,
-button[type="submit"]:focus {
-  outline: 2px solid var(--color-blue-1);
+.button:focus-visible,
+button:focus-visible,
+button[type="submit"]:focus-visible {
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -514,7 +513,7 @@ button[type="submit"]:focus {
 button:hover {
   background: linear-gradient(135deg, var(--button-hover-bg-color), var(--button-active-bg-color));
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(1, 131, 255, 0.25);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-blue-1) 25%, transparent);
 }
 
 .button:active,
@@ -522,15 +521,14 @@ button:active {
   background: linear-gradient(135deg, var(--button-active-bg-color), var(--button-hover-bg-color));
   color: var(--button-font-color);
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(1, 131, 255, 0.2);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-blue-1) 20%, transparent);
 }
 
 .button[disabled],
 button[disabled],
 button[disabled]:hover {
-  background-color: var(--button-disabled-bg-color);
+  background: var(--button-disabled-bg-color);
   color: var(--button-disabled-font-color);
-  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -546,7 +544,7 @@ button[disabled]:hover {
   justify-content: center;
   gap: 0.5rem;
   background: linear-gradient(135deg, var(--color-blue-1), var(--color-blue-2));
-  color: var(--color-gray-1);
+  color: var(--button-font-color);
   padding: 1.25rem 2rem;
   border: none;
   border-radius: 8px;
@@ -554,28 +552,28 @@ button[disabled]:hover {
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(1, 131, 255, 0.2);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-blue-1) 20%, transparent);
   font-size: 1.1rem;
   transform: translateY(0);
 }
 
 #file-upload-label .icon {
-  font-size: 1.2rem !important;
+  font-size: 1.2rem;
 }
 
 #file-upload-label:hover {
   background: linear-gradient(135deg, var(--color-blue-2), var(--color-blue-3));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(1, 131, 255, 0.3);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--color-blue-1) 30%, transparent);
 }
 
 #file-upload-label:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(1, 131, 255, 0.2);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-blue-1) 20%, transparent);
 }
 
-#file-upload-label:focus-within {
-  outline: 3px solid var(--color-blue-1);
+#file-upload-label:has(+ #file-input:focus-visible) {
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -615,25 +613,25 @@ button[disabled]:hover {
   border: 1px solid var(--border-color);
   border-left: 4px solid var(--color-blue-1);
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-black) 20%, transparent);
   pointer-events: auto;
   animation: toast-in 180ms ease-out;
 }
 
-.toast-success { border-left-color: var(--color-green-1); }
-.toast-error { border-left-color: var(--color-red-1); }
-.toast-warning { border-left-color: #b45309; }
-.toast > .icon { font-size: 20px; color: var(--color-blue-1); }
-.toast-success > .icon { color: var(--color-green-1); }
-.toast-error > .icon { color: var(--color-red-1); }
-.toast-warning > .icon { color: #b45309; }
+.toast-success { border-left-color: var(--color-green-text); }
+.toast-error { border-left-color: var(--color-red-text); }
+.toast-warning { border-left-color: var(--color-amber-text); }
+.toast > .icon { font-size: 20px; color: var(--color-blue-text); }
+.toast-success > .icon { color: var(--color-green-text); }
+.toast-error > .icon { color: var(--color-red-text); }
+.toast-warning > .icon { color: var(--color-amber-text); }
 .toast p { margin: 0; padding-top: 1px; font-size: 0.9rem; line-height: 1.4; overflow-wrap: anywhere; }
 .toast-close {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  margin: -6px 0;
+  width: 44px;
+  height: 44px;
+  margin: -12px 0;
   padding: 0;
   color: var(--font-color-2);
   background: none;
@@ -643,12 +641,17 @@ button[disabled]:hover {
 }
 .toast-close .icon { font-size: 18px; }
 .toast-close:hover { color: var(--font-color); }
-.toast-close:focus-visible { outline: 2px solid var(--color-blue-1); outline-offset: 2px; }
+.toast-close:focus-visible { outline: 2px solid var(--focus-color); outline-offset: 2px; }
 .toast-exiting { opacity: 0; transition: opacity 180ms ease; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) {
-  .toast { animation: none; }
-  .toast-exiting { transition: none; }
+  /* Override component motion for the operating system setting. */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .tool-shell {
@@ -660,11 +663,11 @@ button[disabled]:hover {
   border: 1px solid var(--card-shell-border);
   border-radius: 18px;
   padding: 1.5rem;
-  box-shadow: 0 28px 70px rgba(17, 24, 39, 0.1);
+  box-shadow: 0 28px 70px color-mix(in srgb, var(--color-ink) 10%, transparent);
 }
 
 [data-theme="dark"] .tool-surface {
-  box-shadow: 0 30px 72px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 30px 72px color-mix(in srgb, var(--color-black) 34%, transparent);
 }
 
 .tool-actions {
@@ -728,7 +731,7 @@ button[disabled]:hover {
 }
 
 footer a:focus-visible {
-  outline: 2px solid var(--color-blue-1);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -737,9 +740,6 @@ footer a:focus-visible {
   color: var(--link-hover-color);
 }
 
-.footer-divider {
-  opacity: 0.45;
-}
 
 /* Output Filename */
 #output-filename-container {
@@ -748,7 +748,7 @@ footer a:focus-visible {
 
 #output-filename-container label {
     display: block;
-    font-size: 13px;
+    font-size: 0.8125rem;
     margin-bottom: 8px;
     font-weight: 600;
     color: var(--font-color-2);
@@ -764,13 +764,13 @@ footer a:focus-visible {
     flex: 1;
     padding: 0.8rem 1rem;
     border: var(--form-input-border);
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 1rem;
     background: var(--form-input-bg-color);
 }
 
 .output-filename-ext {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--font-color-2);
     background: color-mix(in srgb, var(--surface2-color) 92%, transparent);
     border: 1px solid var(--border-color);
@@ -786,14 +786,14 @@ footer a:focus-visible {
 
 .button.danger {
     background: linear-gradient(135deg, var(--color-red-1), var(--color-red-2));
-    color: #fff;
+    color: var(--color-white);
     border: none;
-    box-shadow: 0 2px 8px rgba(196, 68, 56, 0.18);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-red-1) 18%, transparent);
 }
 
 .button.danger:hover {
     background: linear-gradient(135deg, var(--color-red-1), var(--color-red-2));
-    box-shadow: 0 4px 16px rgba(196, 68, 56, 0.28);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-red-1) 28%, transparent);
 }
 
 #progress-bar {
@@ -805,7 +805,7 @@ footer a:focus-visible {
 
 /* Spinner */
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid color-mix(in srgb, var(--color-white) 30%, transparent);
   border-top: 4px solid var(--color-blue-1);
   border-radius: 50%;
   width: 40px;
@@ -849,15 +849,21 @@ textarea {
   border: var(--form-input-border);
   border-radius: 6px;
   padding: 0.9375rem 1rem;
-  font-size: 16px;
+  font-size: 1rem;
   transition: var(--transition-fast);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--form-placeholder-color);
+  opacity: 1;
 }
 
 input[type="color"] {
   width: 60px;
-  height: 40px;
+  height: 44px;
   padding: 0;
-  border: 2px solid var(--color-gray-3);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--bg-color);
   cursor: pointer;
@@ -890,7 +896,7 @@ input[type="color"]::-moz-color-swatch {
     border-radius: 6px !important;
     width: 60px;
     height: 40px;
-    border: 2px solid var(--color-gray-3);
+    border: 2px solid var(--border-color);
     outline: none;
     background-color: transparent;
   }
@@ -929,22 +935,18 @@ input[type="color"]::-moz-color-swatch {
   }
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="number"]:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--color-blue-1);
+input[type="text"]:focus-visible,
+input[type="email"]:focus-visible,
+input[type="number"]:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
-input[type="color"]:focus {
-  outline: 2px solid var(--color-blue-1);
+input[type="color"]:focus-visible {
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
-}
-
-input[type="file"] {
-  display: none;
 }
 
 textarea {
@@ -961,7 +963,7 @@ select {
   background-color: var(--form-input-bg-color);
   border: var(--form-input-border);
   padding: 0.8rem 1rem;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 6px;
 }
 
@@ -1015,7 +1017,7 @@ select::-ms-expand {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background-color: var(--color-gray-3);
+  background-color: var(--border-color);
   transition: var(--transition-normal);
   border-radius: 999px;
 }
@@ -1036,8 +1038,9 @@ input:checked + .slider {
   background-color: var(--color-blue-1);
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 0 3px rgba(1, 131, 255, 0.18);
+input:focus-visible + .slider {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 
 input:checked + .slider:before {
@@ -1051,7 +1054,6 @@ input:checked + .slider:before {
 }
 
 .toggle-item--disabled {
-  opacity: 0.4;
   pointer-events: none;
   user-select: none;
 }
@@ -1065,7 +1067,7 @@ input:checked + .slider:before {
 #drop-area {
   margin: var(--spacing-lg) 0;
   border: 1px dashed var(--border-color-drop-area);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 2.4rem 1.6rem;
   text-align: center;
   color: var(--font-color-drop-area);
@@ -1074,19 +1076,14 @@ input:checked + .slider:before {
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
   outline: none;
-  background: linear-gradient(180deg, rgba(1, 131, 255, 0.04), transparent 45%), var(--surface2-color);
+  background: linear-gradient(180deg, var(--drop-tint), transparent 45%), var(--surface2-color);
 }
 
 #drop-area:hover {
-  border-color: var(--color-blue-1);
-  background: linear-gradient(180deg, rgba(1, 131, 255, 0.1), transparent 45%), var(--surface2-color);
+  border-color: var(--focus-color);
+  background: linear-gradient(180deg, var(--drop-tint-hover), transparent 45%), var(--surface2-color);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(1, 131, 255, 0.1);
-}
-
-#drop-area:focus {
-  border-color: var(--color-blue-1);
-  box-shadow: 0 0 0 3px rgba(1, 131, 255, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-blue-1) 10%, transparent);
 }
 
 #drop-area .drop-icon,
@@ -1160,7 +1157,7 @@ input:checked + .slider:before {
   max-width: 400px;
   min-height: 200px;
   position: relative;
-  box-shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--color-ink) 8%, transparent);
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   pointer-events: auto;
   transform-origin: center;
@@ -1220,7 +1217,7 @@ input:checked + .slider:before {
     background: var(--card-preview-frame-bg);
     padding: 0;
     box-sizing: border-box;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--color-black) 8%, transparent);
     transform-origin: center center;
     transform: rotate(var(--thumbnail-rotation, 0deg)) scale(var(--thumbnail-page-scale, 1));
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
@@ -1413,9 +1410,9 @@ input:checked + .slider:before {
   opacity: 0.9;
   z-index: 1000;
   cursor: grabbing;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 40px color-mix(in srgb, var(--color-black) 30%, transparent);
   transition: none;
-  border-color: var(--color-blue-1);
+  border-color: var(--focus-color);
 }
 
 /* When the card is reparented to document.body during drag, all
@@ -1439,13 +1436,13 @@ li.is-dragging {
   opacity: 0.9;
   z-index: 1000;
   cursor: grabbing;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 40px color-mix(in srgb, var(--color-black) 30%, transparent);
   transition: none;
 }
 
 .drag-placeholder {
-  border: 2px dashed rgba(1, 131, 255, 0.35);
-  background: linear-gradient(135deg, rgba(1, 131, 255, 0.08), rgba(1, 131, 255, 0.03));
+  border: 2px dashed var(--focus-color);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-blue-1) 8%, transparent), color-mix(in srgb, var(--color-blue-1) 3%, transparent));
   border-radius: 16px;
   box-sizing: border-box;
   pointer-events: none;
@@ -1472,7 +1469,7 @@ li.is-dragging {
 
 @keyframes reorderPulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(1, 131, 255, 0.4); }
+  50% { transform: scale(1.1); box-shadow: 0 8px 25px color-mix(in srgb, var(--color-blue-1) 40%, transparent); }
   100% { transform: scale(1); }
 }
 
@@ -1527,61 +1524,61 @@ li.is-dragging {
 }
 
 #selected-files-list li:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--color-black) 10%, transparent);
   transform: translateY(-3px);
-  border-color: rgba(1, 131, 255, 0.2);
+  border-color: var(--focus-color);
 }
 
 #selected-files-list li:active {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-color: rgba(1, 131, 255, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-black) 8%, transparent);
+  border-color: var(--focus-color);
 }
 
 [data-theme="dark"] #selected-files-list li {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(0, 0, 0, 0.04)),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-white) 1.8%, transparent), color-mix(in srgb, var(--color-black) 4%, transparent)),
     var(--bg-color-filelist);
   border-color: var(--card-shell-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 16px 34px rgba(0, 0, 0, 0.26);
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 4%, transparent),
+    0 16px 34px color-mix(in srgb, var(--color-black) 26%, transparent);
 }
 
 [data-theme="dark"] #selected-files-list li:hover {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 20px 42px rgba(0, 0, 0, 0.34);
-  border-color: rgba(1, 131, 255, 0.18);
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 5%, transparent),
+    0 20px 42px color-mix(in srgb, var(--color-black) 34%, transparent);
+  border-color: color-mix(in srgb, var(--color-blue-1) 18%, transparent);
 }
 
 [data-theme="dark"] .card-thumbnail-wrapper {
   background:
-    radial-gradient(circle at top, rgba(1, 131, 255, 0.06), transparent 42%),
+    radial-gradient(circle at top, color-mix(in srgb, var(--color-blue-1) 6%, transparent), transparent 42%),
     var(--card-preview-stage-bg);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 3.5%, transparent);
 }
 
 [data-theme="dark"] .card-thumbnail-surface {
   box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.24),
-    0 0 0 1px rgba(17, 24, 39, 0.06);
+    0 14px 30px color-mix(in srgb, var(--color-black) 24%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-ink) 6%, transparent);
 }
 
 [data-theme="dark"] .delete-file-button {
-  color: #9aa3af;
+  color: var(--color-dark-card-muted);
 }
 
 [data-theme="dark"] .image-layout-card-select {
-  background-color: #3a3f47;
+  background-color: var(--color-dark-card-bg);
   color: var(--font-color);
 }
 
 [data-theme="dark"] #image-details-toggle,
 [data-theme="dark"] #paper-size-selection,
 [data-theme="dark"] #watermark-details-toggle {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.03));
-  border-color: rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 2.5%, transparent), color-mix(in srgb, var(--color-black) 3%, transparent));
+  border-color: color-mix(in srgb, var(--color-white) 7%, transparent);
 }
 
 
@@ -1624,12 +1621,12 @@ li.is-dragging {
 
 /* Order Number Badge */
 .order-number {
-  color: var(--color-gray-5);
+  color: var(--font-color-2);
   padding: 0;
   font-size: 0.98rem;
   font-weight: 800;
-  min-width: 28px;
-  height: 28px;
+  min-width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1641,8 +1638,25 @@ li.is-dragging {
   cursor: pointer;
 }
 
+/* Reset the shared button look: the order number is a compact text button. */
+button.order-number,
+button.order-number:hover,
+button.order-number:active {
+  margin: 0;
+  background: none;
+  color: var(--font-color-2);
+  font-family: inherit;
+  border-radius: 8px;
+  box-shadow: none;
+  transform: none;
+}
+
+button.order-number:hover {
+  background: var(--accent-dim);
+}
+
 .file-type-badge {
-  background-color: var(--color-gray-4);
+  background-color: var(--color-gray-5);
   color: var(--color-white);
   padding: 5px 10px;
   border-radius: 999px;
@@ -1757,132 +1771,144 @@ li.is-dragging {
 .file-size,
 .file-pages {
   font-size: 0.75rem;
-  color: var(--color-gray-5);
+  color: var(--font-color-2);
   font-weight: 500;
   white-space: nowrap;
   line-height: 1.4;
 }
 
+.pdf-page-range-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--font-color-2);
+}
+
 .pdf-page-range-input {
   border: 1px solid var(--card-action-border);
-  outline: none;
   box-shadow: none;
-  font-size: 0.8rem;
+  font-size: 1rem;
   padding: 10px 12px;
   color: var(--form-input-font-color);
   background-color: var(--form-input-bg-color);
   width: 100%;
   max-width: 220px;
+  min-height: 44px;
   line-height: 1.2;
   text-align: center;
   margin-top: 2px;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
-.pdf-page-range-input:focus, 
 .pdf-page-range-input:hover {
-  outline: none;
-  border-color: rgba(1, 131, 255, 0.45);
-  box-shadow: none;
+  border-color: var(--focus-color);
+}
+
+.pdf-page-range-input:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 
 .pdf-page-range-input::placeholder {
   color: var(--form-placeholder-color);
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
 
 .image-layout-card-select {
   width: 100%;
   max-width: 220px;
-  min-height: 38px;
+  min-height: 44px;
   padding: 8px 34px 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(1, 131, 255, 0.25);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
   background-color: var(--form-input-bg-color);
   background-image:
-    linear-gradient(45deg, transparent 50%, rgba(1, 131, 255, 0.7) 50%),
-    linear-gradient(135deg, rgba(1, 131, 255, 0.7) 50%, transparent 50%);
+    linear-gradient(45deg, transparent 50%, color-mix(in srgb, var(--color-blue-1) 70%, transparent) 50%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-blue-1) 70%, transparent) 50%, transparent 50%);
   background-position:
     calc(100% - 18px) calc(50% - 2px),
     calc(100% - 12px) calc(50% - 2px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
   color: var(--form-input-font-color);
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 30%, transparent), 0 1px 2px color-mix(in srgb, var(--color-black) 4%, transparent);
   appearance: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.image-layout-card-select:focus,
 .image-layout-card-select:hover {
-  border-color: rgba(1, 131, 255, 0.5);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(1, 131, 255, 0.12);
+  border-color: var(--focus-color);
+}
+
+.image-layout-card-select:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 
 [data-theme="dark"] .image-layout-card-select {
   background-image:
-    linear-gradient(45deg, transparent 50%, rgba(100, 170, 255, 0.8) 50%),
-    linear-gradient(135deg, rgba(100, 170, 255, 0.8) 50%, transparent 50%);
-  border-color: rgba(1, 131, 255, 0.35);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.15);
+    linear-gradient(45deg, transparent 50%, color-mix(in srgb, var(--color-blue-text) 80%, transparent) 50%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-blue-text) 80%, transparent) 50%, transparent 50%);
+  border-color: var(--border-color);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 6%, transparent), 0 1px 2px color-mix(in srgb, var(--color-black) 15%, transparent);
 }
 
-[data-theme="dark"] .image-layout-card-select:focus,
 [data-theme="dark"] .image-layout-card-select:hover {
-  background-color: #40454e;
-  border-color: rgba(1, 131, 255, 0.34);
-  box-shadow: 0 0 0 3px rgba(1, 131, 255, 0.1);
+  background-color: var(--color-dark-select-bg);
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue-1) 10%, transparent);
 }
 
 /* Delete Button */
 .delete-file-button {
-  background: var(--card-action-bg) !important;
-  border: 1px solid var(--card-action-border) !important;
+  background: var(--card-action-bg);
+  border: 1px solid var(--card-action-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: static;
-  color: var(--color-gray-5);
+  color: var(--font-color-2);
   padding: 0;
-  outline: none;
-  box-shadow: none !important;
+  box-shadow: none;
   border-radius: 10px;
   transition: var(--transition-fast);
   opacity: 1;
   z-index: 2;
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   flex-shrink: 0;
 }
 
 .delete-file-button:hover {
-  background-color: var(--color-red-1) !important;
-  color: var(--color-white) !important;
+  background: var(--color-red-1);
+  color: var(--color-white);
   opacity: 1;
   transform: none;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.delete-file-button:focus {
-  background: transparent;
-  outline: none;
+  border: none;
   box-shadow: none;
 }
 
+.delete-file-button:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
 .delete-file-button:active {
-  background-color: var(--color-red-2) !important;
-  color: var(--color-white) !important;
-  box-shadow: none !important;
-  border: none !important;
+  background: var(--color-red-2);
+  color: var(--color-white);
+  box-shadow: none;
+  border: none;
   transform: scale(0.95);
 }
 
@@ -2012,9 +2038,9 @@ li.is-dragging {
 }
 
 .orientation-toggle-btn {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     flex-shrink: 0;
     padding: 0;
     border-radius: 10px;
@@ -2035,24 +2061,24 @@ li.is-dragging {
 
 .orientation-toggle-btn:hover {
     background: var(--orientation-toggle-bg-hover);
-    border-color: rgba(1, 131, 255, 0.32);
+    border-color: var(--focus-color);
     transform: none;
 }
 
 [data-theme="dark"] .orientation-toggle-btn:hover {
-    background: rgba(1, 131, 255, 0.12);
-    border-color: rgba(1, 131, 255, 0.28);
-    color: #e6f1ff;
+    background: color-mix(in srgb, var(--color-blue-1) 12%, transparent);
+    border-color: var(--focus-color);
+    color: var(--color-dark-contrast);
 }
 
 [data-theme="dark"] #drop-area:hover {
-  border-color: rgba(1, 131, 255, 0.28);
-  background: linear-gradient(180deg, rgba(1, 131, 255, 0.06), transparent 45%), var(--surface2-color);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-color: var(--focus-color);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-blue-1) 6%, transparent), transparent 45%), var(--surface2-color);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--color-black) 18%, transparent);
 }
 
 [data-theme="dark"] .delete-file-button:hover {
-  background-color: #b94a3f !important;
+  background: var(--color-dark-danger-hover);
 }
 
 /* File Link */
@@ -2104,14 +2130,6 @@ li.is-dragging {
   }
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-15px);
-  }
-}
 
 @keyframes flash-success {
   0%, 100% {
@@ -2119,7 +2137,7 @@ li.is-dragging {
   }
   50% {
     background-color: var(--color-green-1);
-    color: #ffffff;
+    color: var(--color-white);
   }
 }
 
@@ -2197,13 +2215,13 @@ li.is-dragging {
   }
 
   .pdf-page-range-input {
-    font-size: 0.7rem;
+    font-size: 1rem;
   }
 
   .delete-file-button {
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
   }
 
   .delete-file-button .icon {
@@ -2288,7 +2306,7 @@ li.is-dragging {
 /* Tablet: 2-column grid layout */
 @media (min-width: 641px) and (max-width: 1024px) {
   #selected-files-list {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     max-width: 720px;
     margin: 0 auto;
@@ -2297,7 +2315,7 @@ li.is-dragging {
   #selected-files-list li {
     width: 100%;
     max-width: 350px;
-    min-width: 300px;
+    min-width: 0;
     min-height: 220px;
   }
   
@@ -2309,12 +2327,13 @@ li.is-dragging {
   }
   
   .pdf-page-range-input {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
   
   .delete-file-button {
-    width: 32px;
-    height: 32px;
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
     padding: 6px;
   }
   
@@ -2338,9 +2357,9 @@ li.is-dragging {
   }
 
   .delete-file-button {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
   }
 }
 
@@ -2356,4 +2375,9 @@ li.is-dragging {
     max-width: 100%;
     min-height: 220px;
   }
+}
+
+::selection {
+  background: var(--accent-dim);
+  color: var(--font-color);
 }

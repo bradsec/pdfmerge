@@ -21,8 +21,8 @@ body {
   min-height: 100vh;
   font-family: inherit;
   -webkit-font-smoothing: antialiased;
-  color: black;
-  background: white;
+  color: inherit;
+  background: transparent;
   line-height: 1.5;
 }
 
@@ -104,14 +104,6 @@ button {
 table {
   border-collapse: collapse;
   border-spacing: 0;
-}
-
-/* Override browser default styles */
-::-moz-selection,
-::selection {
-  background-color: #b3d4fc;
-  color: #000000;
-  text-shadow: none;
 }
 
 /* Additional Form Element Styles */

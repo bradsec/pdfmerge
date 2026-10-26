@@ -1,4 +1,4 @@
-import { showToast } from './toast.js?v=1.2.2';
+import { showToast } from './toast.js?v=1.3.0';
 
 /**
  * Formats file size from bytes to human-readable format
@@ -88,15 +88,6 @@ function hexToRgb(hex) {
 }
 
 /**
- * Creates a delay using promises
- * @param {number} ms - Milliseconds to wait
- * @returns {Promise} Promise that resolves after the specified delay
- */
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
  * Gets current date/time in filename-safe format
  * @returns {string} Formatted timestamp suitable for filenames
  */
@@ -139,7 +130,6 @@ export {
     formatDateTime,
     estimateTextWidth,
     hexToRgb,
-    sleep,
     getFormattedCurrentDate,
     displayFlashMessage,
     isMobileDevice,

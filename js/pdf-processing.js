@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js?v=1.2.2';
+import { createIcon } from './icons.js?v=1.3.0';
 import { 
     formatDateTime, 
     getFormattedCurrentDate, 
@@ -12,21 +12,22 @@ import {
     hexToRgb,
     estimateTextWidth,
     isMobileDevice 
-} from './utils.js?v=1.2.2';
-import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.2.2';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.2.2';
+} from './utils.js?v=1.3.0';
+import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.0';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.0';
 
 import { 
     selectedFiles, 
     isSupportedFileType, 
     resetFiles,
+    clearResultLink,
     updateButtonVisibility, 
     updateToggleItemVisibility,
     updateDropAreaState
-} from './file-handling.js?v=1.2.2';
+} from './file-handling.js?v=1.3.0';
 
-import { addWatermarkToPage } from './watermark.js?v=1.2.2';
-import { DOMCache } from './dom-cache.js?v=1.2.2';
+import { addWatermarkToPage } from './watermark.js?v=1.3.0';
+import { DOMCache } from './dom-cache.js?v=1.3.0';
 
 // PDF Processing constants
 const PDF_CONFIG = {
@@ -48,6 +49,7 @@ let abortController = null;
  * Processes all selected files and creates a merged PDF
  */
 async function convertToPDF() {
+    clearResultLink();
     // Cancel any existing operation
     if (abortController) {
         abortController.abort();
@@ -62,6 +64,9 @@ async function convertToPDF() {
 
     const convertButton = DOMCache.getElementById("convert-button");
     if (convertButton) convertButton.disabled = true;
+    DOMCache.getElementById("tool-status").textContent = "Merging PDF files…";
+    DOMCache.getElementById("progress-bar").setAttribute("aria-valuenow", "0");
+    DOMCache.getElementById("tool-surface").setAttribute("aria-busy", "true");
 
     const runTimeout = setTimeout(() => {
         handleConversionTimeout(runController);
@@ -119,6 +124,7 @@ async function convertToPDF() {
             processedFiles += chunk.length;
             const progressBar = DOMCache.getElementById("progress-bar");
             progressBar.style.width = `${(processedFiles / selectedFiles.length) * 100}%`;
+            progressBar.setAttribute("aria-valuenow", String(Math.round(processedFiles / selectedFiles.length * 100)));
         }
 
         // Guard: if every file failed to process there is nothing to save
@@ -158,7 +164,7 @@ async function convertToPDF() {
         // Keep the file list when the save dialog is cancelled so the user can
         // merge again without re-adding everything.
         if (await prepareFileLink(pdfBytes)) {
-            resetFiles();
+            resetFiles(true);
         }
     } catch (error) {
         if (error.name === 'AbortError' || signal.aborted) {
@@ -473,6 +479,9 @@ function resetConversionState() {
     spinner.style.display = "none";
     progressContainer.style.display = "none";
     progressBar.style.width = "0%";
+    progressBar.setAttribute("aria-valuenow", "0");
+    DOMCache.getElementById("tool-surface").setAttribute("aria-busy", "false");
+    DOMCache.getElementById("tool-status").textContent = "";
     const cancelButton = DOMCache.getElementById("cancel-button");
     if (cancelButton) cancelButton.style.display = "none";
     // Re-enable the convert button here as well: if a run hangs and never
@@ -580,7 +589,7 @@ async function prepareFileLink(pdfBytes) {
         
         // Show download link for user reference
         const fileLink = DOMCache.getElementById("file-link");
-        fileLink.href = blobUrl;
+        fileLink.dataset.blobUrl = blobUrl;
         
         // Customize message based on device type
         const isMobile = isMobileDevice();
@@ -607,16 +616,6 @@ async function prepareFileLink(pdfBytes) {
             displayFlashMessage(`PDF downloaded as "${outputFilename}" (${fileSize})`, "success", 8000);
         }
         
-        // Clean up the blob URL after longer delay for mobile
-        const cleanupDelay = isMobile ? 120000 : 60000; // 2 minutes on mobile, 1 minute on desktop
-        setTimeout(() => {
-            URL.revokeObjectURL(blobUrl);
-            // A later merge may have replaced this link; leave that one alone
-            if (dlAnchor.isConnected) {
-                fileLink.replaceChildren();
-                fileLink.style.display = "none";
-            }
-        }, cleanupDelay);
     }
 
     return true;
