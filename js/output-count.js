@@ -1,5 +1,5 @@
-import { parsePageRangeSelection } from './page-range.js?v=1.3.5';
-import { needsDuplexPadding } from './output-pages.js?v=1.3.5';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.6';
+import { needsDuplexPadding } from './output-pages.js?v=1.3.6';
 
 export function countOutputPages(files, { duplexPadding }) {
     let count = 0;

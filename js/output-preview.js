@@ -4,10 +4,10 @@
  * the real output.
  */
 
-import { buildOutputDocument, getOutputSettingsProblem, isDuplexPaddingEnabled } from './pdf-processing.js?v=1.3.5';
-import { renderOutputPages } from './pdf-thumbnail.js?v=1.3.5';
-import { countOutputPages } from './output-count.js?v=1.3.5';
-import { selectedFiles } from './file-handling.js?v=1.3.5';
+import { buildOutputDocument, getOutputSettingsProblem, isDuplexPaddingEnabled } from './pdf-processing.js?v=1.3.6';
+import { renderOutputPages } from './pdf-thumbnail.js?v=1.3.6';
+import { countOutputPages } from './output-count.js?v=1.3.6';
+import { selectedFiles } from './file-handling.js?v=1.3.6';
 
 const PREVIEW_PAGES = 2;
 const DEBOUNCE_MS = 300;
