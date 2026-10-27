@@ -37,7 +37,6 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 
 - **Paper Sizes**: A0, A1, A2, A3, A4, Letter, Legal, Tabloid
 - **Page Orientation**: Toggle any image page between portrait and landscape
-- **Image Numbers**: Optionally add sequential image numbers on images with Default Margins layout
 - **Output Page Numbers**: Number every output page, including blank and duplex padding pages. Choose bottom centre, bottom right, or top right; a preset or custom template of up to 100 characters; and a starting number of 1 or greater. Templates use `{n}` for the current number, `{total}` for total output pages, `{file}` for the source name without its extension, and `{date}` or `{time}` for the local time captured when merging starts. Use `{n:3}` or `{total:3}` for zero padding (width 1–6), and `{{` or `}}` for literal braces. Blank-page cards have an empty file name; duplex padding uses the preceding card's name.
 - **Header and Footer Text**: Add text on every output page, including blank and duplex padding pages. Each has a template of up to 100 characters and left, centre, or right alignment. Header defaults to centre; footer defaults to left. They use the same placeholders as page numbers, but plain text such as `CONFIDENTIAL` is valid. All three text options share the “Numbering starts at” value for `{n}`. If page numbers use the same edge and alignment as a header or footer, choose another alignment before merging.
 - **Skip First Page**: Page numbers, header text, and footer text each have this option. The first output page still counts toward `{n}` and `{total}`; if skipped, page 2 uses the next number.
@@ -45,8 +44,7 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 - **Text Style**: Page numbers, header text, footer text, and the text watermark each have bold, italic, and underline toggles. Text defaults to normal weight; the text watermark defaults to bold. Italic is a slanted Roboto, as no italic font file is bundled.
 - **Text Background and Margin**: Each text option can add a solid background box with its own colour. Set its top or bottom and side margin from 0 to 50 mm in 0.5 mm steps; the default is 8.5 mm.
 - **Duplex Padding**: Add a matching blank page after each card that produces an odd number of pages, except the final card
-- **Image Details**: Optionally embed EXIF data (filename, date, GPS coordinates)
-- **Image Hash**: Optionally embed SHA-256 hash per image for verification
+- **Image and File Details**: Add EXIF details, a file hash, or an image number through placeholders in any page number, header, or footer template: `{taken}` (capture date and time, accepting the same tokens as `{date}`; default `YYYY-MM-DD HH:mm`), `{gps}` (latitude, longitude), `{hash}` (SHA-256 of the source file; `{hash:8}` keeps the first 4 to 64 characters), and `{img}` (image number counting image files only; `{img:3}` pads it). `{hash}` works for every source file; `{taken}`, `{gps}`, and `{img}` print nothing on pages without that data, such as PDF or blank pages
 - **Custom Filename**: User-defined output filename
 
 Date and time default to `{date}` = `YYYY-MM-DD` and `{time}` = `HH:mm`. Either placeholder accepts the same tokens after its first colon, as in `{date:YYYY-MM-DD HH:mm}`. Wrap literal letters in brackets, for example `{date:[Day] D}`.
@@ -63,7 +61,7 @@ Date and time default to `{date}` = `YYYY-MM-DD` and `{time}` = `HH:mm`. Either 
 | `mm`, `ss` | Padded minutes or seconds |
 | `A` | `AM` or `PM` |
 
-Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}` and `{file} {date:YYYY-MM-DD} {time:hh:mm A}`.
+Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}`, `{file} {date:YYYY-MM-DD} {time:hh:mm A}`, and `Image {img} taken {taken:D MMM YYYY h:mm A} GPS {gps}`.
 
 ### Watermarking
 

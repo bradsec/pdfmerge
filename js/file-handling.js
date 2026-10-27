@@ -965,17 +965,10 @@ function updateButtonVisibility() {
  * Updates visibility of UI toggle items based on selected file types
  */
 function updateToggleItemVisibility() {
-    const hasImageFiles = selectedFiles.some((fileEntry) => {
-        const fileName = fileEntry.name.toLowerCase();
-        return FILE_CONFIG.IMAGE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
-    });
-
-    const toggleImageItem = DOMCache.getElementById("image-details-toggle");
     const toggleWatermarkItem = DOMCache.getElementById("watermark-details-toggle");
     const paperSizeSelection = DOMCache.getElementById("paper-size-selection");
     const outputOptions = DOMCache.getElementById("output-options");
 
-    toggleImageItem.hidden = !hasImageFiles;
     toggleWatermarkItem.hidden = selectedFiles.length === 0;
     paperSizeSelection.hidden = selectedFiles.length === 0;
     if (outputOptions) outputOptions.hidden = selectedFiles.length === 0;

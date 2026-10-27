@@ -12,7 +12,6 @@ export function writeSectionOpen(storage, id, open) {
 export function sectionStatus(id, state) {
     switch (id) {
     case 'paper-size-selection': return state.paperSize;
-    case 'image-details-toggle': return state.imageOptions.length ? state.imageOptions.join(', ') : 'Off';
     case 'watermark-details-toggle': return state.watermark ? `On · ${state.watermarkType}` : 'Off';
     case 'page-numbers-section': return state.pageNumbers ? `On · ${state.position} · ${state.format}` : 'Off';
     case 'header-footer-section': {
@@ -44,11 +43,6 @@ export function initializeSettingsAccordion(storage = localStorage) {
     const update = () => {
         const state = {
             paperSize: value('paper-size-select').value,
-            imageOptions: [
-                ['print-image-details', 'Details'],
-                ['print-image-page-numbers', 'Number'],
-                ['print-image-hash', 'Hash']
-            ].filter(([id]) => value(id).checked).map(([, label]) => label),
             watermark: value('add-watermark').checked,
             watermarkType: value('watermark-type')?.value === 'image' ? 'Image' : 'Text',
             pageNumbers: value('add-page-numbers').checked,

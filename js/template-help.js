@@ -7,6 +7,15 @@ import { formatPageNumber, parsePageNumberTemplate } from './output-pages.js?v=1
 
 const SAMPLE = { number: 3, total: 12, file: 'Contract' };
 
+/** Sample source values shared by the help and the settings previews. */
+export const SAMPLE_SOURCE = {
+    file: SAMPLE.file,
+    taken: new Date(2024, 0, 8, 14, 5),
+    gps: '-27.470125, 153.021072',
+    hash: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+    img: 2
+};
+
 export const TEMPLATE_PLACEHOLDERS = [
     { token: '{n}', description: 'Page number, counted from "Numbering starts at"' },
     { token: '{n:3}', description: 'Page number padded to 3 digits (widths 1 to 6)' },
@@ -15,7 +24,12 @@ export const TEMPLATE_PLACEHOLDERS = [
     { token: '{date}', description: 'Date the merge started (YYYY-MM-DD)' },
     { token: '{date:D MMM YYYY}', description: 'Date in your own format (tokens below)' },
     { token: '{time}', description: 'Time the merge started (HH:mm)' },
-    { token: '{time:hh:mm A}', description: '12-hour time with AM or PM' }
+    { token: '{time:hh:mm A}', description: '12-hour time with AM or PM' },
+    { token: '{taken}', description: 'When a photo was taken, from its EXIF data. Same formats as {date}' },
+    { token: '{gps}', description: 'Photo GPS latitude and longitude, from its EXIF data' },
+    { token: '{hash}', description: 'SHA-256 of the source file, for verification' },
+    { token: '{hash:8}', description: 'First 8 characters of the SHA-256 (4 to 64)' },
+    { token: '{img}', description: 'Image number, counting image files only (widths 1 to 6 as {img:3})' }
 ];
 
 export const DATE_TOKENS = [
@@ -30,7 +44,10 @@ export const TEMPLATE_EXAMPLES = [
     'CONFIDENTIAL',
     'Revised {date:D MMM YYYY}',
     '{file} {date:DD/MM/YYYY} {time:HH:mm}',
-    'Exhibit {n:3}'
+    'Exhibit {n:3}',
+    'Image {img} taken {taken:D MMM YYYY h:mm A}',
+    'GPS {gps}',
+    'SHA-256 {hash}'
 ];
 
 /**
@@ -38,7 +55,7 @@ export const TEMPLATE_EXAMPLES = [
  */
 export function sampleTemplateOutput(template, date = new Date()) {
     const { tokens } = parsePageNumberTemplate(template, { requireNumber: false });
-    return tokens ? formatPageNumber(SAMPLE.number, SAMPLE.total, tokens, SAMPLE.file, date) : null;
+    return tokens ? formatPageNumber(SAMPLE.number, SAMPLE.total, tokens, SAMPLE_SOURCE, date) : null;
 }
 
 /**
@@ -100,7 +117,7 @@ function buildHelpDialog() {
     const intro = document.createElement('p');
     intro.className = 'template-help-intro';
     intro.textContent = 'Type any text and add placeholders in braces. Select one to insert it at the cursor. '
-        + `Samples use page ${SAMPLE.number} of ${SAMPLE.total} from "${SAMPLE.file}.pdf".`;
+        + `Samples use page ${SAMPLE.number} of ${SAMPLE.total} from image ${SAMPLE_SOURCE.img}, "${SAMPLE.file}.jpg".`;
     body.append(intro);
 
     const placeholders = document.createElement('ul');
@@ -158,7 +175,8 @@ function buildHelpDialog() {
 
     const braces = document.createElement('p');
     braces.className = 'template-help-intro';
-    braces.textContent = 'Type {{ or }} for a literal brace. Page number templates must include {n}.';
+    braces.textContent = 'Type {{ or }} for a literal brace. Page number templates must include {n}. '
+        + '{taken}, {gps} and {img} print nothing on pages without that data, such as PDF pages.';
     body.append(braces);
     form.append(body);
 

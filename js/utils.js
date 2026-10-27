@@ -23,52 +23,6 @@ function formatFileSize(bytes) {
 }
 
 /**
- * Formats EXIF date/time string to localized format
- * @param {string} dateTime - Raw EXIF date/time string
- * @returns {string} Formatted date/time or empty string if invalid
- */
-function formatDateTime(dateTime) {
-    if (!dateTime) {
-        return "";
-    }
-
-    const standardizedDateTime = dateTime.replace(
-        /(\d{4}):(\d{2}):(\d{2})/,
-        "$1-$2-$3"
-    );
-
-    const options = {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-    };
-
-    const isValidDate = !isNaN(Date.parse(standardizedDateTime));
-
-    if (isValidDate) {
-        return new Date(standardizedDateTime).toLocaleString("en-US", options);
-    } else {
-        return "Invalid Date";
-    }
-}
-
-/**
- * Estimates the width of text using canvas measurement
- * @param {string} text - The text to measure
- * @param {number} fontSize - Font size in pixels
- * @returns {number} Estimated text width in pixels
- */
-function estimateTextWidth(text, fontSize) {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    context.font = `${fontSize}px Arial`;
-    return context.measureText(text).width;
-}
-
-/**
  * Converts hex color to RGB values normalized for PDF-lib
  * @param {string} hex - Hex color string (with or without #)
  * @returns {Object} RGB object with r, g, b values between 0-1
@@ -132,8 +86,6 @@ function isMobileDevice() {
 
 export {
     formatFileSize,
-    formatDateTime,
-    estimateTextWidth,
     hexToRgb,
     parseTextColor,
     getFormattedCurrentDate,

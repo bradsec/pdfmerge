@@ -2,6 +2,8 @@ export function needsDuplexPadding(pageCount, isFinalCard) {
     return !isFinalCard && pageCount % 2 === 1;
 }
 
+const DEFAULT_DATE_FORMATS = { date: 'YYYY-MM-DD', time: 'HH:mm', taken: 'YYYY-MM-DD HH:mm' };
+
 export function parsePageNumberTemplate(template, { requireNumber = true } = {}) {
     if (!template?.trim() || template.length > 100) return { error: 'Enter a template of 1 to 100 characters.' };
     const tokens = [];
@@ -14,9 +16,12 @@ export function parsePageNumberTemplate(template, { requireNumber = true } = {})
         } else if (template[i] === '{') {
             const end = template.indexOf('}', i + 1);
             const content = end < 0 ? '' : template.slice(i + 1, end);
-            const match = /^(n|total)(?::([1-6]))?$|^(file)$/.exec(content);
-            const dateTime = /^(date|time)(?::(.*))?$/.exec(content);
-            if (!match && (!dateTime || dateTime[2] === '' || dateTime[2]?.includes('{'))) {
+            const match = /^(n|total|img)(?::([1-6]))?$|^(file|gps)$/.exec(content);
+            const dateTime = /^(date|time|taken)(?::(.*))?$/.exec(content);
+            const hash = /^hash(?::(\d{1,2}))?$/.exec(content);
+            const hashLength = hash ? Number(hash[1] || 64) : 0;
+            if (!match && !(hash && hashLength >= 4 && hashLength <= 64) &&
+                (!dateTime || dateTime[2] === '' || dateTime[2]?.includes('{'))) {
                 return { error: 'Use valid placeholders and formats; escape literal braces with {{ and }}.' };
             }
             if (literal) tokens.push(literal);
@@ -24,9 +29,10 @@ export function parsePageNumberTemplate(template, { requireNumber = true } = {})
             if (match) {
                 tokens.push({ name: match[1] || match[3], width: Number(match[2] || 1) });
                 hasNumber ||= match[1] === 'n';
+            } else if (hash) {
+                tokens.push({ name: 'hash', length: hashLength });
             } else {
-                tokens.push({ name: dateTime[1], format: dateTime[2] ||
-                    (dateTime[1] === 'date' ? 'YYYY-MM-DD' : 'HH:mm') });
+                tokens.push({ name: dateTime[1], format: dateTime[2] || DEFAULT_DATE_FORMATS[dateTime[1]] });
             }
             i = end + 1;
         } else if (template[i] === '}') {
@@ -70,12 +76,36 @@ export function formatDateTime(date, format) {
     return output;
 }
 
-export function formatPageNumber(number, total, tokens, file = '', date) {
+/**
+ * Reads an EXIF date such as "2024:01:08 14:05:09" as local time, or null.
+ */
+export function parseExifDateTime(value) {
+    const parts = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/.exec(String(value ?? ''));
+    if (!parts) return null;
+    const [year, month, day, hour, minute, second] = parts.slice(1).map(Number);
+    const date = new Date(year, month - 1, day, hour, minute, second);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * source is the page's source file name, or an object with file, taken
+ * (Date), gps, hash, and img (image number). Missing values print nothing.
+ */
+export function formatPageNumber(number, total, tokens, source = '', date) {
+    const { file = '', taken = null, gps = '', hash = '', img = null } =
+        typeof source === 'string' ? { file: source } : source;
     return tokens.map(token => {
         if (typeof token === 'string') return token;
-        if (token.name === 'date' || token.name === 'time') return formatDateTime(date, token.format);
-        const value = token.name === 'file' ? file : token.name === 'n' ? number : total;
-        return token.name === 'file' ? value : String(value).padStart(token.width, '0');
+        switch (token.name) {
+            case 'date':
+            case 'time': return formatDateTime(date, token.format);
+            case 'taken': return taken ? formatDateTime(taken, token.format) : '';
+            case 'file': return file;
+            case 'gps': return gps;
+            case 'hash': return hash.slice(0, token.length);
+            case 'img': return img ? String(img).padStart(token.width, '0') : '';
+            default: return String(token.name === 'n' ? number : total).padStart(token.width, '0');
+        }
     }).join('').replace(/\s+/g, ' ').trim();
 }
 

@@ -576,14 +576,6 @@ select::-ms-expand {
 }
 
 /* Toggle Switches */
-.toggle-group {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 10px 0;
-  gap: var(--spacing-md);
-}
-
 .toggle-item {
   display: flex;
   align-items: center;

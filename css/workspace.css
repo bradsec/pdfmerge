@@ -884,15 +884,6 @@ html:has(dialog[open]) {
   margin-left: 0;
 }
 
-.settings-content .toggle-group {
-  align-items: flex-start;
-  margin: 0;
-}
-
-.toggle-descriptions {
-  flex-basis: 100%;
-}
-
 .paper-size-item label {
   font-size: 0.82rem;
   color: var(--font-color-2);
@@ -1460,19 +1451,13 @@ html:has(dialog[open]) {
     width: 100%;
   }
 
-  #image-details-toggle .toggle-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   /* Watermark visibility uses inline display: flex when enabled. */
   .watermark-group {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .settings-content .watermark-description,
-  #image-details-toggle .toggle-description {
+  .settings-content .watermark-description {
     margin-inline: 0;
   }
 

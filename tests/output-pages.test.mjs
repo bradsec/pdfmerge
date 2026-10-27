@@ -5,7 +5,7 @@ import { importApp } from './import-app.mjs';
 const { needsDuplexPadding, formatPageNumber, getPageNumberPlacement, parsePageNumberStart,
     parsePageNumberTemplate, fitPageNumberSize, formatDateTime, getTextPlacement,
     getTextOverlap, needsNumberingStart, shouldDrawOnPage, mmToPt,
-    parseTextMargin, getTextBox } = await importApp('output-pages.js');
+    parseTextMargin, getTextBox, parseExifDateTime } = await importApp('output-pages.js');
 
 test('duplex pads odd non-final cards only', () => {
     assert.equal(needsDuplexPadding(3, false), true);
@@ -190,4 +190,31 @@ test('skip first page keeps page one in numbering and total', () => {
     const labels = Array.from({ length: 3 }, (_, index) =>
         shouldDrawOnPage(index, true) ? formatPageNumber(start + index, 3, tokens) : null);
     assert.deepEqual(labels, [null, '5 of 3', '6 of 3']);
+});
+
+test('source placeholders print EXIF date, GPS, hash and image number', () => {
+    const { tokens } = parsePageNumberTemplate('{img:2} {taken:D MMM YYYY H:mm} {gps} {hash:8} {hash}', { requireNumber: false });
+    const source = {
+        file: 'Photo', taken: new Date(2024, 0, 8, 14, 5), gps: '-27.470125, 153.021072',
+        hash: 'a'.repeat(64), img: 3
+    };
+    assert.equal(formatPageNumber(1, 2, tokens, source),
+        `03 8 Jan 2024 14:05 -27.470125, 153.021072 aaaaaaaa ${'a'.repeat(64)}`);
+});
+
+test('source placeholders print nothing when the page has no such data', () => {
+    const { tokens } = parsePageNumberTemplate('Taken {taken} at {gps} #{img} {hash}', { requireNumber: false });
+    assert.equal(formatPageNumber(1, 2, tokens, 'Contract'), 'Taken at #');
+});
+
+test('hash length must be 4 to 64', () => {
+    assert.ok(parsePageNumberTemplate('{hash:4}', { requireNumber: false }).tokens);
+    assert.ok(parsePageNumberTemplate('{hash:3}', { requireNumber: false }).error);
+    assert.ok(parsePageNumberTemplate('{hash:65}', { requireNumber: false }).error);
+});
+
+test('EXIF dates parse as local time', () => {
+    assert.deepEqual(parseExifDateTime('2024:01:08 14:05:09'), new Date(2024, 0, 8, 14, 5, 9));
+    assert.equal(parseExifDateTime('not a date'), null);
+    assert.equal(parseExifDateTime(undefined), null);
 });

@@ -3,6 +3,7 @@
  * @author BRADSEC
  */
 
+<<<<<<< Updated upstream
 import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.17';
 import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.17';
 import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.17';
@@ -15,13 +16,24 @@ import { initializeOutputPreview } from './output-preview.js?v=1.3.17';
 import { initializeTemplateHelp } from './template-help.js?v=1.3.17';
 import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.17';
 import { getTextStyle } from './text-style.js?v=1.3.17';
+=======
+import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.17';
+import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.17';
+import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.17';
+import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.17';
+import { initWatermarkControls } from './watermark.js?v=1.3.17';
+import { DOMCache } from './dom-cache.js?v=1.3.17';
+import { initializePaperSizeSelect } from './paper-size.js?v=1.3.17';
+import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.17';
+import { initializeOutputPreview } from './output-preview.js?v=1.3.17';
+import { initializeTemplateHelp, SAMPLE_SOURCE } from './template-help.js?v=1.3.17';
+import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.17';
+import { getTextStyle } from './text-style.js?v=1.3.17';
+>>>>>>> Stashed changes
 
 // Application constants
 const APP_CONFIG = {
     CHECKBOX_IDS: [
-        "print-image-details",
-        "print-image-page-numbers",
-        "print-image-hash",
         "add-watermark",
         "add-page-numbers",
         "add-header-text",
@@ -233,7 +245,7 @@ function initializeApp() {
             if (!value.trim()) return 'Preview: (empty)';
             if (!parsed) return 'Preview: (invalid template)';
             if (start === null) return 'Preview: (invalid start number)';
-            return `Preview: ${formatPageNumber(start, 12, parsed, 'Contract', now)}`;
+            return `Preview: ${formatPageNumber(start, 12, parsed, SAMPLE_SOURCE, now)}`;
         };
         // Valid templates show a sample drawn with the chosen colour, style and
         // background box, on white like the output page.
@@ -246,7 +258,7 @@ function initializeApp() {
             const style = getTextStyle(kind);
             const sample = document.createElement('span');
             sample.className = 'text-sample';
-            sample.textContent = formatPageNumber(start, 12, parsed, 'Contract', now);
+            sample.textContent = formatPageNumber(start, 12, parsed, SAMPLE_SOURCE, now);
             sample.style.color = DOMCache.getElementById(`${kind}-color`).value;
             sample.style.backgroundColor = DOMCache.getElementById(`${kind}-box`).checked
                 ? DOMCache.getElementById(`${kind}-box-color`).value : '#ffffff';

@@ -5,20 +5,26 @@
 
 import { createIcon } from './icons.js?v=1.3.17';
 import { 
-    formatDateTime, 
     getFormattedCurrentDate, 
     displayFlashMessage, 
     formatFileSize, 
-    hexToRgb,
     parseTextColor,
-    estimateTextWidth,
     isMobileDevice 
+<<<<<<< Updated upstream
 } from './utils.js?v=1.3.17';
 import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.17';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.17';
 import { parsePageRangeSelection } from './page-range.js?v=1.3.17';
 import { planOutputPages } from './output-count.js?v=1.3.17';
 import { needsDuplexPadding, formatPageNumber, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.17';
+=======
+} from './utils.js?v=1.3.17';
+import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.17';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.17';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.17';
+import { planOutputPages } from './output-count.js?v=1.3.17';
+import { needsDuplexPadding, formatPageNumber, parseExifDateTime, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.17';
+>>>>>>> Stashed changes
 
 import { 
     selectedFiles, 
@@ -230,16 +236,14 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     const watermarkOn = decorate && isWatermarkEnabled();
     const pdfDoc = await PDFLib.PDFDocument.create();
     pdfDoc.registerFontkit(fontkit);
-    const hasImages = files.some(isImageEntry);
-    const needsTextFont = textItems.length > 0 || (hasImages &&
-        (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash()));
+    const needsTextFont = textItems.length > 0;
     const regularFont = needsTextFont ? await loadFont(pdfDoc, 'fonts/Roboto-Regular.ttf', signal, preview) : null;
     textItems.forEach(item => {
         item.tokens = parsePageNumberTemplate(item.template, { requireNumber: item.name === 'page number' }).tokens;
     });
     const hasGlyph = regularFont?.embedder?.font?.hasGlyphForCodePoint?.bind(regularFont.embedder.font);
     textItems.forEach(item => { item.style = getTextStyle(item.styleId); });
-    const boldFont = (hasImages && shouldPrintImageDetails()) || textItems.some(item => item.style.bold)
+    const boldFont = textItems.some(item => item.style.bold)
         ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal, preview) : null;
     const imageWatermark = watermarkOn && getWatermarkType() === 'image';
     const textWatermark = watermarkOn && !imageWatermark;
@@ -251,13 +255,14 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
 
     const failedFiles = [];
     const pageFiles = [];
-    const imageNumber = { index: 0 };
+    // The source card of each output page, for {taken}, {gps}, {hash} and {img}.
+    const pageEntries = [];
     let processedFiles = 0;
     // Without a plan (a PDF still loading, or an invalid range) page positions
     // are unknown, so build from the first page up to the window end instead.
     const plan = pageWindow ? planOutputPages(files, { duplexPadding: isDuplexPaddingEnabled() }) : null;
     const ctx = {
-        pdfDoc, regularFont, boldFont, signal, failedFiles, pageFiles, imageNumber, preview,
+        pdfDoc, signal, failedFiles, pageFiles, pageEntries, preview,
         totalFiles: files.length, plan,
         from: plan ? pageWindow.from : 0,
         to: pageWindow ? pageWindow.to : maxPages,
@@ -268,6 +273,7 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
         const [width, height] = getSelectedPaperSize();
         pdfDoc.addPage([width, height]);
         pageFiles.push('');
+        pageEntries.push(null);
     }
     for (const chunk of chunkArray(files, PDF_CONFIG.BATCH_SIZE)) {
         throwIfAborted(signal);
@@ -299,6 +305,12 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
             return { pdfDoc, pageFiles, failedFiles, unsupportedTemplate: unsupportedTemplate.name,
                 replacedFileGlyph, firstPageIndex };
         }
+        const sourceTokens = ['taken', 'gps', 'hash'];
+        const metadata = drawableItems.some(item => item.tokens.some(token => sourceTokens.includes(token.name)))
+            ? await Promise.all(pageEntries.map(getSourceMetadata)) : [];
+        throwIfAborted(signal);
+        // Images count in card order, so a preview window numbers them as the full merge does.
+        const imageNumbers = new Map(files.filter(isImageEntry).map((entry, index) => [entry, index + 1]));
         pages.forEach((page, index) => {
             const activeItems = drawableItems.filter(item =>
                 shouldDrawOnPage(firstPageIndex + index, item.skipFirst));
@@ -311,7 +323,8 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
                 return '?';
             }).join('');
             activeItems.forEach(item => {
-                const label = formatPageNumber(number, total, item.tokens, file, mergeDate);
+                const label = formatPageNumber(number, total, item.tokens,
+                    { file, ...metadata[index], img: imageNumbers.get(pageEntries[index]) ?? null }, mergeDate);
                 if (Array.from(label).some(char => !hasGlyph(char.codePointAt(0)))) {
                     throw new Error(`${item.name} label contains characters Roboto cannot draw.`);
                 }
@@ -398,7 +411,7 @@ function chunkArray(array, size) {
 }
 
 async function processFileChunk(chunk, ctx, startIndex) {
-    const { pdfDoc, signal, failedFiles, pageFiles, plan } = ctx;
+    const { pdfDoc, signal, failedFiles, pageFiles, pageEntries, plan } = ctx;
     let processed = 0;
     for (let i = 0; i < chunk.length; i++) {
         throwIfAborted(signal);
@@ -413,7 +426,6 @@ async function processFileChunk(chunk, ctx, startIndex) {
             if (cardStart >= ctx.to) { ctx.done = true; break; }
             if (cardEnd <= ctx.from) {
                 // Entirely before the window: account for it without reading the file.
-                if (isImageEntry(fileEntry) && countsImageNumber(fileEntry)) ctx.imageNumber.index++;
                 ctx.outputIndex = cardEnd;
                 processed++;
                 continue;
@@ -454,7 +466,7 @@ async function processFileChunk(chunk, ctx, startIndex) {
             } else {
                 const fileExtension = fileEntry.extension || fileEntry.name.split(".").pop().toLowerCase();
                 if (PDF_CONFIG.IMAGE_EXTENSIONS.includes(fileExtension)) {
-                    await processImageFile(fileEntry, pdfDoc, ctx.regularFont, ctx.boldFont, signal, ctx.imageNumber);
+                    await processImageFile(fileEntry, pdfDoc, signal);
                 } else if (fileExtension === "pdf") {
                     await processPdfFile(fileEntry, pdfDoc, signal, { skip, limit, cache: ctx.preview });
                 } else {
@@ -485,18 +497,14 @@ async function processFileChunk(chunk, ctx, startIndex) {
 
         const name = fileEntry.type === 'blank' ? '' : fileEntry.name.replace(/\.[^.]+$/, '');
         pageFiles.push(...Array(pdfDoc.getPageCount() - previousPageCount).fill(name));
+        pageEntries.push(...Array(pdfDoc.getPageCount() - previousPageCount).fill(fileEntry));
         ctx.outputIndex = card ? cardStart + card.pages + card.padding : pdfDoc.getPageCount();
         processed++;
     }
     return processed;
 }
 
-function countsImageNumber(fileEntry) {
-    const layout = getImageLayout(fileEntry);
-    return shouldPrintImagePageNumbers() && layout !== 'cover' && layout !== 'fit';
-}
-
-async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal, imageNumber) {
+async function processImageFile(fileEntry, pdfDoc, signal) {
     throwIfAborted(signal);
     try {
         const dataUrl = await resizeImageAndConvertToJPEG(fileEntry, {
@@ -522,15 +530,7 @@ async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal
         if (isFullPage) {
             page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
         } else {
-            if (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash()) {
-                await addImageDetailsToPage(page, fileEntry.file, regularFont, boldFont,
-                    pageWidth, pageHeight, imageNumber);
-            }
-
-            const imgDim = image.scaleToFit(
-                rightMargin - leftMargin,
-                bottomMargin - topMargin - (shouldPrintImageDetails() ? 100 : 0)
-            );
+            const imgDim = image.scaleToFit(rightMargin - leftMargin, bottomMargin - topMargin);
 
             const xPosition = (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
             const yPosition = (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
@@ -655,57 +655,6 @@ function resizePdfPageToOutputSize(page, finalTargetWidth, finalTargetHeight) {
 }
 
 
-async function addImageDetailsToPage(page, file, regularFont, boldFont, pageWidth, pageHeight, imageNumber) {
-    const fontSize = 10;
-    const maxTextWidth = pageWidth - 60; // Accounting for left and right margins
-    const lineHeight = 14;
-    const textX = 30; // Left margin
-    let textY = pageHeight - 20; // Top margin
-
-    if (shouldPrintImageDetails()) {
-        const imgDetails = await getImageDetails(file);
-        const imgGpsInfo = imgDetails.imgGpsInfo;
-        const imgDateTime = imgDetails.imgDateTime;
-
-        textY -= lineHeight;
-        drawWrappedText(page, file.name, textX, textY, maxTextWidth, lineHeight, boldFont, fontSize, "#000000");
-
-        if (imgDateTime !== null) {
-            textY -= lineHeight;
-            drawWrappedText(page, formatDateTime(imgDateTime), textX, textY, maxTextWidth, lineHeight, regularFont, fontSize, "#000000");
-        }
-
-        if (imgGpsInfo) {
-            textY -= lineHeight;
-            drawWrappedText(page, `GPS (Lat, Long) ${imgGpsInfo}`, textX, textY, maxTextWidth, lineHeight, regularFont, fontSize, "#000000");
-        }
-    }
-
-    if (shouldPrintImageHash()) {
-        const imgHash = await calculateImageHash(file);
-        if (imgHash !== null) {
-            textY -= lineHeight;
-            drawWrappedText(page, `SHA-256: ${imgHash}`, textX, textY, maxTextWidth, lineHeight, regularFont, fontSize, "#000000");
-        }
-    }
-
-    if (shouldPrintImagePageNumbers()) {
-        const pageNumberText = `Image ${imageNumber.index + 1}`;
-        const pageNumberFontSize = 10;
-        const pageNumberWidth = estimateTextWidth(pageNumberText, pageNumberFontSize);
-        const pageNumberX = pageWidth - pageNumberWidth - 30;
-        const pageNumberY = 30;
-
-        page.drawText(pageNumberText, {
-            x: pageNumberX,
-            y: pageNumberY,
-            size: pageNumberFontSize,
-            font: regularFont,
-            color: PDFLib.rgb(0, 0, 0),
-        });
-        imageNumber.index++;
-    }
-}
 
 
 function handleConversionTimeout(controller) {
@@ -922,100 +871,42 @@ function convertExifGpsToDecimal(dms, ref, negativeRef) {
     return ref === negativeRef ? -decimal : decimal;
 }
 
-async function getImageDetails(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-            try {
-                const fileExtension = file.name.split(".").pop().toLowerCase();
-                let imgGpsInfo = null,
-                    imgDateTime = null,
-                    tags = null;
+// Read once per File, so preview rebuilds do not reread or rehash it.
+const sourceMetadata = new WeakMap();
 
-                if (fileExtension !== "webp" && fileExtension !== "gif") {
-                    tags = EXIF.readFromBinaryFile(e.target.result);
-                    imgGpsInfo = formatExifGpsCoordinates(tags);
-                    if (tags && tags.DateTimeOriginal) {
-                        imgDateTime = tags.DateTimeOriginal;
-                    }
-                }
-                resolve({ exifData: tags, imgGpsInfo, imgDateTime });
-            } catch (error) {
-                console.error("Error in getImageDetails:", error);
-                reject("Error processing image details.");
-            }
-        };
-        reader.onerror = () => {
-            reject("Error reading the file for image details.");
-        };
-        reader.readAsArrayBuffer(file);
-    });
+/**
+ * SHA-256 of the source file, plus EXIF capture time and GPS for images.
+ * A file that cannot be read gives empty values rather than failing the merge.
+ */
+function getSourceMetadata(fileEntry) {
+    const file = fileEntry?.file;
+    if (!file) return Promise.resolve({});
+    if (!sourceMetadata.has(file)) {
+        sourceMetadata.set(file, readSourceMetadata(file, isImageEntry(fileEntry)).catch(error => {
+            console.warn(`Could not read details of ${file.name}:`, error);
+            sourceMetadata.delete(file);
+            return {};
+        }));
+    }
+    return sourceMetadata.get(file);
 }
 
-async function calculateImageHash(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-            try {
-                const arrayBuffer = event.target.result;
-                const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                resolve(hashHex);
-            } catch (error) {
-                console.error("Error calculating image hash:", error);
-                reject(null);
-            }
-        };
-        reader.onerror = () => reject(null);
-        reader.readAsArrayBuffer(file);
-    });
-}
-
-function drawWrappedText(page, text, x, y, maxWidth, lineHeight, font, fontSize, hexColor) {
-    const { r, g, b } = hexToRgb(hexColor);
-    const words = text.split(' ');
-    let line = '';
-    
-    for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-        
-        if (testWidth > maxWidth && n > 0) {
-            page.drawText(line, {
-                x: x,
-                y: y,
-                size: fontSize,
-                font: font,
-                color: PDFLib.rgb(r, g, b),
-            });
-            line = words[n] + ' ';
-            y -= lineHeight;
-        } else {
-            line = testLine;
+async function readSourceMetadata(file, isImage) {
+    const bytes = await file.arrayBuffer();
+    const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+    const hash = Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('');
+    const extension = file.name.split('.').pop().toLowerCase();
+    let tags = null;
+    if (isImage && extension !== 'webp' && extension !== 'gif') {
+        try {
+            tags = EXIF.readFromBinaryFile(bytes);
+        } catch (error) {
+            console.warn(`Could not read EXIF data of ${file.name}:`, error);
         }
     }
-    
-    page.drawText(line, {
-        x: x,
-        y: y,
-        size: fontSize,
-        font: font,
-        color: PDFLib.rgb(r, g, b),
-    });
+    return { hash, taken: parseExifDateTime(tags?.DateTimeOriginal), gps: formatExifGpsCoordinates(tags) ?? '' };
 }
 
-function shouldPrintImageDetails() {
-    return DOMCache.getElementById("print-image-details").checked;
-}
-
-function shouldPrintImagePageNumbers() {
-    return DOMCache.getElementById("print-image-page-numbers").checked;
-}
-
-function shouldPrintImageHash() {
-    return DOMCache.getElementById("print-image-hash").checked;
-}
 
 function isPageNumberingEnabled() {
     return DOMCache.getElementById("add-page-numbers").checked;
