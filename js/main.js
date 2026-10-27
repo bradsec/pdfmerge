@@ -306,6 +306,7 @@ function initializeApp() {
     loadWatermarkFormStates();
     initializeSettingsAccordion();
     initializeRangeOutputs();
+    initializeColorFields();
     initializeTemplateHelp();
     initializeOutputPreview();
     initializeDragManager();
@@ -490,6 +491,52 @@ function initializeRangeOutputs() {
         const output = input.parentElement.querySelector('.range-value');
         if (!output) return;
         const sync = () => { output.textContent = `${input.value}${input.dataset.unit || ''}`; };
+        input.addEventListener('input', sync);
+        input.addEventListener('change', sync);
+        sync();
+    });
+}
+
+const COLOR_PRESETS = [
+    ['#000000', 'Black'], ['#6b7078', 'Grey'], ['#ffffff', 'White'],
+    ['#c62828', 'Red'], ['#1565c0', 'Blue'], ['#2e7d32', 'Green']
+];
+
+/**
+ * Pairs each colour input with its hex value and one-click presets; the native
+ * picker stays available through the swatch.
+ */
+function initializeColorFields() {
+    document.querySelectorAll('.settings-content input[type="color"]').forEach(input => {
+        const field = document.createElement('span');
+        field.className = 'color-field';
+        input.replaceWith(field);
+        const hex = document.createElement('span');
+        hex.className = 'color-hex';
+        const presets = document.createElement('span');
+        presets.className = 'color-presets';
+        const sync = () => {
+            hex.textContent = input.value.toUpperCase();
+            presets.querySelectorAll('button').forEach(button => {
+                button.setAttribute('aria-pressed', String(button.dataset.color === input.value.toLowerCase()));
+            });
+        };
+        for (const [color, name] of COLOR_PRESETS) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'color-preset';
+            button.dataset.color = color;
+            button.style.setProperty('--preset-color', color);
+            button.setAttribute('aria-label', `${name} (${color})`);
+            button.title = name;
+            button.addEventListener('click', () => {
+                input.value = color;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            presets.append(button);
+        }
+        field.append(input, hex, presets);
         input.addEventListener('input', sync);
         input.addEventListener('change', sync);
         sync();

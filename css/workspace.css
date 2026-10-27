@@ -579,3 +579,74 @@
 .template-help-dialog .template-help-header {
   padding: 0.5rem 0.75rem 0.5rem 1rem;
 }
+
+/* ---------- Colour fields ---------- */
+
+.color-field {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.settings-content .color-field input[type="color"] {
+  width: 36px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  cursor: pointer;
+}
+
+.color-field input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-field input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+}
+
+.color-field input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+}
+
+.color-field input[type="color"]:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.color-hex {
+  min-width: 4.6rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--font-color-2);
+}
+
+.color-presets {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.color-preset {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--font-color) 25%, transparent);
+  border-radius: var(--radius-round);
+  background: var(--preset-color);
+  cursor: pointer;
+}
+
+.color-preset[aria-pressed="true"] {
+  outline: 2px solid var(--color-blue-1);
+  outline-offset: 2px;
+}
+
+.color-preset:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
