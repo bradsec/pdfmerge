@@ -1363,45 +1363,14 @@ li.is-dragging .rotation-controls button .icon {
     grid-row: 3;
   }
 
-  /* Two compact cards per row on phones. */
-  #drop-area.has-files {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  #selected-files-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
-  }
-
   #selected-files-list li {
     max-width: none;
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-
-  #selected-files-list li .card-thumbnail-wrapper {
-    aspect-ratio: 1;
-    min-height: 0;
-    padding: 0.5rem;
-  }
-
-  #selected-files-list li .rotation-controls {
-    justify-self: stretch;
-    gap: 0.25rem;
   }
 
   #selected-files-list li .rotation-controls button {
-    flex: 1 1 0;
-    width: auto;
-    min-width: 0;
-    max-width: 44px;
+    width: 44px;
     height: 44px;
-    margin: 0 0 0 auto;
-  }
-
-  #selected-files-list li .rotation-controls button + button {
-    margin-left: 0;
+    margin: 0;
   }
 
   #selected-files-list li .card-footer .pdf-page-range-input,
@@ -1544,12 +1513,5 @@ li.is-dragging .rotation-controls button .icon {
 
   #selected-files-list {
     grid-row: 4;
-  }
-}
-
-/* Too narrow for two cards with usable controls. */
-@media (max-width: 339px) {
-  #selected-files-list {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
