@@ -188,6 +188,14 @@
               </label>
             </div>
             <p class="toggle-description">Adds a blank page after an odd-page card, except the last card.</p>
+            <div class="numbering-start-options" hidden>
+              <label for="page-number-start">Numbering starts at</label>
+              <input type="number" id="page-number-start" min="1" step="1" value="1" inputmode="numeric" />
+              <p id="page-number-start-error" class="control-error" hidden>Enter a whole number of 1 or greater.</p>
+              <p class="numbering-start-hint">Used by {n} in page numbers, header and footer.</p>
+            </div>
+            <div class="output-text-groups">
+            <div class="output-text-group">
             <div class="toggle-item">
               <label for="add-page-numbers">
                 <div class="switch">
@@ -197,7 +205,8 @@
                 Number all pages
               </label>
             </div>
-            <div class="page-number-options" style="display: none">
+            <div class="page-number-options text-options-panel" hidden>
+              <div class="text-content-row">
               <div class="page-number-field">
                 <label for="page-number-position">Position</label>
                 <select id="page-number-position">
@@ -209,15 +218,201 @@
               <div class="page-number-field">
                 <label for="page-number-format">Format</label>
                 <select id="page-number-format">
-                  <option value="plain">1</option>
-                  <option value="page-of-total">Page 1 of N</option>
+                  <option value="{n}">1</option>
+                  <option value="Page {n}">Page 1</option>
+                  <option value="Page {n} of {total}">Page 1 of N</option>
+                  <option value="{n} / {total}">1 / N</option>
+                  <option value="{n} of {total}">1 of N</option>
+                  <option value="custom">Custom...</option>
                 </select>
               </div>
-              <div class="page-number-field">
-                <label for="page-number-start">Start number</label>
-                <input type="number" id="page-number-start" min="1" step="1" value="1" inputmode="numeric" />
+              <div class="page-number-field page-number-custom" hidden>
+                <label for="page-number-template">Template</label>
+                <input type="text" id="page-number-template" maxlength="100" value="{n}" />
+                <p class="page-number-hint">Use {n}, {total}, {file}, {date}, {time}; {n:3} pads; {date:DD/MM/YYYY} formats.</p>
+                <p id="page-number-template-error" class="control-error" hidden></p>
               </div>
-              <p id="page-number-start-error" class="control-error" hidden>Enter a whole number of 1 or greater.</p>
+              </div>
+              <div class="text-appearance-row">
+              <div class="page-number-field">
+                <label for="page-number-color">Colour</label>
+                <input type="color" id="page-number-color" value="#6b7078" />
+              </div>
+              <div class="text-box-controls">
+              <div class="toggle-item text-option-box">
+                <label for="page-number-box">
+                  <div class="switch">
+                    <input type="checkbox" id="page-number-box" name="page-number-box" />
+                    <span class="slider round"></span>
+                  </div>
+                  Background box
+                </label>
+              </div>
+              <div class="page-number-field text-box-color" hidden>
+                <label for="page-number-box-color">Box colour</label>
+                <input type="color" id="page-number-box-color" value="#ffffff" />
+              </div>
+              </div>
+              <div class="page-number-field">
+                <label for="page-number-margin">Margin (mm)</label>
+                <input type="number" class="text-margin-input" id="page-number-margin" min="0" max="50" step="0.5" value="8.5" inputmode="decimal" />
+                <p id="page-number-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p>
+              </div>
+              </div>
+              <div class="toggle-item text-option-skip">
+                <label for="page-number-skip-first">
+                  <div class="switch">
+                    <input type="checkbox" id="page-number-skip-first" name="page-number-skip-first" />
+                    <span class="slider round"></span>
+                  </div>
+                  Skip first page
+                </label>
+              </div>
+              <div class="text-preview-row">
+                <p id="page-number-preview" class="page-number-preview" aria-live="polite"></p>
+                <span id="page-number-color-swatch" class="text-color-swatch" aria-hidden="true"></span>
+                <span id="page-number-box-swatch" class="text-color-swatch" role="img" aria-label="Background colour" title="Background colour" hidden></span>
+              </div>
+            </div>
+            </div>
+            <div class="output-text-group">
+            <div class="toggle-item">
+              <label for="add-header-text">
+                <div class="switch">
+                  <input type="checkbox" id="add-header-text" name="add-header-text" />
+                  <span class="slider round"></span>
+                </div>
+                Add header text
+              </label>
+            </div>
+            <div id="header-text-options" class="text-line-options text-options-panel" hidden>
+              <div class="text-content-row text-content-row--line">
+              <div class="text-line-field">
+                <label for="header-text-template">Template</label>
+                <input type="text" id="header-text-template" maxlength="100" value="" />
+                <p id="header-text-template-error" class="control-error" hidden></p>
+              </div>
+              <div class="text-line-field">
+                <label for="header-text-alignment">Alignment</label>
+                <select id="header-text-alignment">
+                  <option value="left">Left</option>
+                  <option value="centre" selected>Centre</option>
+                  <option value="right">Right</option>
+                </select>
+                <p id="header-text-alignment-error" class="control-error" hidden>Header text overlaps page numbers.</p>
+              </div>
+              </div>
+              <div class="text-appearance-row">
+              <div class="text-line-field">
+                <label for="header-color">Colour</label>
+                <input type="color" id="header-color" value="#6b7078" />
+              </div>
+              <div class="text-box-controls">
+              <div class="toggle-item text-option-box">
+                <label for="header-box">
+                  <div class="switch">
+                    <input type="checkbox" id="header-box" name="header-box" />
+                    <span class="slider round"></span>
+                  </div>
+                  Background box
+                </label>
+              </div>
+              <div class="text-line-field text-box-color" hidden>
+                <label for="header-box-color">Box colour</label>
+                <input type="color" id="header-box-color" value="#ffffff" />
+              </div>
+              </div>
+              <div class="text-line-field">
+                <label for="header-margin">Margin (mm)</label>
+                <input type="number" class="text-margin-input" id="header-margin" min="0" max="50" step="0.5" value="8.5" inputmode="decimal" />
+                <p id="header-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p>
+              </div>
+              </div>
+              <div class="toggle-item text-option-skip">
+                <label for="header-skip-first">
+                  <div class="switch">
+                    <input type="checkbox" id="header-skip-first" name="header-skip-first" />
+                    <span class="slider round"></span>
+                  </div>
+                  Skip first page
+                </label>
+              </div>
+              <div class="text-preview-row">
+                <p id="header-text-preview" class="text-line-preview" aria-live="polite"></p>
+                <span id="header-color-swatch" class="text-color-swatch" aria-hidden="true"></span>
+                <span id="header-box-swatch" class="text-color-swatch" role="img" aria-label="Background colour" title="Background colour" hidden></span>
+              </div>
+            </div>
+            </div>
+            <div class="output-text-group">
+            <div class="toggle-item">
+              <label for="add-footer-text">
+                <div class="switch">
+                  <input type="checkbox" id="add-footer-text" name="add-footer-text" />
+                  <span class="slider round"></span>
+                </div>
+                Add footer text
+              </label>
+            </div>
+            <div id="footer-text-options" class="text-line-options text-options-panel" hidden>
+              <div class="text-content-row text-content-row--line">
+              <div class="text-line-field">
+                <label for="footer-text-template">Template</label>
+                <input type="text" id="footer-text-template" maxlength="100" value="" />
+                <p id="footer-text-template-error" class="control-error" hidden></p>
+              </div>
+              <div class="text-line-field">
+                <label for="footer-text-alignment">Alignment</label>
+                <select id="footer-text-alignment">
+                  <option value="left" selected>Left</option>
+                  <option value="centre">Centre</option>
+                  <option value="right">Right</option>
+                </select>
+                <p id="footer-text-alignment-error" class="control-error" hidden>Footer text overlaps page numbers.</p>
+              </div>
+              </div>
+              <div class="text-appearance-row">
+              <div class="text-line-field">
+                <label for="footer-color">Colour</label>
+                <input type="color" id="footer-color" value="#6b7078" />
+              </div>
+              <div class="text-box-controls">
+              <div class="toggle-item text-option-box">
+                <label for="footer-box">
+                  <div class="switch">
+                    <input type="checkbox" id="footer-box" name="footer-box" />
+                    <span class="slider round"></span>
+                  </div>
+                  Background box
+                </label>
+              </div>
+              <div class="text-line-field text-box-color" hidden>
+                <label for="footer-box-color">Box colour</label>
+                <input type="color" id="footer-box-color" value="#ffffff" />
+              </div>
+              </div>
+              <div class="text-line-field">
+                <label for="footer-margin">Margin (mm)</label>
+                <input type="number" class="text-margin-input" id="footer-margin" min="0" max="50" step="0.5" value="8.5" inputmode="decimal" />
+                <p id="footer-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p>
+              </div>
+              </div>
+              <div class="toggle-item text-option-skip">
+                <label for="footer-skip-first">
+                  <div class="switch">
+                    <input type="checkbox" id="footer-skip-first" name="footer-skip-first" />
+                    <span class="slider round"></span>
+                  </div>
+                  Skip first page
+                </label>
+              </div>
+              <div class="text-preview-row">
+                <p id="footer-text-preview" class="text-line-preview" aria-live="polite"></p>
+                <span id="footer-color-swatch" class="text-color-swatch" aria-hidden="true"></span>
+                <span id="footer-box-swatch" class="text-color-swatch" role="img" aria-label="Background colour" title="Background colour" hidden></span>
+              </div>
+            </div>
+            </div>
             </div>
           </div>
           <div id="paper-size-selection" style="display: none">

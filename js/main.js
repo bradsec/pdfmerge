@@ -4,7 +4,9 @@
  */
 
 import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.4';
-import { convertToPDF, validatePageNumberStart } from './pdf-processing.js?v=1.3.4';
+import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.4';
+import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.4';
+import { parseTextColor } from './utils.js?v=1.3.4';
 import { initWatermarkControls } from './watermark.js?v=1.3.4';
 import { DOMCache } from './dom-cache.js?v=1.3.4';
 import { initializePaperSizeSelect } from './paper-size.js?v=1.3.4';
@@ -17,6 +19,14 @@ const APP_CONFIG = {
         "print-image-hash",
         "add-watermark",
         "add-page-numbers",
+        "add-header-text",
+        "add-footer-text",
+        "page-number-skip-first",
+        "header-skip-first",
+        "footer-skip-first",
+        "page-number-box",
+        "header-box",
+        "footer-box",
         "duplex-padding",
         "watermark-tiled"
     ],
@@ -25,7 +35,22 @@ const APP_CONFIG = {
         WATERMARK_COLOR: "watermark-color",
         WATERMARK_OPACITY: "watermark-opacity",
         WATERMARK_ROTATION: "watermark-rotation",
-        WATERMARK_SCALE: "watermark-scale"
+        WATERMARK_SCALE: "watermark-scale",
+        PAGE_NUMBER_FORMAT: "page-number-format",
+        PAGE_NUMBER_TEMPLATE: "page-number-template",
+        PAGE_NUMBER_COLOR: "page-number-color",
+        PAGE_NUMBER_BOX_COLOR: "page-number-box-color",
+        PAGE_NUMBER_MARGIN: "page-number-margin",
+        HEADER_TEXT_TEMPLATE: "header-text-template",
+        HEADER_TEXT_ALIGNMENT: "header-text-alignment",
+        HEADER_COLOR: "header-color",
+        HEADER_BOX_COLOR: "header-box-color",
+        HEADER_MARGIN: "header-margin",
+        FOOTER_TEXT_TEMPLATE: "footer-text-template",
+        FOOTER_TEXT_ALIGNMENT: "footer-text-alignment",
+        FOOTER_COLOR: "footer-color",
+        FOOTER_BOX_COLOR: "footer-box-color",
+        FOOTER_MARGIN: "footer-margin"
     },
     DEBOUNCE_DELAY: 300 // milliseconds
 };
@@ -121,13 +146,158 @@ function initializeApp() {
     loadCheckboxStates();
     const pageNumberToggle = DOMCache.getElementById("add-page-numbers");
     const pageNumberOptions = DOMCache.querySelector(".page-number-options");
-    const updatePageNumberOptions = () => {
-        pageNumberOptions.style.display = pageNumberToggle.checked ? "grid" : "none";
-    };
-    updatePageNumberOptions();
-    pageNumberToggle.addEventListener("change", updatePageNumberOptions);
+    const textControls = ['header', 'footer'].map(kind => ({
+        kind,
+        toggle: DOMCache.getElementById(`add-${kind}-text`),
+        options: DOMCache.getElementById(`${kind}-text-options`),
+        template: DOMCache.getElementById(`${kind}-text-template`),
+        alignment: DOMCache.getElementById(`${kind}-text-alignment`),
+        preview: DOMCache.getElementById(`${kind}-text-preview`),
+        templateKey: APP_CONFIG.STORAGE_KEYS[`${kind.toUpperCase()}_TEXT_TEMPLATE`],
+        alignmentKey: APP_CONFIG.STORAGE_KEYS[`${kind.toUpperCase()}_TEXT_ALIGNMENT`]
+    }));
     const pageNumberStart = DOMCache.getElementById("page-number-start");
-    pageNumberStart.addEventListener("input", () => validatePageNumberStart());
+    const startOptions = DOMCache.querySelector('.numbering-start-options');
+    const pageNumberFormat = DOMCache.getElementById("page-number-format");
+    const pageNumberTemplate = DOMCache.getElementById("page-number-template");
+    const customField = DOMCache.querySelector(".page-number-custom");
+    const preview = DOMCache.getElementById("page-number-preview");
+    ['page-number', 'header', 'footer'].forEach(kind => {
+        const input = DOMCache.getElementById(`${kind}-color`);
+        const swatch = DOMCache.getElementById(`${kind}-color-swatch`);
+        const box = DOMCache.getElementById(`${kind}-box`);
+        const boxColor = DOMCache.getElementById(`${kind}-box-color`);
+        const boxSwatch = DOMCache.getElementById(`${kind}-box-swatch`);
+        const margin = DOMCache.getElementById(`${kind}-margin`);
+        const prefix = kind.replace('-', '_').toUpperCase();
+        const key = APP_CONFIG.STORAGE_KEYS[`${prefix}_COLOR`];
+        const boxKey = APP_CONFIG.STORAGE_KEYS[`${prefix}_BOX_COLOR`];
+        const marginKey = APP_CONFIG.STORAGE_KEYS[`${prefix}_MARGIN`];
+        try {
+            input.value = parseTextColor(localStorage.getItem(key)).hex;
+            boxColor.value = parseTextColor(localStorage.getItem(boxKey), '#ffffff').hex;
+            const savedMargin = localStorage.getItem(marginKey);
+            margin.value = parseTextMargin(savedMargin) ?? 8.5;
+        } catch (error) {
+            console.warn(`Failed to load ${kind} appearance:`, error);
+        }
+        swatch.style.backgroundColor = input.value;
+        const updateBox = () => {
+            boxColor.parentElement.hidden = !box.checked;
+            boxSwatch.hidden = !box.checked;
+            boxSwatch.style.backgroundColor = boxColor.value;
+        };
+        updateBox();
+        box.addEventListener('change', updateBox);
+        const saveColor = debounce(value => {
+            try { localStorage.setItem(key, value); }
+            catch (error) { console.warn(`Failed to save ${kind} colour:`, error); }
+        }, APP_CONFIG.DEBOUNCE_DELAY);
+        const saveBoxColor = debounce(value => {
+            try { localStorage.setItem(boxKey, value); }
+            catch (error) { console.warn(`Failed to save ${kind} box colour:`, error); }
+        }, APP_CONFIG.DEBOUNCE_DELAY);
+        input.addEventListener('input', () => {
+            swatch.style.backgroundColor = input.value;
+            saveColor(input.value);
+        });
+        boxColor.addEventListener('input', () => {
+            boxSwatch.style.backgroundColor = boxColor.value;
+            saveBoxColor(boxColor.value);
+        });
+        margin.addEventListener('input', () => {
+            validateTextMargin(kind);
+            try { localStorage.setItem(marginKey, margin.value); }
+            catch (error) { console.warn(`Failed to save ${kind} margin:`, error); }
+        });
+        margin.addEventListener('blur', () => validateTextMargin(kind));
+    });
+    const updatePreviews = () => {
+        customField.hidden = pageNumberFormat.value !== "custom";
+        const template = customField.hidden ? pageNumberFormat.value : pageNumberTemplate.value;
+        const { tokens } = parsePageNumberTemplate(template);
+        const start = parsePageNumberStart(pageNumberStart.value);
+        const now = new Date();
+        const previewText = (value, parsed) => {
+            if (!value.trim()) return 'Preview: (empty)';
+            if (!parsed) return 'Preview: (invalid template)';
+            if (start === null) return 'Preview: (invalid start number)';
+            return `Preview: ${formatPageNumber(start, 12, parsed, 'Contract', now)}`;
+        };
+        preview.textContent = previewText(template, tokens);
+        textControls.forEach(control => {
+            const parsed = parsePageNumberTemplate(control.template.value, { requireNumber: false });
+            control.preview.textContent = previewText(control.template.value, parsed.tokens);
+        });
+    };
+    const updateVisibility = () => {
+        pageNumberOptions.hidden = !pageNumberToggle.checked;
+        textControls.forEach(control => {
+            control.options.hidden = !control.toggle.checked;
+            validateTextTemplate(control.kind);
+        });
+        startOptions.hidden = !needsNumberingStart(pageNumberToggle.checked,
+            textControls[0].toggle.checked, textControls[1].toggle.checked);
+        updatePreviews();
+        validateTextOverlap();
+    };
+    try {
+        const savedFormat = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.PAGE_NUMBER_FORMAT);
+        if (Array.from(pageNumberFormat.options).some(option => option.value === savedFormat)) pageNumberFormat.value = savedFormat;
+        pageNumberTemplate.value = (localStorage.getItem(APP_CONFIG.STORAGE_KEYS.PAGE_NUMBER_TEMPLATE) ?? '{n}').slice(0, 100);
+    } catch (error) {
+        console.warn('Failed to load page number preferences:', error);
+    }
+    textControls.forEach(control => {
+        try {
+            control.template.value = (localStorage.getItem(control.templateKey) ?? '').slice(0, 100);
+            const alignment = localStorage.getItem(control.alignmentKey);
+            if (Array.from(control.alignment.options).some(option => option.value === alignment)) {
+                control.alignment.value = alignment;
+            }
+        } catch (error) {
+            console.warn(`Failed to load ${control.kind} text preferences:`, error);
+        }
+        control.toggle.addEventListener('change', updateVisibility);
+        control.template.addEventListener('input', () => {
+            control.template.dataset.touched = 'true';
+            validateTextTemplate(control.kind);
+            updatePreviews();
+            try { localStorage.setItem(control.templateKey, control.template.value); }
+            catch (error) { console.warn(`Failed to save ${control.kind} template:`, error); }
+        });
+        control.template.addEventListener('blur', () => {
+            control.template.dataset.blurred = 'true';
+            validateTextTemplate(control.kind);
+        });
+        control.alignment.addEventListener('change', () => {
+            validateTextOverlap();
+            try { localStorage.setItem(control.alignmentKey, control.alignment.value); }
+            catch (error) { console.warn(`Failed to save ${control.kind} alignment:`, error); }
+        });
+    });
+    updateVisibility();
+    validatePageNumberTemplate();
+    pageNumberToggle.addEventListener('change', updateVisibility);
+    DOMCache.getElementById('page-number-position').addEventListener('change', () => validateTextOverlap());
+    pageNumberFormat.addEventListener('change', () => {
+        updatePreviews();
+        validatePageNumberTemplate();
+        try { localStorage.setItem(APP_CONFIG.STORAGE_KEYS.PAGE_NUMBER_FORMAT, pageNumberFormat.value); }
+        catch (error) { console.warn('Failed to save page number format:', error); }
+    });
+    pageNumberTemplate.addEventListener('input', () => {
+        pageNumberTemplate.dataset.touched = 'true';
+        validatePageNumberTemplate();
+        updatePreviews();
+        try { localStorage.setItem(APP_CONFIG.STORAGE_KEYS.PAGE_NUMBER_TEMPLATE, pageNumberTemplate.value); }
+        catch (error) { console.warn('Failed to save page number template:', error); }
+    });
+    pageNumberTemplate.addEventListener('blur', () => {
+        pageNumberTemplate.dataset.blurred = 'true';
+        validatePageNumberTemplate();
+    });
+    pageNumberStart.addEventListener("input", () => { validatePageNumberStart(); updatePreviews(); });
     pageNumberStart.addEventListener("blur", () => validatePageNumberStart());
     loadWatermarkFormStates();
     initializeDragManager();

@@ -87,6 +87,11 @@ function hexToRgb(hex) {
     return { r: r / 255, g: g / 255, b: b / 255 };
 }
 
+function parseTextColor(hex, fallback = '#6b7078') {
+    const safeHex = typeof hex === 'string' && /^#[0-9a-f]{6}$/i.test(hex) ? hex : fallback;
+    return { hex: safeHex, ...hexToRgb(safeHex) };
+}
+
 /**
  * Gets current date/time in filename-safe format
  * @returns {string} Formatted timestamp suitable for filenames
@@ -130,6 +135,7 @@ export {
     formatDateTime,
     estimateTextWidth,
     hexToRgb,
+    parseTextColor,
     getFormattedCurrentDate,
     displayFlashMessage,
     isMobileDevice,
