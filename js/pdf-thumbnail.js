@@ -56,7 +56,11 @@ export async function renderPdfThumbnail(file, height = 80) {
     }
 }
 
-export async function renderOutputPages(bytes, width, signal) {
+/**
+ * @param {number|{scale: number}} sizing - a target width for the widest page,
+ *   or a fixed scale (points to CSS pixels) shared across renders
+ */
+export async function renderOutputPages(bytes, sizing, signal) {
     const loadingTask = pdfjsLib.getDocument({ data: bytes });
     const cancel = () => { void loadingTask.destroy().catch(() => {}); };
     signal?.addEventListener('abort', cancel, { once: true });
@@ -67,7 +71,7 @@ export async function renderOutputPages(bytes, width, signal) {
         // One scale for every page, fitted to the widest, so portrait and
         // landscape pages keep their true relative sizes.
         const widest = Math.max(...pages.map(page => page.getViewport({ scale: 1 }).width));
-        const scale = width / widest;
+        const scale = typeof sizing === 'number' ? sizing / widest : sizing.scale;
         const canvases = [];
         for (const page of pages) {
             if (signal?.aborted) throw new DOMException('Preview cancelled', 'AbortError');

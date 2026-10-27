@@ -17,6 +17,7 @@ import {
 import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.5';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.5';
 import { parsePageRangeSelection } from './page-range.js?v=1.3.5';
+import { planOutputPages } from './output-count.js?v=1.3.5';
 import { needsDuplexPadding, formatPageNumber, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.5';
 
 import { 
@@ -213,8 +214,14 @@ async function convertToPDF() {
     }
 }
 
+/**
+ * Builds the merged document. Merge and preview share this path so the preview
+ * is the compiled output. `pageWindow` ({from, to}, 0-based output pages)
+ * builds only that slice: cards before it are skipped without being read, and
+ * page numbers, {file}, skip-first and image numbers keep their global values.
+ */
 export async function buildOutputDocument({ files = selectedFiles, maxPages = Infinity, signal,
-    mergeDate = new Date(), totalPages, onProgress, preview = false } = {}) {
+    mergeDate = new Date(), totalPages, onProgress, preview = false, pageWindow = null } = {}) {
     throwIfAborted(signal);
     const textItems = getTextItems();
     const pdfDoc = await PDFLib.PDFDocument.create();
@@ -238,18 +245,29 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     const pageFiles = [];
     const imageNumber = { index: 0 };
     let processedFiles = 0;
+    // Without a plan (a PDF still loading, or an invalid range) page positions
+    // are unknown, so build from the first page up to the window end instead.
+    const plan = pageWindow ? planOutputPages(files, { duplexPadding: isDuplexPaddingEnabled() }) : null;
+    const ctx = {
+        pdfDoc, regularFont, boldFont, signal, failedFiles, pageFiles, imageNumber, preview,
+        totalFiles: files.length, plan,
+        from: plan ? pageWindow.from : 0,
+        to: pageWindow ? pageWindow.to : maxPages,
+        outputIndex: 0,
+        done: false
+    };
     if (preview && files.length === 0) {
         const [width, height] = getSelectedPaperSize();
-        for (let i = 0; i < 2; i++) pdfDoc.addPage([width, height]);
-        pageFiles.push('', '');
+        pdfDoc.addPage([width, height]);
+        pageFiles.push('');
     }
     for (const chunk of chunkArray(files, PDF_CONFIG.BATCH_SIZE)) {
         throwIfAborted(signal);
-        if (pdfDoc.getPageCount() >= maxPages) break;
-        processedFiles += await processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal,
-            failedFiles, processedFiles, pageFiles, files.length, maxPages, imageNumber);
+        if (ctx.done || (!plan && pdfDoc.getPageCount() >= ctx.to)) break;
+        processedFiles += await processFileChunk(chunk, ctx, processedFiles);
         onProgress?.(processedFiles, files.length);
     }
+    const firstPageIndex = ctx.from;
 
     throwIfAborted(signal);
     if (watermarkImage) {
@@ -264,19 +282,20 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
         const start = parsePageNumberStart(DOMCache.getElementById("page-number-start").value);
         const total = totalPages ?? pages.length;
         const drawableItems = textItems.filter(item => pages.some((_, index) =>
-            shouldDrawOnPage(index, item.skipFirst)));
+            shouldDrawOnPage(firstPageIndex + index, item.skipFirst)));
         if (drawableItems.length && !hasGlyph) throw new Error('Cannot check page text font characters.');
         const unsupportedTemplate = drawableItems.find(item =>
             Array.from(formatPageNumber(start + Number(item.skipFirst), total, item.tokens, '', mergeDate))
                 .some(char => !hasGlyph(char.codePointAt(0))));
         if (unsupportedTemplate) {
             return { pdfDoc, pageFiles, failedFiles, unsupportedTemplate: unsupportedTemplate.name,
-                replacedFileGlyph };
+                replacedFileGlyph, firstPageIndex };
         }
         pages.forEach((page, index) => {
-            const activeItems = drawableItems.filter(item => shouldDrawOnPage(index, item.skipFirst));
+            const activeItems = drawableItems.filter(item =>
+                shouldDrawOnPage(firstPageIndex + index, item.skipFirst));
             if (!activeItems.length) return;
-            const number = start + index;
+            const number = start + firstPageIndex + index;
             const usesFile = activeItems.some(item => item.tokens.some(token => token.name === 'file'));
             const file = Array.from(usesFile ? pageFiles[index] || '' : '', char => {
                 if (hasGlyph(char.codePointAt(0))) return char;
@@ -320,7 +339,7 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
         });
     }
     throwIfAborted(signal);
-    return { pdfDoc, pageFiles, failedFiles, replacedFileGlyph };
+    return { pdfDoc, pageFiles, failedFiles, replacedFileGlyph, firstPageIndex };
 }
 
 function isImageEntry(fileEntry) {
@@ -369,59 +388,103 @@ function chunkArray(array, size) {
     return chunkedArr;
 }
 
-async function processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, failedFiles,
-    startIndex, pageFiles, totalFiles, maxPages, imageNumber) {
+async function processFileChunk(chunk, ctx, startIndex) {
+    const { pdfDoc, signal, failedFiles, pageFiles, plan } = ctx;
     let processed = 0;
     for (let i = 0; i < chunk.length; i++) {
-        if (pdfDoc.getPageCount() >= maxPages) break;
-        // Check for cancellation before processing each file
-        if (signal && signal.aborted) {
-            throw new Error('Operation was cancelled');
-        }
-
+        throwIfAborted(signal);
         const fileEntry = chunk[i];
-        const previousPageCount = pdfDoc.getPageCount();
+        const cardIndex = startIndex + i;
+        const isFinalCard = cardIndex === ctx.totalFiles - 1;
+        const card = plan?.[cardIndex];
+        const cardStart = ctx.outputIndex;
+
+        if (card) {
+            const cardEnd = cardStart + card.pages + card.padding;
+            if (cardStart >= ctx.to) { ctx.done = true; break; }
+            if (cardEnd <= ctx.from) {
+                // Entirely before the window: account for it without reading the file.
+                if (isImageEntry(fileEntry) && countsImageNumber(fileEntry)) ctx.imageNumber.index++;
+                ctx.outputIndex = cardEnd;
+                processed++;
+                continue;
+            }
+        } else if (pdfDoc.getPageCount() >= ctx.to) {
+            break;
+        }
 
         if (!isSupportedFileType(fileEntry)) {
             console.error(`Unsupported file type: ${fileEntry.name}`);
+            processed++;
             continue;
         }
+
+        // Main pages of this card that fall inside the window. When only its
+        // duplex padding page is inside, build the last main page anyway so the
+        // padding copies its size and rotation, then drop it.
+        let skip = 0;
+        let limit;
+        let dropLeading = 0;
+        if (card) {
+            skip = Math.max(0, ctx.from - cardStart);
+            limit = Math.min(card.pages, ctx.to - cardStart) - skip;
+            if (skip >= card.pages) {
+                dropLeading = 1;
+                skip = card.pages - 1;
+                limit = 1;
+            }
+        } else {
+            limit = ctx.to - pdfDoc.getPageCount();
+        }
+
+        const previousPageCount = pdfDoc.getPageCount();
         try {
             if (fileEntry.type === 'blank') {
                 const [pageWidth, pageHeight] = getSelectedPaperSize();
                 pdfDoc.addPage([pageWidth, pageHeight]);
             } else {
-                const fileName = fileEntry.name;
-                const fileExtension = fileEntry.extension || fileName.split(".").pop().toLowerCase();
+                const fileExtension = fileEntry.extension || fileEntry.name.split(".").pop().toLowerCase();
                 if (PDF_CONFIG.IMAGE_EXTENSIONS.includes(fileExtension)) {
-                    await processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal, imageNumber);
+                    await processImageFile(fileEntry, pdfDoc, ctx.regularFont, ctx.boldFont, signal, ctx.imageNumber);
                 } else if (fileExtension === "pdf") {
-                    await processPdfFile(fileEntry, pdfDoc, signal, maxPages - pdfDoc.getPageCount());
+                    await processPdfFile(fileEntry, pdfDoc, signal, { skip, limit, cache: ctx.preview });
                 } else {
                     throw new Error(`Unsupported file format: ${fileExtension}`);
                 }
             }
         } catch (error) {
             // Abort must stop the whole merge, not mark the file as failed
-            if (error.name === 'AbortError' || (signal && signal.aborted)) {
-                throw error;
-            }
+            if (error.name === 'AbortError' || signal?.aborted) throw error;
             console.error("Error processing file:", error);
             failedFiles.push(fileEntry.name);
         }
-        const cardPageCount = pdfDoc.getPageCount() - previousPageCount;
-        if (isDuplexPaddingEnabled() && cardPageCount > 0 &&
-            pdfDoc.getPageCount() < maxPages &&
-            needsDuplexPadding(cardPageCount, startIndex + i === totalFiles - 1)) {
+
+        const builtPages = pdfDoc.getPageCount() - previousPageCount;
+        const paddingIndex = cardStart + (card ? card.pages : builtPages);
+        const wantsPadding = card
+            ? card.padding > 0 && paddingIndex >= ctx.from && paddingIndex < ctx.to && builtPages > 0
+            : isDuplexPaddingEnabled() && builtPages > 0 && pdfDoc.getPageCount() < ctx.to &&
+                needsDuplexPadding(builtPages, isFinalCard);
+        if (wantsPadding) {
             const lastPage = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
             const padding = pdfDoc.addPage([lastPage.getWidth(), lastPage.getHeight()]);
             padding.setRotation(lastPage.getRotation());
         }
+        for (let drop = 0; drop < dropLeading && pdfDoc.getPageCount() > previousPageCount; drop++) {
+            pdfDoc.removePage(previousPageCount);
+        }
+
         const name = fileEntry.type === 'blank' ? '' : fileEntry.name.replace(/\.[^.]+$/, '');
         pageFiles.push(...Array(pdfDoc.getPageCount() - previousPageCount).fill(name));
+        ctx.outputIndex = card ? cardStart + card.pages + card.padding : pdfDoc.getPageCount();
         processed++;
     }
     return processed;
+}
+
+function countsImageNumber(fileEntry) {
+    const layout = getImageLayout(fileEntry);
+    return shouldPrintImagePageNumbers() && layout !== 'cover' && layout !== 'fit';
 }
 
 async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal, imageNumber) {
@@ -481,18 +544,32 @@ async function processImageFile(fileEntry, pdfDoc, regularFont, boldFont, signal
     }
 }
 
-async function processPdfFile(fileEntry, pdfDoc, signal, remainingPages = Infinity) {
-    try {
-        const fileBytes = await fileEntry.file.arrayBuffer();
+// Parsed source PDFs reused across preview renders; keyed by card entry so
+// removed cards are released with it.
+const previewSourceDocs = new WeakMap();
+
+async function loadSourcePdf(fileEntry, signal, cache) {
+    if (cache && previewSourceDocs.has(fileEntry)) return previewSourceDocs.get(fileEntry);
+    const loading = fileEntry.file.arrayBuffer().then(fileBytes => {
         throwIfAborted(signal);
-        const existingPdfDoc = await PDFLib.PDFDocument.load(fileBytes, {
-            ignoreEncryption: true,
-        });
-        
+        return PDFLib.PDFDocument.load(fileBytes, { ignoreEncryption: true });
+    });
+    if (cache) {
+        previewSourceDocs.set(fileEntry, loading);
+        loading.catch(() => previewSourceDocs.delete(fileEntry));
+    }
+    return loading;
+}
+
+async function processPdfFile(fileEntry, pdfDoc, signal, { skip = 0, limit = Infinity, cache = false } = {}) {
+    try {
+        const existingPdfDoc = await loadSourcePdf(fileEntry, signal, cache);
+        throwIfAborted(signal);
+
         // null means no range entered, which falls back to all pages. An
         // entered range with zero valid tokens throws instead of merging all.
         const selectedPageIndices = getSelectedPageIndicesForFile(fileEntry, existingPdfDoc.getPageCount());
-        const pagesToCopy = (selectedPageIndices ?? existingPdfDoc.getPageIndices()).slice(0, remainingPages);
+        const pagesToCopy = (selectedPageIndices ?? existingPdfDoc.getPageIndices()).slice(skip, skip + limit);
         
         const copiedPages = await pdfDoc.copyPages(existingPdfDoc, pagesToCopy);
         const [targetWidth, targetHeight] = getSelectedPaperSize();

@@ -337,8 +337,8 @@
                         <div class="page-number-field page-number-custom" hidden>
                           <label for="page-number-template">Template</label>
                           <input type="text" id="page-number-template" maxlength="100" value="{n}" />
-                          <p class="page-number-hint">Use {n}, {total}, {file}, {date}, {time}; {n:3} pads; {date:DD/MM/YYYY} formats.</p>
                           <p id="page-number-template-error" class="control-error" hidden></p>
+                          <div class="template-help" data-template-for="page-number-template"></div>
                         </div>
                       </div>
                       <div class="text-appearance-row">
@@ -415,6 +415,7 @@
                           <p id="header-text-alignment-error" class="control-error" hidden>Header text overlaps page numbers.</p>
                         </div>
                       </div>
+                      <div class="template-help" data-template-for="header-text-template"></div>
                       <div class="text-appearance-row">
                         <div class="text-line-field">
                           <label for="header-color">Colour</label>
@@ -484,6 +485,7 @@
                           <p id="footer-text-alignment-error" class="control-error" hidden>Footer text overlaps page numbers.</p>
                         </div>
                       </div>
+                      <div class="template-help" data-template-for="footer-text-template"></div>
                       <div class="text-appearance-row">
                         <div class="text-line-field">
                           <label for="footer-color">Colour</label>
@@ -554,8 +556,16 @@
               <details id="output-preview-panel" class="settings-section output-preview-panel">
                 <summary><span class="settings-title">Preview</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.5#chevron-down"></use></svg></summary>
                 <div class="settings-content">
+                  <div class="output-preview-nav" role="group" aria-label="Preview pages">
+                    <button type="button" id="output-preview-prev" class="output-preview-step" aria-label="Previous page"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.5#chevron-left"></use></svg></button>
+                    <label class="output-preview-goto" for="output-preview-page">Page
+                      <input type="number" id="output-preview-page" min="1" step="1" value="1" inputmode="numeric" />
+                      <span id="output-preview-total"></span>
+                    </label>
+                    <button type="button" id="output-preview-next" class="output-preview-step" aria-label="Next page"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.5#chevron-right"></use></svg></button>
+                  </div>
+                  <div id="output-preview-pages" class="output-preview-pages" tabindex="0" aria-label="Preview page. Use arrow keys to change page." aria-live="polite"></div>
                   <p id="output-preview-note" class="output-preview-note" role="status" hidden></p>
-                  <div id="output-preview-pages" class="output-preview-pages"></div>
                 </div>
               </details>
             </aside>
