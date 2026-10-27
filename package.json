@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.3.8",
+  "version": "1.3.9",
   "type": "module",
   "scripts": {
     "lint": "eslint eslint.config.js js tests scripts",
