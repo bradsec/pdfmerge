@@ -342,6 +342,15 @@
   margin: 0;
 }
 
+/* Section-level notes sit between blocks, not directly under one input. */
+.numbering-start-hint.section-lead {
+  margin-bottom: 0.75rem;
+}
+
+.numbering-start-hint.section-tail {
+  margin-top: 0.75rem;
+}
+
 .page-number-custom[hidden] {
   display: none;
 }
