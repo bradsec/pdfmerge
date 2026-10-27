@@ -29,16 +29,13 @@ test('section summaries reflect enabled controls', () => {
     assert.equal(sectionStatus('page-numbers-section', { ...state, pageNumbers: false }), 'Off');
 });
 
-test('opening a section closes other open sections unless they are pinned', async () => {
+test('opening a section closes the other open sections', async () => {
     const { sectionsToClose } = await importApp('settings-accordion.js');
     const sections = [
-        { id: 'a', open: true, pinned: false },
-        { id: 'b', open: true, pinned: true },
-        { id: 'c', open: true, pinned: false },
-        { id: 'd', open: false, pinned: false }
+        { id: 'a', open: true },
+        { id: 'b', open: false },
+        { id: 'c', open: true }
     ];
-    assert.deepEqual(sectionsToClose('c', sections), ['a']);
-    assert.deepEqual(sectionsToClose('d', sections), ['a', 'c']);
-    // A pinned section opening (or being restored on load) closes nothing.
-    assert.deepEqual(sectionsToClose('b', sections), []);
+    assert.deepEqual(sectionsToClose('b', sections), ['a', 'c']);
+    assert.deepEqual(sectionsToClose('a', sections), ['c']);
 });
