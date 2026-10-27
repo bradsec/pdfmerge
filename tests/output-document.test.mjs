@@ -9,9 +9,65 @@ const loadVendor = runInThisContext(`(function (exports, module) { ${readFileSyn
 loadVendor(vendor.exports, vendor);
 globalThis.PDFLib = vendor.exports;
 globalThis.fontkit = {};
-globalThis.document = { getElementById: id => ({ checked: false, value: id === 'paper-size-select' ? 'A4' : '1' }) };
+let removeMetadata = true;
+const imageControls = new Map();
+for (const side of ['top', 'right', 'bottom', 'left']) {
+    imageControls.set(`image-margin-${side}`, { value: '19', setAttribute() {} });
+    imageControls.set(`image-margin-${side}-error`, { id: `image-margin-${side}-error`, hidden: true });
+}
+imageControls.set('image-margin-preset', { value: 'default' });
+globalThis.document = { getElementById: id => imageControls.get(id) ??
+    ({ checked: id === 'remove-metadata' ? removeMetadata : false,
+        value: id === 'paper-size-select' ? 'A4' : '1' }) };
 
-const { buildOutputDocument } = await importApp('pdf-processing.js');
+const { buildOutputDocument, validateImageMargins } = await importApp('pdf-processing.js');
+
+test('custom image margin validation shows inline errors and ignores unused custom values', () => {
+    const preset = imageControls.get('image-margin-preset');
+    const top = imageControls.get('image-margin-top');
+    const error = imageControls.get('image-margin-top-error');
+    preset.value = 'custom';
+    top.value = '8.25';
+    assert.equal(validateImageMargins(), false);
+    assert.equal(error.hidden, false);
+    top.value = '8.5';
+    assert.equal(validateImageMargins(), true);
+    assert.equal(error.hidden, true);
+    top.value = 'invalid';
+    preset.value = 'default';
+    assert.equal(validateImageMargins(), true);
+    assert.equal(error.hidden, true);
+    top.value = '19';
+});
+
+test('remove metadata clears output Info and catalog Metadata when on, and preserves defaults when off', async () => {
+    const keys = ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModDate'];
+    const create = vendor.exports.PDFDocument.create;
+    let metadataRef;
+    vendor.exports.PDFDocument.create = async (...args) => {
+        const doc = await create(...args);
+        metadataRef = doc.context.register(doc.context.stream('<xmp/>'));
+        doc.catalog.set(vendor.exports.PDFName.of('Metadata'), metadataRef);
+        return doc;
+    };
+    try {
+        for (const enabled of [true, false]) {
+            removeMetadata = enabled;
+            const { pdfDoc } = await buildOutputDocument({ files: [{ type: 'blank', name: 'Blank' }] });
+            assert.equal(pdfDoc.context.enumerateIndirectObjects().some(([ref]) => ref === metadataRef), !enabled);
+            const bytes = await pdfDoc.save();
+            const saved = await vendor.exports.PDFDocument.load(bytes, { updateMetadata: false });
+            const info = saved.context.lookup(saved.context.trailerInfo.Info);
+            for (const key of keys) {
+                assert.equal(info.has(vendor.exports.PDFName.of(key)), !enabled &&
+                    ['Creator', 'Producer', 'CreationDate', 'ModDate'].includes(key), `${key}, enabled=${enabled}`);
+            }
+            assert.equal(saved.catalog.has(vendor.exports.PDFName.of('Metadata')), !enabled);
+        }
+    } finally {
+        vendor.exports.PDFDocument.create = create;
+    }
+});
 
 test('preview stops after two output pages while the full build keeps all pages', async () => {
     const files = Array.from({ length: 3 }, (_, index) => ({ type: 'blank', name: `Blank ${index + 1}` }));

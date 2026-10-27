@@ -4,7 +4,7 @@
  */
 
 import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.19';
-import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.19';
+import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin, validateImageMargins } from './pdf-processing.js?v=1.3.19';
 import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.19';
 import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.19';
 import { initWatermarkControls } from './watermark.js?v=1.3.19';
@@ -19,6 +19,7 @@ import { getTextStyle } from './text-style.js?v=1.3.19';
 // Application constants
 const APP_CONFIG = {
     CHECKBOX_IDS: [
+        "remove-metadata",
         "add-watermark",
         "add-page-numbers",
         "add-header-text",
@@ -45,6 +46,7 @@ const APP_CONFIG = {
         "footer-underline"
     ],
     STORAGE_KEYS: {
+        IMAGE_MARGIN_PRESET: "image-margin-preset",
         WATERMARK_TEXT: "watermark-text",
         WATERMARK_COLOR: "watermark-color",
         WATERMARK_OPACITY: "watermark-opacity",
@@ -220,6 +222,31 @@ function initializeApp() {
         });
         margin.addEventListener('blur', () => validateTextMargin(kind));
     });
+    const imageMarginPreset = DOMCache.getElementById('image-margin-preset');
+    const imageMarginCustom = DOMCache.getElementById('image-margin-custom');
+    try {
+        const saved = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.IMAGE_MARGIN_PRESET);
+        if ([...imageMarginPreset.options].some(option => option.value === saved)) imageMarginPreset.value = saved;
+    } catch (error) { console.warn('Failed to load image margin preset:', error); }
+    const updateImageMargins = () => {
+        imageMarginCustom.hidden = imageMarginPreset.value !== 'custom';
+        validateImageMargins();
+        try { localStorage.setItem(APP_CONFIG.STORAGE_KEYS.IMAGE_MARGIN_PRESET, imageMarginPreset.value); }
+        catch (error) { console.warn('Failed to save image margin preset:', error); }
+    };
+    imageMarginPreset.addEventListener('change', updateImageMargins);
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+        const input = DOMCache.getElementById(`image-margin-${side}`);
+        try { input.value = parseTextMargin(localStorage.getItem(input.id)) ?? 19; }
+        catch (error) { console.warn(`Failed to load ${side} image margin:`, error); }
+        input.addEventListener('input', () => {
+            validateImageMargins();
+            try { localStorage.setItem(input.id, input.value); }
+            catch (error) { console.warn(`Failed to save ${side} image margin:`, error); }
+        });
+        input.addEventListener('blur', () => validateImageMargins());
+    }
+    imageMarginCustom.hidden = imageMarginPreset.value !== 'custom';
     const updatePreviews = () => {
         customField.hidden = pageNumberFormat.value !== "custom";
         const template = customField.hidden ? pageNumberFormat.value : pageNumberTemplate.value;

@@ -12,6 +12,8 @@ export function writeSectionOpen(storage, id, open) {
 export function sectionStatus(id, state) {
     switch (id) {
     case 'paper-size-selection': return state.paperSize;
+    case 'margins-section': return state.imageMarginPreset === 'custom' ? 'Custom' :
+        ({ default: 'Default · 19 mm', narrow: 'Narrow · 12.7 mm', normal: 'Normal · 25.4 mm', none: 'None · 0 mm' }[state.imageMarginPreset] ?? '');
     case 'watermark-details-toggle': return state.watermark ? `On · ${state.watermarkType}` : 'Off';
     case 'page-numbers-section': return state.pageNumbers ? `On · ${state.position} · ${state.format}` : 'Off';
     case 'header-footer-section': {
@@ -19,6 +21,7 @@ export function sectionStatus(id, state) {
         return lines.length ? `On · ${lines.join(', ')}` : 'Off';
     }
     case 'printing-section': return `Duplex ${state.duplex ? 'on' : 'off'} · starts at ${state.start}`;
+    case 'privacy-section': return state.removeMetadata ? 'On' : 'Off';
     default: return '';
     }
 }
@@ -43,6 +46,7 @@ export function initializeSettingsAccordion(storage = localStorage) {
     const update = () => {
         const state = {
             paperSize: value('paper-size-select').value,
+            imageMarginPreset: value('image-margin-preset').value,
             watermark: value('add-watermark').checked,
             watermarkType: value('watermark-type')?.value === 'image' ? 'Image' : 'Text',
             pageNumbers: value('add-page-numbers').checked,
@@ -53,6 +57,7 @@ export function initializeSettingsAccordion(storage = localStorage) {
             header: value('add-header-text').checked,
             footer: value('add-footer-text').checked,
             duplex: value('duplex-padding').checked,
+            removeMetadata: value('remove-metadata').checked,
             start: value('page-number-start').value || '?'
         };
         accordion.querySelectorAll('.settings-section').forEach(section => {

@@ -5,7 +5,8 @@ import { importApp } from './import-app.mjs';
 const { needsDuplexPadding, formatPageNumber, getPageNumberPlacement, parsePageNumberStart,
     parsePageNumberTemplate, fitPageNumberSize, formatDateTime, getTextPlacement,
     getTextOverlap, needsNumberingStart, shouldDrawOnPage, mmToPt,
-    parseTextMargin, getTextBox, parseExifDateTime } = await importApp('output-pages.js');
+    parseTextMargin, getTextBox, parseExifDateTime, getImagePageMargins,
+    getImagePlacement } = await importApp('output-pages.js');
 
 test('duplex pads odd non-final cards only', () => {
     assert.equal(needsDuplexPadding(3, false), true);
@@ -96,6 +97,35 @@ test('margin accepts half-millimetre values from zero through fifty', () => {
     for (const value of ['', '-0.5', '50.5', '8.25', 'abc', 'Infinity']) {
         assert.equal(parseTextMargin(value), null, value);
     }
+});
+
+test('image margin presets and custom sides map to points', () => {
+    assert.deepEqual(getImagePageMargins('default'), { top: 54, right: 54, bottom: 54, left: 54 });
+    for (const [preset, mm] of [['narrow', 12.7], ['normal', 25.4], ['none', 0]]) {
+        assert.deepEqual(getImagePageMargins(preset), {
+            top: mmToPt(mm), right: mmToPt(mm), bottom: mmToPt(mm), left: mmToPt(mm)
+        });
+    }
+    assert.deepEqual(getImagePageMargins('custom', { top: '1', right: '2', bottom: '3', left: '4' }), {
+        top: mmToPt(1), right: mmToPt(2), bottom: mmToPt(3), left: mmToPt(4)
+    });
+    for (const invalid of ['', '-1', '8.25', '50.5', 'abc']) {
+        assert.equal(getImagePageMargins('custom', { top: invalid, right: '2', bottom: '3', left: '4' }), null);
+    }
+    assert.equal(getImagePageMargins('unknown'), null);
+    assert.equal(getImagePageMargins('__proto__'), null);
+});
+
+test('image placement respects each side and keeps the 54-point default', () => {
+    const image = { scaleToFit: (width, height) => ({ width, height: height / 2 }) };
+    assert.deepEqual(getImagePlacement(image, 300, 400, getImagePageMargins('default')),
+        { x: 54, y: 127, width: 192, height: 146 });
+    assert.deepEqual(getImagePlacement(image, 300, 400,
+        getImagePageMargins('custom', { top: '10', right: '20', bottom: '30', left: '40' })), {
+        x: mmToPt(40), y: mmToPt(30) + (400 - mmToPt(10) - mmToPt(30)) / 4,
+        width: 300 - mmToPt(40) - mmToPt(20),
+        height: (400 - mmToPt(10) - mmToPt(30)) / 2
+    });
 });
 
 test('page number start must be a positive safe integer', () => {

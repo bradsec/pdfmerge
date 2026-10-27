@@ -27,7 +27,7 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 
 Each image can be placed on its page in one of three modes:
 
-- **Default Margins**: Scaled with printer-safe margins
+- **Default Margins**: Scaled within the image page margins selected in Margins. Default is 54 pt on every side (about 19 mm); choose Narrow (12.7 mm), Normal (25.4 mm), None, or Custom per-side values from 0 to 50 mm in 0.5 mm steps. Cover and Fit still use the full page.
 - **Cover**: Cropped to fill the full page
 - **Fit**: Scaled to fit with letterbox background
 
@@ -43,9 +43,11 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 - **Text Colour**: Choose a separate colour for page numbers, header text, and footer text; each defaults to grey.
 - **Text Style**: Page numbers, header text, footer text, and the text watermark each have bold, italic, and underline toggles. Text defaults to normal weight; the text watermark defaults to bold. Italic is a slanted Roboto, as no italic font file is bundled.
 - **Text Background and Margin**: Each text option can add a solid background box with its own colour. Set its top or bottom and side margin from 0 to 50 mm in 0.5 mm steps; the default is 8.5 mm.
+- **Margins**: Header and footer margins now live in Margins. They apply only when their text is enabled. Image page margins are saved across sessions and shown in the live preview.
 - **Duplex Padding**: Add a matching blank page after each card that produces an odd number of pages, except the final card
 - **Image and File Details**: Add EXIF details, a file hash, or an image number through placeholders in any page number, header, or footer template: `{taken}` (capture date and time, accepting the same tokens as `{date}`; default `YYYY-MM-DD HH:mm`), `{gps}` (latitude, longitude), `{hash}` (SHA-256 of the source file; `{hash:8}` keeps the first 4 to 64 characters), and `{img}` (image number counting image files only; `{img:3}` pads it). `{hash}` works for every source file; `{taken}`, `{gps}`, and `{img}` print nothing on pages without that data, such as PDF or blank pages
 - **Custom Filename**: User-defined output filename
+- **Remove Metadata**: On by default. Clears the merged PDF's title, author, subject, keywords, creator, producer, creation and modification dates, and catalog XMP metadata. Turn it off to keep the existing output behavior.
 
 Date and time default to `{date}` = `YYYY-MM-DD` and `{time}` = `HH:mm`. Either placeholder accepts the same tokens after its first colon, as in `{date:YYYY-MM-DD HH:mm}`. Wrap literal letters in brackets, for example `{date:[Day] D}`.
 
@@ -87,7 +89,7 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}`, `{file} {date:YYYY-
 - Progress bar with 60-second timeout protection
 - Dark and light mode, persisted across sessions
 - Option toggles and watermark settings persisted to localStorage across merges and sessions; a notice lists the sections that differ from the defaults, with a **Reset to defaults** button
-- Settings below the file cards use six collapsible sections; each section remembers whether it was open
+- Settings below the file cards use eight collapsible sections; each section remembers whether it was open
 - Cancelling the save dialog keeps the file list so the merge can be run again
 - The download-again link stays available until you change files, start another merge, or reset
 - **Notifications**: Dismissible toasts confirm file additions, removals, sorting, clearing, blank pages, and merges

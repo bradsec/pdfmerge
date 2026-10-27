@@ -17,14 +17,18 @@ test('accordion opens only sections saved as true', () => {
 });
 
 test('section summaries reflect enabled controls', () => {
-    const state = { paperSize: 'A4', watermark: false,
+    const state = { paperSize: 'A4', imageMarginPreset: 'default', watermark: false,
         pageNumbers: true, position: 'Bottom centre', format: 'Page 1 of N',
-        header: true, footer: true, duplex: true, start: '3' };
+        header: true, footer: true, duplex: true, removeMetadata: true, start: '3' };
     assert.equal(sectionStatus('paper-size-selection', state), 'A4');
+    assert.equal(sectionStatus('margins-section', state), 'Default · 19 mm');
+    assert.equal(sectionStatus('margins-section', { ...state, imageMarginPreset: 'custom' }), 'Custom');
     assert.equal(sectionStatus('watermark-details-toggle', state), 'Off');
     assert.equal(sectionStatus('page-numbers-section', state), 'On · Bottom centre · Page 1 of N');
     assert.equal(sectionStatus('header-footer-section', state), 'On · Header, Footer');
     assert.equal(sectionStatus('printing-section', state), 'Duplex on · starts at 3');
+    assert.equal(sectionStatus('privacy-section', state), 'On');
+    assert.equal(sectionStatus('privacy-section', { ...state, removeMetadata: false }), 'Off');
     assert.equal(sectionStatus('page-numbers-section', { ...state, pageNumbers: false }), 'Off');
 });
 

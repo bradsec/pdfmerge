@@ -125,6 +125,30 @@ export function parseTextMargin(value) {
         Number.isInteger(number * 2) ? number : null;
 }
 
+export function getImagePageMargins(preset, custom = {}) {
+    if (preset === 'default') return { top: 54, right: 54, bottom: 54, left: 54 };
+    const mm = { narrow: 12.7, normal: 25.4, none: 0 }[preset];
+    if (['narrow', 'normal', 'none'].includes(preset)) {
+        return { top: mmToPt(mm), right: mmToPt(mm), bottom: mmToPt(mm), left: mmToPt(mm) };
+    }
+    if (preset !== 'custom') return null;
+    const margins = {};
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+        const value = parseTextMargin(custom[side]);
+        if (value === null) return null;
+        margins[side] = mmToPt(value);
+    }
+    return margins;
+}
+
+export function getImagePlacement(image, pageWidth, pageHeight, margins) {
+    const availableWidth = pageWidth - margins.left - margins.right;
+    const availableHeight = pageHeight - margins.top - margins.bottom;
+    const { width, height } = image.scaleToFit(availableWidth, availableHeight);
+    return { x: margins.left + (availableWidth - width) / 2,
+        y: margins.bottom + (availableHeight - height) / 2, width, height };
+}
+
 export function parsePageNumberStart(value) {
     const text = String(value).trim();
     const number = Number(text);

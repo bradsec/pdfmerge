@@ -15,7 +15,7 @@ import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.19';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.19';
 import { parsePageRangeSelection } from './page-range.js?v=1.3.19';
 import { planOutputPages } from './output-count.js?v=1.3.19';
-import { needsDuplexPadding, formatPageNumber, parseExifDateTime, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.19';
+import { needsDuplexPadding, formatPageNumber, parseExifDateTime, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage, getImagePageMargins, getImagePlacement } from './output-pages.js?v=1.3.19';
 
 import { 
     selectedFiles, 
@@ -97,6 +97,12 @@ async function convertToPDF() {
             displayFlashMessage(message, 'danger');
             return;
         }
+    }
+    if (!validateImageMargins(true)) {
+        const message = 'Cannot merge: enter image page margins from 0 to 50 mm in 0.5 mm steps.';
+        DOMCache.getElementById('tool-status').textContent = message;
+        displayFlashMessage(message, 'danger');
+        return;
     }
     if (isWatermarkEnabled() && getWatermarkType() === 'image' && !hasWatermarkImage()) {
         const message = 'Cannot merge: choose a watermark image, or switch the watermark type to Text.';
@@ -352,6 +358,16 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
         });
     }
     throwIfAborted(signal);
+    if (DOMCache.getElementById('remove-metadata').checked) {
+        const info = pdfDoc.getInfoDict();
+        for (const key of ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModDate']) {
+            info.delete(PDFLib.PDFName.of(key));
+        }
+        const metadataKey = PDFLib.PDFName.of('Metadata');
+        const metadataRef = pdfDoc.catalog.get(metadataKey);
+        pdfDoc.catalog.delete(metadataKey);
+        if (metadataRef instanceof PDFLib.PDFRef) pdfDoc.context.delete(metadataRef);
+    }
     return { pdfDoc, pageFiles, failedFiles, replacedFileGlyph, firstPageIndex };
 }
 
@@ -507,13 +523,6 @@ async function processImageFile(fileEntry, pdfDoc, signal) {
         const [pageWidth, pageHeight] = getSelectedPaperSize();
         const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
-        // Printer-safe margins: 0.75 inches (54 points) for wide printer compatibility
-        const safeMargin = 54;
-        const leftMargin = safeMargin;
-        const topMargin = safeMargin;
-        const rightMargin = pageWidth - safeMargin;
-        const bottomMargin = pageHeight - safeMargin;
-
         const image = await pdfDoc.embedJpg(imageBytes);
         const layout = getImageLayout(fileEntry);
         const isFullPage = layout === "cover" || layout === "fit";
@@ -521,17 +530,7 @@ async function processImageFile(fileEntry, pdfDoc, signal) {
         if (isFullPage) {
             page.drawImage(image, { x: 0, y: 0, width: pageWidth, height: pageHeight });
         } else {
-            const imgDim = image.scaleToFit(rightMargin - leftMargin, bottomMargin - topMargin);
-
-            const xPosition = (rightMargin - leftMargin - imgDim.width) / 2 + leftMargin;
-            const yPosition = (bottomMargin - topMargin - imgDim.height) / 2 + topMargin;
-
-            page.drawImage(image, {
-                x: xPosition,
-                y: yPosition,
-                width: imgDim.width,
-                height: imgDim.height,
-            });
+            page.drawImage(image, getImagePlacement(image, pageWidth, pageHeight, getSelectedImageMargins()));
         }
 
         if (fileEntry.rotation) {
@@ -951,6 +950,28 @@ function validateTextMargin(kind, focus = false) {
     return valid;
 }
 
+function getSelectedImageMargins() {
+    const custom = Object.fromEntries(['top', 'right', 'bottom', 'left'].map(side =>
+        [side, DOMCache.getElementById(`image-margin-${side}`).value]));
+    return getImagePageMargins(DOMCache.getElementById('image-margin-preset').value, custom);
+}
+
+function validateImageMargins(focus = false) {
+    const custom = DOMCache.getElementById('image-margin-preset').value === 'custom';
+    let firstInvalid = null;
+    for (const side of ['top', 'right', 'bottom', 'left']) {
+        const input = DOMCache.getElementById(`image-margin-${side}`);
+        const error = DOMCache.getElementById(`image-margin-${side}-error`);
+        const invalid = custom && parseTextMargin(input.value) === null;
+        input.setAttribute('aria-invalid', String(invalid));
+        input.setAttribute('aria-describedby', error.id);
+        error.hidden = !invalid;
+        if (invalid && !firstInvalid) firstInvalid = input;
+    }
+    if (firstInvalid && focus) { openSettingFor(firstInvalid); firstInvalid.focus(); }
+    return !firstInvalid && getSelectedImageMargins() !== null;
+}
+
 function isDuplexPaddingEnabled() {
     return DOMCache.getElementById("duplex-padding").checked;
 }
@@ -1012,6 +1033,7 @@ function getCurrentTextOverlap() {
  * @returns {string|null} what is invalid, or null when a build can proceed
  */
 function getOutputSettingsProblem(files = selectedFiles) {
+    if (getSelectedImageMargins() === null) return 'image margin';
     const enabled = { 'page-number': isPageNumberingEnabled(), header: isTextLineEnabled('header'),
         footer: isTextLineEnabled('footer') };
     if (needsNumberingStart(enabled['page-number'], enabled.header, enabled.footer) &&
@@ -1071,4 +1093,4 @@ function getSelectedPageIndicesForFile(file, totalPages) {
     return pageIndices;
 }
 
-export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin, getOutputSettingsProblem, isDuplexPaddingEnabled };
+export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin, validateImageMargins, getOutputSettingsProblem, isDuplexPaddingEnabled };

@@ -136,6 +136,27 @@
   padding: 0;
 }
 
+.image-margin-custom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.text-margin-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.image-margin-custom[hidden] {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .image-margin-custom {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 #header-footer-section .output-text-group + .output-text-group {
   margin-top: 1rem;
 }

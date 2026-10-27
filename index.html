@@ -179,6 +179,48 @@
                   </div>
                 </div>
               </details>
+              <details id="margins-section" class="settings-section">
+                <summary><span class="settings-title">Margins</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.19#chevron-down"></use></svg></summary>
+                <div class="settings-content">
+                  <div class="text-line-field">
+                    <label for="image-margin-preset">Image page margins</label>
+                    <select id="image-margin-preset" aria-describedby="image-margin-desc">
+                      <option value="default" selected>Default (19 mm)</option>
+                      <option value="narrow">Narrow (12.7 mm)</option>
+                      <option value="normal">Normal (25.4 mm)</option>
+                      <option value="none">None (0 mm)</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                    <p id="image-margin-desc" class="numbering-start-hint">Applies to images using the Default Margins layout.</p>
+                  </div>
+                  <div id="image-margin-custom" class="image-margin-custom" hidden>
+                    <div class="text-line-field"><label for="image-margin-top">Top (mm)</label><input type="number" id="image-margin-top" min="0" max="50" step="0.5" value="19" aria-describedby="image-margin-top-error"><p id="image-margin-top-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                    <div class="text-line-field"><label for="image-margin-right">Right (mm)</label><input type="number" id="image-margin-right" min="0" max="50" step="0.5" value="19" aria-describedby="image-margin-right-error"><p id="image-margin-right-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                    <div class="text-line-field"><label for="image-margin-bottom">Bottom (mm)</label><input type="number" id="image-margin-bottom" min="0" max="50" step="0.5" value="19" aria-describedby="image-margin-bottom-error"><p id="image-margin-bottom-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                    <div class="text-line-field"><label for="image-margin-left">Left (mm)</label><input type="number" id="image-margin-left" min="0" max="50" step="0.5" value="19" aria-describedby="image-margin-left-error"><p id="image-margin-left-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                  </div>
+                  <div class="image-margin-custom text-margin-fields">
+                    <div class="text-line-field"><label for="header-margin">Header margin (mm)</label><span class="range-control"><input type="range" id="header-margin" class="text-margin-input" min="0" max="50" step="0.5" value="8.5" data-unit=" mm"><output class="range-value" for="header-margin">8.5 mm</output></span><p id="header-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                    <div class="text-line-field"><label for="footer-margin">Footer margin (mm)</label><span class="range-control"><input type="range" id="footer-margin" class="text-margin-input" min="0" max="50" step="0.5" value="8.5" data-unit=" mm"><output class="range-value" for="footer-margin">8.5 mm</output></span><p id="footer-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p></div>
+                  </div>
+                  <p class="numbering-start-hint">Header and footer margins apply only when their text is enabled.</p>
+                </div>
+              </details>
+              <details id="privacy-section" class="settings-section">
+                <summary><span class="settings-title">Privacy</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.19#chevron-down"></use></svg></summary>
+                <div class="settings-content">
+                  <div class="toggle-item">
+                    <label for="remove-metadata">
+                      <span class="switch">
+                        <input type="checkbox" id="remove-metadata" name="remove-metadata" checked aria-describedby="remove-metadata-desc" />
+                        <span class="slider round"></span>
+                      </span>
+                      Remove metadata
+                    </label>
+                  </div>
+                  <p id="remove-metadata-desc" class="toggle-description">Removes document details and XMP metadata from the merged PDF.</p>
+                </div>
+              </details>
               <details id="watermark-details-toggle" class="settings-section">
                 <summary><span class="settings-title">Watermark</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.19#chevron-down"></use></svg></summary>
                 <div class="settings-content">
@@ -373,6 +415,7 @@
               <details id="header-footer-section" class="settings-section">
                 <summary><span class="settings-title">Header &amp; footer</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.19#chevron-down"></use></svg></summary>
                 <div class="settings-content">
+                  <p class="numbering-start-hint">Set header and footer margins in Margins.</p>
                   <div class="output-text-group">
                     <div class="toggle-item">
                       <label for="add-header-text">
@@ -428,11 +471,6 @@
                             <label for="header-box-color">Box colour</label>
                             <input type="color" id="header-box-color" value="#ffffff" />
                           </div>
-                        </div>
-                        <div class="text-line-field">
-                          <label for="header-margin">Margin (mm)</label>
-                          <span class="range-control"><input type="range" id="header-margin" class="text-margin-input" min="0" max="50" step="0.5" value="8.5" data-unit=" mm"><output class="range-value" for="header-margin">8.5 mm</output></span>
-                          <p id="header-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p>
                         </div>
                       </div>
                       <div class="toggle-item text-option-skip">
@@ -504,11 +542,6 @@
                             <label for="footer-box-color">Box colour</label>
                             <input type="color" id="footer-box-color" value="#ffffff" />
                           </div>
-                        </div>
-                        <div class="text-line-field">
-                          <label for="footer-margin">Margin (mm)</label>
-                          <span class="range-control"><input type="range" id="footer-margin" class="text-margin-input" min="0" max="50" step="0.5" value="8.5" data-unit=" mm"><output class="range-value" for="footer-margin">8.5 mm</output></span>
-                          <p id="footer-margin-error" class="control-error" hidden>Enter 0–50 mm in 0.5 mm steps.</p>
                         </div>
                       </div>
                       <div class="toggle-item text-option-skip">

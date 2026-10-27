@@ -51,6 +51,23 @@ test('workflow keeps upload and action controls', () => {
   assert.match(html, /id="output-filename-container"/);
 });
 
+test('remove metadata is enabled by default with an accessible label', () => {
+  assert.match(html, /<label for="remove-metadata">[\s\S]*?<input[^>]*id="remove-metadata"[^>]*checked[^>]*>[\s\S]*?Remove metadata\s*<\/label>/);
+});
+
+test('image margins have accessible custom sides and header/footer controls live in Margins', () => {
+  const margins = html.match(/<details id="margins-section"[\s\S]*?<\/details>/)[0];
+  assert.match(margins, /<label for="image-margin-preset">Image page margins<\/label>/);
+  for (const side of ['top', 'right', 'bottom', 'left']) {
+    assert.match(margins, new RegExp(`<label for="image-margin-${side}">`));
+    assert.match(margins, new RegExp(`id="image-margin-${side}"[^>]*aria-describedby="image-margin-${side}-error"`));
+  }
+  assert.match(margins, /id="header-margin"/);
+  assert.match(margins, /id="footer-margin"/);
+  assert.equal(html.match(/id="header-margin"/g).length, 1);
+  assert.equal(html.match(/id="footer-margin"/g).length, 1);
+});
+
 test('output filename and merge action share the final action bar', () => {
   assert.match(html, /<div id="output-filename-container"[^>]*>\s*<div class="output-bar">/);
   assert.match(html, /<label for="output-filename">Output filename<\/label>[\s\S]*?<input[^>]*id="output-filename"[^>]*>[\s\S]*?<span class="output-filename-ext">\.pdf<\/span>/);
