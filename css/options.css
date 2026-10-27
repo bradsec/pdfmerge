@@ -19,6 +19,22 @@
   align-items: center;
 }
 
+.watermark-item[hidden] {
+  display: none;
+}
+
+.watermark-image-only {
+  flex-wrap: wrap;
+  gap: 0.35rem 0;
+}
+
+.watermark-image-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--font-color-2);
+  font-size: 0.8rem;
+}
+
 .watermark-item label {
   margin-right: 10px;
 }
@@ -124,10 +140,58 @@
   margin-top: 1rem;
 }
 
+/* Mobile: the preview sits above the settings as its own collapsible section. */
+.settings-layout {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.output-preview {
+  order: -1;
+  min-width: 0;
+}
+
+.output-preview-pages {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+.output-preview-page {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+}
+
+.output-preview-page canvas {
+  max-width: 100%;
+  height: auto !important;
+  background: #fff;
+  border: 1px solid var(--card-shell-border);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
+}
+
+.output-preview-page figcaption,
+.output-preview-note {
+  color: var(--font-color-2);
+  font-size: 0.8rem;
+}
+
+.output-preview-note {
+  margin: 0 0 0.75rem;
+}
+
+.output-preview.is-stale .output-preview-pages,
+.output-preview[aria-busy="true"] .output-preview-pages {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
 @media (min-width: 1024px) {
   .settings-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
     gap: 1rem;
   }
 
@@ -137,6 +201,17 @@
 
   .settings-layout:has(#output-preview:not([hidden])) .settings-accordion {
     grid-column: 1;
+    grid-row: 1;
+  }
+
+  .output-preview {
+    order: 0;
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
   }
 }
 

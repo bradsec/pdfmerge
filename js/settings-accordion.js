@@ -13,7 +13,7 @@ export function sectionStatus(id, state) {
     switch (id) {
     case 'paper-size-selection': return state.paperSize;
     case 'image-details-toggle': return state.imageOptions.length ? state.imageOptions.join(', ') : 'Off';
-    case 'watermark-details-toggle': return state.watermark ? 'On' : 'Off';
+    case 'watermark-details-toggle': return state.watermark ? `On · ${state.watermarkType}` : 'Off';
     case 'page-numbers-section': return state.pageNumbers ? `On · ${state.position} · ${state.format}` : 'Off';
     case 'header-footer-section': {
         const lines = [state.header && 'Header', state.footer && 'Footer'].filter(Boolean);
@@ -41,6 +41,7 @@ export function initializeSettingsAccordion(storage = localStorage) {
                 ['print-image-hash', 'Hash']
             ].filter(([id]) => value(id).checked).map(([, label]) => label),
             watermark: value('add-watermark').checked,
+            watermarkType: value('watermark-type')?.value === 'image' ? 'Image' : 'Text',
             pageNumbers: value('add-page-numbers').checked,
             position: value('page-number-position').selectedOptions[0].textContent,
             format: value('page-number-format').value === 'custom'

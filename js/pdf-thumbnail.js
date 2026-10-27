@@ -62,12 +62,16 @@ export async function renderOutputPages(bytes, width, signal) {
     signal?.addEventListener('abort', cancel, { once: true });
     try {
         const pdf = await loadingTask.promise;
+        const pages = [];
+        for (let number = 1; number <= pdf.numPages; number++) pages.push(await pdf.getPage(number));
+        // One scale for every page, fitted to the widest, so portrait and
+        // landscape pages keep their true relative sizes.
+        const widest = Math.max(...pages.map(page => page.getViewport({ scale: 1 }).width));
+        const scale = width / widest;
         const canvases = [];
-        for (let number = 1; number <= pdf.numPages; number++) {
+        for (const page of pages) {
             if (signal?.aborted) throw new DOMException('Preview cancelled', 'AbortError');
-            const page = await pdf.getPage(number);
-            const base = page.getViewport({ scale: 1 });
-            const viewport = page.getViewport({ scale: width / base.width });
+            const viewport = page.getViewport({ scale });
             const ratio = window.devicePixelRatio || 1;
             const canvas = document.createElement('canvas');
             canvas.width = Math.ceil(viewport.width * ratio);

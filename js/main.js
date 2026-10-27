@@ -11,6 +11,7 @@ import { initWatermarkControls } from './watermark.js?v=1.3.5';
 import { DOMCache } from './dom-cache.js?v=1.3.5';
 import { initializePaperSizeSelect } from './paper-size.js?v=1.3.5';
 import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.5';
+import { initializeOutputPreview } from './output-preview.js?v=1.3.5';
 
 // Application constants
 const APP_CONFIG = {
@@ -303,6 +304,7 @@ function initializeApp() {
     pageNumberStart.addEventListener("blur", () => validatePageNumberStart());
     loadWatermarkFormStates();
     initializeSettingsAccordion();
+    initializeOutputPreview();
     initializeDragManager();
 }
 

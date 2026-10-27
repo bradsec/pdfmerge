@@ -66,8 +66,16 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}` and `{file} {date:YY
 
 ### Watermarking
 
-- Custom text watermark with full control over colour, opacity, rotation, and scale
-- Single centred watermark or tiled pattern across every page
+- Text watermark with colour, opacity, rotation, and scale
+- Image watermark from a PNG (transparency kept) or JPG: nine positions (corners, edge centres, centre), width as a percentage of the page (5–100%), margin in mm, plus the shared opacity and rotation controls. The image stays in memory for the current tab only; it is never uploaded or saved, so choose it again after reloading.
+- Single watermark or tiled pattern across every page
+
+### Live Preview
+
+- Shows the first two output pages with every output option applied, built by the same code path as the merge, so it matches the downloaded file
+- All preview pages share one scale, so portrait and landscape pages keep their true relative sizes
+- Updates shortly after any change; invalid settings dim the last preview until fixed
+- Desktop shows it beside the settings; on small screens it is a collapsible section above them
 
 ### Privacy and Performance
 

@@ -430,6 +430,153 @@ function calculateWatermarkFontSize(pageWidth, pageHeight, text, font, scale = 1
     return fontSize;
 }
 
+const IMAGE_WATERMARK_MAX_BYTES = 10 * 1024 * 1024;
+const IMAGE_WATERMARK_SETTINGS = ['watermark-type', 'watermark-position', 'watermark-image-width', 'watermark-margin'];
+const IMAGE_WATERMARK_STORAGE_PREFIX = 'watermark-setting:';
+
+// Held in memory only: the privacy promise means the image is never persisted.
+let watermarkImage = null;
+
+function getWatermarkType() {
+    return DOMCache.getElementById('watermark-type')?.value === 'image' ? 'image' : 'text';
+}
+
+function hasWatermarkImage() {
+    return watermarkImage !== null;
+}
+
+/**
+ * Identifies PNG or JPEG data by signature rather than trusting the file name
+ * or browser-reported MIME type.
+ * @param {Uint8Array} bytes
+ * @returns {'png'|'jpg'|null}
+ */
+function detectWatermarkImageKind(bytes) {
+    if (bytes.length >= 8 && [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A].every((value, i) => bytes[i] === value)) {
+        return 'png';
+    }
+    if (bytes.length >= 3 && bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) return 'jpg';
+    return null;
+}
+
+function clampNumber(value, min, max, fallback) {
+    const number = parseFloat(value);
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
+}
+
+/**
+ * Centres (in visible page space) where the image watermark is drawn.
+ * Edge positions keep the rotated footprint inside the margin.
+ */
+function getImageWatermarkCentres(visibleWidth, visibleHeight, width, height, {
+    position = 'middle-centre', margin = 24, rotation = 0, tiled = false
+} = {}) {
+    const radians = (rotation * Math.PI) / 180;
+    const footprintWidth = Math.abs(width * Math.cos(radians)) + Math.abs(height * Math.sin(radians));
+    const footprintHeight = Math.abs(width * Math.sin(radians)) + Math.abs(height * Math.cos(radians));
+
+    if (tiled) {
+        const spacing = Math.max(footprintWidth, footprintHeight) * 1.4;
+        const centres = [];
+        for (let y = spacing / 2; y < visibleHeight + spacing / 2; y += spacing) {
+            for (let x = spacing / 2; x < visibleWidth + spacing / 2; x += spacing) centres.push({ x, y });
+        }
+        return centres;
+    }
+
+    const [vertical, horizontal] = position.split('-');
+    const x = horizontal === 'left' ? margin + footprintWidth / 2
+        : horizontal === 'right' ? visibleWidth - margin - footprintWidth / 2 : visibleWidth / 2;
+    const y = vertical === 'bottom' ? margin + footprintHeight / 2
+        : vertical === 'top' ? visibleHeight - margin - footprintHeight / 2 : visibleHeight / 2;
+    return [{ x, y }];
+}
+
+/**
+ * Maps a point in the page as displayed (after /Rotate) to PDF user space.
+ */
+function visibleToUserPoint(box, pageRotation, x, y) {
+    switch (((pageRotation % 360) + 360) % 360) {
+        case 90: return { x: box.x + box.width - y, y: box.y + x };
+        case 180: return { x: box.x + box.width - x, y: box.y + box.height - y };
+        case 270: return { x: box.x + y, y: box.y + box.height - x };
+        default: return { x: box.x + x, y: box.y + y };
+    }
+}
+
+/**
+ * drawImage rotates around the image's bottom-left corner; find that corner so
+ * the rotated image is centred on the requested point.
+ */
+function getRotatedImageOrigin(centreX, centreY, width, height, rotationDegrees) {
+    const radians = (rotationDegrees * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    return {
+        x: centreX - (width / 2 * cos - height / 2 * sin),
+        y: centreY - (width / 2 * sin + height / 2 * cos)
+    };
+}
+
+async function embedWatermarkImage(pdfDoc) {
+    if (!watermarkImage) return null;
+    return watermarkImage.kind === 'png'
+        ? pdfDoc.embedPng(watermarkImage.bytes)
+        : pdfDoc.embedJpg(watermarkImage.bytes);
+}
+
+function addImageWatermarkToPage(page, image) {
+    const opacity = clampNumber(DOMCache.getElementById('watermark-opacity').value, 0, 1, 0.5);
+    const rotation = clampNumber(DOMCache.getElementById('watermark-rotation').value, -180, 180, 0);
+    const widthPercent = clampNumber(DOMCache.getElementById('watermark-image-width').value, 5, 100, 30);
+    const margin = clampNumber(DOMCache.getElementById('watermark-margin').value, 0, 50, 8.5) * 72 / 25.4;
+    const tiled = DOMCache.getElementById('watermark-tiled').checked;
+    const position = DOMCache.getElementById('watermark-position').value;
+
+    const box = page.getCropBox();
+    const pageRotation = ((page.getRotation().angle % 360) + 360) % 360;
+    const visibleWidth = pageRotation % 180 ? box.height : box.width;
+    const visibleHeight = pageRotation % 180 ? box.width : box.height;
+    const width = visibleWidth * widthPercent / 100;
+    const height = width * image.height / image.width;
+    // Rotating by the page rotation as well keeps the requested angle as seen.
+    const drawRotation = rotation + pageRotation;
+    const transform = page.__pdfmergeWatermarkTransform ?? null;
+    const scale = transform?.scale || 1;
+
+    for (const centre of getImageWatermarkCentres(visibleWidth, visibleHeight, width, height,
+        { position, margin, rotation, tiled })) {
+        const point = visibleToUserPoint(box, pageRotation, centre.x, centre.y);
+        const origin = getRotatedImageOrigin(point.x, point.y, width, height, drawRotation);
+        const draw = compensateWatermarkDrawForPageTransform({ x: origin.x, y: origin.y, size: 0 }, transform);
+        page.drawImage(image, {
+            x: draw.x, y: draw.y, width: width / scale, height: height / scale,
+            rotate: PDFLib.degrees(drawRotation), opacity
+        });
+    }
+}
+
+async function setWatermarkImageFile(file, status) {
+    watermarkImage = null;
+    if (!file) {
+        status.textContent = 'No image chosen. The image stays in this tab and is never uploaded or saved.';
+        return false;
+    }
+    if (file.size > IMAGE_WATERMARK_MAX_BYTES) {
+        status.textContent = 'Image is larger than 10 MB. Choose a smaller PNG or JPG.';
+        return false;
+    }
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const kind = detectWatermarkImageKind(bytes);
+    if (!kind) {
+        status.textContent = 'This file is not a PNG or JPG image.';
+        return false;
+    }
+    watermarkImage = { bytes, kind };
+    status.textContent = `${file.name} (${kind.toUpperCase()}). Kept in this tab only.`;
+    return true;
+}
+
 function initWatermarkControls() {
     const watermarkCheckbox = DOMCache.getElementById("add-watermark");
     const watermarkGroup = DOMCache.querySelector(".watermark-group");
@@ -445,10 +592,57 @@ function initWatermarkControls() {
     watermarkCheckbox.addEventListener("change", function () {
         watermarkGroup.style.display = this.checked ? "flex" : "none";
     });
+
+    for (const id of IMAGE_WATERMARK_SETTINGS) {
+        const input = DOMCache.getElementById(id);
+        if (!input) continue;
+        try {
+            const saved = localStorage.getItem(`${IMAGE_WATERMARK_STORAGE_PREFIX}${id}`);
+            if (saved !== null && (input.tagName !== 'SELECT' ||
+                [...input.options].some(option => option.value === saved))) input.value = saved;
+        } catch (error) {
+            console.warn(`Failed to load ${id}:`, error);
+        }
+        input.addEventListener('change', () => {
+            try { localStorage.setItem(`${IMAGE_WATERMARK_STORAGE_PREFIX}${id}`, input.value); }
+            catch (error) { console.warn(`Failed to save ${id}:`, error); }
+        });
+    }
+
+    const typeSelect = DOMCache.getElementById('watermark-type');
+    const syncType = () => {
+        const image = typeSelect.value === 'image';
+        watermarkGroup.querySelectorAll('.watermark-text-only').forEach(item => { item.hidden = image; });
+        watermarkGroup.querySelectorAll('.watermark-image-only').forEach(item => { item.hidden = !image; });
+    };
+    typeSelect?.addEventListener('change', syncType);
+    if (typeSelect) syncType();
+
+    const imageInput = DOMCache.getElementById('watermark-image');
+    const status = DOMCache.getElementById('watermark-image-status');
+    imageInput?.addEventListener('change', async () => {
+        try {
+            const valid = await setWatermarkImageFile(imageInput.files[0], status);
+            if (!valid) imageInput.value = '';
+        } catch (error) {
+            console.error('Failed to read watermark image:', error);
+            status.textContent = 'Could not read this image.';
+        }
+        // The preview listens for changes; signal once the bytes are ready.
+        imageInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 }
 
 export {
     addWatermarkToPage,
+    addImageWatermarkToPage,
+    detectWatermarkImageKind,
+    embedWatermarkImage,
+    getImageWatermarkCentres,
+    getRotatedImageOrigin,
+    getWatermarkType,
+    hasWatermarkImage,
+    visibleToUserPoint,
     calculateSingleWatermarkFontSize,
     calculateTiledWatermarkFontSize,
     compensateWatermarkDrawForPageTransform,

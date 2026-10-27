@@ -30,7 +30,7 @@ import {
     validatePageRanges
 } from './file-handling.js?v=1.3.5';
 
-import { addWatermarkToPage } from './watermark.js?v=1.3.5';
+import { addWatermarkToPage, addImageWatermarkToPage, compensateWatermarkDrawForPageTransform, embedWatermarkImage, getWatermarkType, hasWatermarkImage } from './watermark.js?v=1.3.5';
 import { openSettingFor } from './settings-accordion.js?v=1.3.5';
 import { DOMCache } from './dom-cache.js?v=1.3.5';
 
@@ -98,6 +98,15 @@ async function convertToPDF() {
             displayFlashMessage(message, 'danger');
             return;
         }
+    }
+    if (isWatermarkEnabled() && getWatermarkType() === 'image' && !hasWatermarkImage()) {
+        const message = 'Cannot merge: choose a watermark image, or switch the watermark type to Text.';
+        DOMCache.getElementById('tool-status').textContent = message;
+        displayFlashMessage(message, 'danger');
+        const input = DOMCache.getElementById('watermark-image');
+        openSettingFor(input);
+        input.focus();
+        return;
     }
     clearResultLink();
     // Cancel any existing operation
@@ -220,8 +229,10 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     const hasGlyph = regularFont?.embedder?.font?.hasGlyphForCodePoint?.bind(regularFont.embedder.font);
     const boldFont = hasImages && shouldPrintImageDetails()
         ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal, preview) : null;
-    const blackFont = isWatermarkEnabled()
+    const imageWatermark = isWatermarkEnabled() && getWatermarkType() === 'image';
+    const blackFont = isWatermarkEnabled() && !imageWatermark
         ? await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal, preview) : null;
+    const watermarkImage = imageWatermark ? await embedWatermarkImage(pdfDoc) : null;
 
     const failedFiles = [];
     const pageFiles = [];
@@ -241,7 +252,9 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     }
 
     throwIfAborted(signal);
-    if (isWatermarkEnabled()) {
+    if (watermarkImage) {
+        pdfDoc.getPages().forEach(page => addImageWatermarkToPage(page, watermarkImage));
+    } else if (isWatermarkEnabled() && !imageWatermark) {
         pdfDoc.getPages().forEach(page => addWatermarkToPage(page, getWatermarkText(), blackFont));
     }
 
@@ -283,17 +296,24 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
                 const textWidth = regularFont.widthOfTextAtSize(label, fontSize);
                 const placement = getTextPlacement(box, angle, item.edge, item.align,
                     textWidth, fontSize, item.margin);
+                // Resized pages keep a content transform that also applies to
+                // later drawing, so map page coordinates back through it.
+                const transform = page.__pdfmergeWatermarkTransform ?? null;
+                const scale = transform?.scale || 1;
                 if (item.boxColor) {
                     const rect = getTextBox(placement, textWidth, fontSize);
+                    const corner = compensateWatermarkDrawForPageTransform({ x: rect.x, y: rect.y, size: 0 }, transform);
                     page.drawRectangle({
-                        x: rect.x, y: rect.y, width: rect.width, height: rect.height,
+                        x: corner.x, y: corner.y, width: rect.width / scale, height: rect.height / scale,
                         rotate: PDFLib.degrees(rect.rotation),
                         color: PDFLib.rgb(item.boxColor.r, item.boxColor.g, item.boxColor.b), opacity: 1
                     });
                 }
+                const draw = compensateWatermarkDrawForPageTransform(
+                    { x: placement.x, y: placement.y, size: fontSize }, transform);
                 page.drawText(label, {
-                    x: placement.x, y: placement.y, rotate: PDFLib.degrees(placement.rotation),
-                    size: fontSize, font: regularFont,
+                    x: draw.x, y: draw.y, rotate: PDFLib.degrees(placement.rotation),
+                    size: draw.size, font: regularFont,
                     color: PDFLib.rgb(item.color.r, item.color.g, item.color.b)
                 });
             });
@@ -1010,11 +1030,36 @@ function validateTemplate(id, template, showError, requireNumber, focus) {
     return valid;
 }
 
-function validateTextOverlap(focus = false) {
+function getCurrentTextOverlap() {
     const position = isPageNumberingEnabled() ? DOMCache.getElementById('page-number-position').value : null;
     const header = isTextLineEnabled('header') ? DOMCache.getElementById('header-text-alignment').value : null;
     const footer = isTextLineEnabled('footer') ? DOMCache.getElementById('footer-text-alignment').value : null;
-    const overlap = getTextOverlap(position, header, footer);
+    return getTextOverlap(position, header, footer);
+}
+
+/**
+ * Side-effect-free version of the merge-time checks, for the live preview:
+ * it must not reveal untouched field errors or move focus while the user types.
+ * @returns {string|null} what is invalid, or null when a build can proceed
+ */
+function getOutputSettingsProblem(files = selectedFiles) {
+    const enabled = { 'page-number': isPageNumberingEnabled(), header: isTextLineEnabled('header'),
+        footer: isTextLineEnabled('footer') };
+    if (needsNumberingStart(enabled['page-number'], enabled.header, enabled.footer) &&
+        parsePageNumberStart(DOMCache.getElementById('page-number-start').value) === null) return 'start number';
+    if (getTextItems().some(item =>
+        parsePageNumberTemplate(item.template, { requireNumber: item.name === 'page number' }).error)) return 'template';
+    if (Object.entries(enabled).some(([kind, on]) =>
+        on && parseTextMargin(DOMCache.getElementById(`${kind}-margin`).value) === null)) return 'margin';
+    if (getCurrentTextOverlap()) return 'overlap';
+    if (isWatermarkEnabled() && getWatermarkType() === 'image' && !hasWatermarkImage()) return 'watermark image';
+    if (files.some(file => file.pageRange?.trim() && Number.isInteger(file.pageCount) &&
+        parsePageRangeSelection(file.pageRange, file.pageCount).invalidTokens.length)) return 'page range';
+    return null;
+}
+
+function validateTextOverlap(focus = false) {
+    const overlap = getCurrentTextOverlap();
     for (const kind of ['header', 'footer']) {
         const input = DOMCache.getElementById(`${kind}-text-alignment`);
         const error = DOMCache.getElementById(`${kind}-text-alignment-error`);
@@ -1057,4 +1102,4 @@ function getSelectedPageIndicesForFile(file, totalPages) {
     return pageIndices;
 }
 
-export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin };
+export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin, getOutputSettingsProblem, isDuplexPaddingEnabled };

@@ -21,3 +21,12 @@ test('preview stops after two output pages while the full build keeps all pages'
     assert.deepEqual(preview.pageFiles, ['', '']);
     assert.equal(full.pdfDoc.getPageCount(), 3);
 });
+
+const { previewStatusText } = await importApp('output-preview.js');
+
+test('preview status names the pages shown and the merged total when known', () => {
+    assert.equal(previewStatusText(2, 7), 'Pages 1–2 of 7');
+    assert.equal(previewStatusText(1, 1), 'Page 1 of 1');
+    assert.equal(previewStatusText(2, null), 'Pages 1–2');
+    assert.equal(previewStatusText(0, 5), '');
+});
