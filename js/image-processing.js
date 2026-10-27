@@ -157,7 +157,7 @@ let imageProcessingWorkerPromise = null;
 function getImageProcessingWorker() {
     if (!imageProcessingWorkerPromise) {
         imageProcessingWorkerPromise = Promise.resolve(
-            new Worker(new URL('./image-processing.worker.js?v=1.3.14', import.meta.url), { type: 'module' })
+            new Worker(new URL('./image-processing.worker.js?v=1.3.15', import.meta.url), { type: 'module' })
         );
     }
 

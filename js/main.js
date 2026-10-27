@@ -3,16 +3,16 @@
  * @author BRADSEC
  */
 
-import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.14';
-import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.14';
-import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.14';
-import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.14';
-import { initWatermarkControls } from './watermark.js?v=1.3.14';
-import { DOMCache } from './dom-cache.js?v=1.3.14';
-import { initializePaperSizeSelect } from './paper-size.js?v=1.3.14';
-import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.14';
-import { initializeOutputPreview } from './output-preview.js?v=1.3.14';
-import { initializeTemplateHelp } from './template-help.js?v=1.3.14';
+import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.15';
+import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.15';
+import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.15';
+import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.15';
+import { initWatermarkControls } from './watermark.js?v=1.3.15';
+import { DOMCache } from './dom-cache.js?v=1.3.15';
+import { initializePaperSizeSelect } from './paper-size.js?v=1.3.15';
+import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.15';
+import { initializeOutputPreview } from './output-preview.js?v=1.3.15';
+import { initializeTemplateHelp } from './template-help.js?v=1.3.15';
 
 // Application constants
 const APP_CONFIG = {

@@ -1,6 +1,6 @@
-import { hexToRgb } from './utils.js?v=1.3.14';
-import { DOMCache } from './dom-cache.js?v=1.3.14';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.14';
+import { hexToRgb } from './utils.js?v=1.3.15';
+import { DOMCache } from './dom-cache.js?v=1.3.15';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.15';
 
 function getPageContentBounds(page) {
     const pageSize = page.getSize();
