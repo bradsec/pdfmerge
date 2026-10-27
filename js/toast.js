@@ -1,4 +1,4 @@
-import { createIcon } from './icons.js?v=1.3.7';
+import { createIcon } from './icons.js?v=1.3.8';
 
 const MAX_TOASTS = 3;
 const ICONS = { success: 'circle-check', error: 'circle-alert', warning: 'triangle-alert', info: 'info' };
