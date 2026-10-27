@@ -40,14 +40,6 @@
 
 /* Mobile: Stack cards vertically, smaller size */
 @media (max-width: 640px) {
-  .button,
-  button,
-  button[type="submit"] {
-    display: block; 
-    width: 100%; 
-    margin: var(--spacing-xs) 0; 
-  }
-
   #selected-files-list {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -124,43 +116,6 @@
     gap: 6px;
   }
 
-  
-  .watermark-group {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .watermark-item {
-    margin: 0;
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .watermark-item input[type="text"],
-  .watermark-item input[type="number"] {
-    width: 100%;
-    margin-top: 4px;
-  }
-  
-  .watermark-item input[type="color"] {
-    width: 80px;
-    height: 40px;
-    margin-top: 4px;
-    border-radius: var(--radius-control);
-  }
-  
-  .watermark-item label {
-    margin-right: 0;
-    margin-bottom: 4px;
-  }
-  
-  .watermark-tiled-item label {
-    flex-direction: row;
-    margin-bottom: 8px;
-  }
   
   .paper-size-group {
     flex-direction: column;
@@ -331,6 +286,7 @@
 
   .tool-actions .button {
     flex-basis: 100%;
+    width: 100%;
   }
 
   .settings-content {

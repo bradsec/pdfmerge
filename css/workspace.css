@@ -125,6 +125,14 @@
   min-width: 0;
 }
 
+#selected-files-list li .card-meta {
+  flex-wrap: wrap;
+}
+
+#selected-files-list li .card-meta-top-row {
+  flex: none;
+}
+
 #selected-files-list li .order-number {
   min-width: 26px;
   height: 26px;
@@ -373,22 +381,6 @@
   font-size: var(--control-font-size);
 }
 
-@media (max-width: 640px) {
-  #drop-area.has-files #file-upload-label {
-    position: static;
-    margin-bottom: 0.75rem;
-  }
-
-  #drop-area.has-files .sort-files-control {
-    padding-right: 0;
-    flex-wrap: wrap;
-  }
-
-  #selected-files-list {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-}
-
 /* ---------- Template help dialog ---------- */
 
 .template-help-open {
@@ -546,6 +538,24 @@
 
 .settings-content .toggle-item {
   margin: 0 0 0.5rem;
+}
+
+.settings-content .toggle-item label {
+  margin-left: 0;
+}
+
+.settings-content .toggle-group {
+  align-items: flex-start;
+  margin: 0;
+}
+
+.toggle-descriptions {
+  flex-basis: 100%;
+}
+
+.paper-size-item label {
+  font-size: 0.82rem;
+  color: var(--font-color-2);
 }
 
 .text-options-panel,
@@ -778,12 +788,18 @@
 }
 
 .settings-content .range-value input.range-number {
+  flex: 0 0 4.6rem;
   width: 4.6rem;
   height: 32px;
   padding: 0 0.4rem;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.82rem;
   text-align: right;
+}
+
+.range-unit {
+  align-self: center;
+  line-height: 1;
 }
 
 .range-unit:empty {
@@ -957,7 +973,9 @@
 
 .watermark-item .segmented-control label {
   display: inline-flex;
+  flex: 1;
   align-items: center;
+  justify-content: center;
   height: 30px;
   margin: 0;
   padding: 0 1rem;
@@ -1023,4 +1041,214 @@
 #selected-files-list li .card-body {
   grid-template-columns: minmax(0, 1fr);
   justify-content: stretch;
+}
+
+/* Phone controls keep 16px text to avoid Safari's focus zoom. */
+@media (max-width: 640px) {
+  :root {
+    --control-height: 44px;
+    --control-font-size: 16px;
+  }
+
+  #drop-area.has-files {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.65rem 0.5rem;
+  }
+
+  #drop-area.has-files #file-list,
+  #drop-area.has-files .sort-files-control {
+    display: contents;
+  }
+
+  #drop-area.has-files .files-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  #drop-area.has-files .sort-files-control > label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  #drop-area.has-files .sort-files-control select {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    padding: 0 0.4rem;
+  }
+
+  #drop-area.has-files #file-upload-label {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    padding: 0 0.5rem;
+  }
+
+  #selected-files-list {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    /* Leave room for Default Margins at 16px plus the select arrow. */
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+  }
+
+  #selected-files-list li .card-header {
+    align-items: flex-start;
+  }
+
+  #selected-files-list li .card-header .delete-file-button,
+  #selected-files-list li .rotation-controls button {
+    width: 44px;
+    height: 44px;
+    margin: 0;
+  }
+
+  #selected-files-list li .card-body .pdf-page-range-input,
+  #selected-files-list li .card-body .image-layout-card-select {
+    min-width: 0;
+    height: var(--control-height);
+    font-size: 16px;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  #selected-files-list li .card-body .image-layout-card-select {
+    padding-right: 1.4rem;
+    background-position: calc(100% - 12px) calc(50% - 2px), calc(100% - 6px) calc(50% - 2px);
+  }
+
+  .settings-content input[type="text"],
+  .settings-content input[type="number"],
+  .settings-content select,
+  #output-filename-container input {
+    min-width: 0;
+    height: var(--control-height);
+    padding: 0 0.6rem;
+    font-size: 16px;
+  }
+
+  .settings-content select {
+    width: 100%;
+  }
+
+  #image-details-toggle .toggle-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Watermark visibility uses inline display: flex when enabled. */
+  .watermark-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .settings-content .watermark-description,
+  #image-details-toggle .toggle-description {
+    margin-inline: 0;
+  }
+
+  .settings-content .toggle-item label,
+  .watermark-tiled-item label {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .settings-content .switch {
+    margin-right: 0;
+  }
+
+  .settings-content .range-value input.range-number {
+    width: 4.6rem;
+    height: var(--control-height);
+    margin: 0;
+    padding: 0 0.4rem;
+    font-size: 16px;
+  }
+
+  .settings-section > summary {
+    min-height: 44px;
+    gap: 0.5rem;
+  }
+
+  .output-preview-nav {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 0.4rem;
+  }
+
+  .output-preview-nav .output-preview-step {
+    width: 44px;
+    height: 44px;
+  }
+
+  .output-preview-nav .output-preview-goto input[type="number"] {
+    width: 3.5rem;
+  }
+
+  .output-preview-goto {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .color-presets {
+    flex-wrap: wrap;
+  }
+
+  .tool-actions .button,
+  .output-preview-nav .output-preview-step,
+  .color-preset,
+  .template-help-close,
+  .template-help-dialog button.template-help-token {
+    margin: 0;
+  }
+
+  .template-help-open {
+    margin: 0.4rem 0 0;
+  }
+
+  .watermark-item .segmented-control label {
+    height: 36px;
+    padding: 0 0.5rem;
+  }
+
+  .template-help-open,
+  .template-help-close {
+    min-height: 44px;
+  }
+
+  .template-help-close {
+    flex: 0 0 44px;
+    width: 44px;
+  }
+
+  .template-help-dialog button.template-help-token {
+    min-height: 44px;
+  }
+
+  .template-help-body {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 360px) {
+  #drop-area.has-files .sort-files-control select {
+    grid-column: 1 / -1;
+  }
+
+  #drop-area.has-files #file-upload-label {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  #selected-files-list {
+    grid-row: 4;
+  }
 }
