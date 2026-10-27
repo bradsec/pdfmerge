@@ -13,6 +13,7 @@ import { initializePaperSizeSelect } from './paper-size.js?v=1.3.15';
 import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.15';
 import { initializeOutputPreview } from './output-preview.js?v=1.3.15';
 import { initializeTemplateHelp } from './template-help.js?v=1.3.15';
+import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.15';
 
 // Application constants
 const APP_CONFIG = {
@@ -31,7 +32,19 @@ const APP_CONFIG = {
         "header-box",
         "footer-box",
         "duplex-padding",
-        "watermark-tiled"
+        "watermark-tiled",
+        "watermark-bold",
+        "watermark-italic",
+        "watermark-underline",
+        "page-number-bold",
+        "page-number-italic",
+        "page-number-underline",
+        "header-bold",
+        "header-italic",
+        "header-underline",
+        "footer-bold",
+        "footer-italic",
+        "footer-underline"
     ],
     STORAGE_KEYS: {
         WATERMARK_TEXT: "watermark-text",
@@ -128,6 +141,10 @@ function initializeApp() {
 
     convertButton.addEventListener("click", convertToPDF);
     resetButton.addEventListener("click", () => resetFiles());
+    DOMCache.getElementById("reset-settings-button")?.addEventListener("click", () => {
+        resetSettings();
+        displayFlashMessage('Settings reset to defaults', 'info');
+    });
 
     const blankPageButton = DOMCache.getElementById("blank-page-button");
     if (blankPageButton) {
@@ -308,6 +325,7 @@ function initializeApp() {
     initializeRangeOutputs();
     initializeColorFields();
     initializeTemplateHelp();
+    initializeSettingsNotice();
     initializeOutputPreview();
     initializeDragManager();
 }
@@ -326,7 +344,8 @@ function loadCheckboxStates() {
         
         try {
             const savedState = localStorage.getItem(id);
-            checkbox.checked = savedState === "true";
+            // No saved state keeps the markup default (the watermark starts bold).
+            if (savedState !== null) checkbox.checked = savedState === "true";
             
             checkbox.addEventListener("change", function() {
                 try {

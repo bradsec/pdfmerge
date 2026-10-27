@@ -150,6 +150,10 @@
           </div>
           <div id="output-options" class="settings-layout" hidden>
             <div class="settings-accordion">
+              <div id="settings-notice" class="settings-notice" hidden>
+                <p class="settings-notice-text"><strong>Saved settings in use:</strong> <span id="settings-notice-sections"></span></p>
+                <button type="button" id="reset-settings-button" class="button secondary">Reset to defaults</button>
+              </div>
               <details id="paper-size-selection" class="settings-section">
                 <summary><span class="settings-title">Page size</span><span class="settings-status"></span><svg class="icon settings-chevron" aria-hidden="true"><use href="images/icons.svg?v=1.3.15#chevron-down"></use></svg></summary>
                 <div class="settings-content">
@@ -271,6 +275,14 @@
                       <label for="watermark-margin">Margin (mm)</label>
                       <span class="range-control"><input type="range" id="watermark-margin" min="0" max="50" step="0.5" value="8.5" data-unit=" mm"><output class="range-value" for="watermark-margin">8.5 mm</output></span>
                     </div>
+                    <div class="watermark-item watermark-text-only text-style-field">
+                      <span class="text-style-label" id="watermark-style-label">Style</span>
+                      <div class="text-style-group" role="group" aria-labelledby="watermark-style-label">
+                        <label class="text-style-option"><input type="checkbox" id="watermark-bold" checked /><span class="text-style-glyph text-style-bold" aria-hidden="true">B</span><span class="sr-only">Bold</span></label>
+                        <label class="text-style-option"><input type="checkbox" id="watermark-italic" /><span class="text-style-glyph text-style-italic" aria-hidden="true">I</span><span class="sr-only">Italic</span></label>
+                        <label class="text-style-option"><input type="checkbox" id="watermark-underline" /><span class="text-style-glyph text-style-underline" aria-hidden="true">U</span><span class="sr-only">Underline</span></label>
+                      </div>
+                    </div>
                     <div class="watermark-item watermark-text-only">
                       <label for="watermark-color">Colour</label>
                       <input type="color" id="watermark-color" value="#000000" aria-describedby="watermark-color-desc">
@@ -350,6 +362,14 @@
                         </div>
                       </div>
                       <div class="text-appearance-row">
+                        <div class="page-number-field text-style-field">
+                          <span class="text-style-label" id="page-number-style-label">Style</span>
+                          <div class="text-style-group" role="group" aria-labelledby="page-number-style-label">
+                            <label class="text-style-option"><input type="checkbox" id="page-number-bold" /><span class="text-style-glyph text-style-bold" aria-hidden="true">B</span><span class="sr-only">Bold</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="page-number-italic" /><span class="text-style-glyph text-style-italic" aria-hidden="true">I</span><span class="sr-only">Italic</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="page-number-underline" /><span class="text-style-glyph text-style-underline" aria-hidden="true">U</span><span class="sr-only">Underline</span></label>
+                          </div>
+                        </div>
                         <div class="page-number-field">
                           <label for="page-number-color">Colour</label>
                           <input type="color" id="page-number-color" value="#6b7078" />
@@ -425,6 +445,14 @@
                       </div>
                       <div class="template-help" data-template-for="header-text-template"></div>
                       <div class="text-appearance-row">
+                        <div class="text-line-field text-style-field">
+                          <span class="text-style-label" id="header-style-label">Style</span>
+                          <div class="text-style-group" role="group" aria-labelledby="header-style-label">
+                            <label class="text-style-option"><input type="checkbox" id="header-bold" /><span class="text-style-glyph text-style-bold" aria-hidden="true">B</span><span class="sr-only">Bold</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="header-italic" /><span class="text-style-glyph text-style-italic" aria-hidden="true">I</span><span class="sr-only">Italic</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="header-underline" /><span class="text-style-glyph text-style-underline" aria-hidden="true">U</span><span class="sr-only">Underline</span></label>
+                          </div>
+                        </div>
                         <div class="text-line-field">
                           <label for="header-color">Colour</label>
                           <input type="color" id="header-color" value="#6b7078" />
@@ -495,6 +523,14 @@
                       </div>
                       <div class="template-help" data-template-for="footer-text-template"></div>
                       <div class="text-appearance-row">
+                        <div class="text-line-field text-style-field">
+                          <span class="text-style-label" id="footer-style-label">Style</span>
+                          <div class="text-style-group" role="group" aria-labelledby="footer-style-label">
+                            <label class="text-style-option"><input type="checkbox" id="footer-bold" /><span class="text-style-glyph text-style-bold" aria-hidden="true">B</span><span class="sr-only">Bold</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="footer-italic" /><span class="text-style-glyph text-style-italic" aria-hidden="true">I</span><span class="sr-only">Italic</span></label>
+                            <label class="text-style-option"><input type="checkbox" id="footer-underline" /><span class="text-style-glyph text-style-underline" aria-hidden="true">U</span><span class="sr-only">Underline</span></label>
+                          </div>
+                        </div>
                         <div class="text-line-field">
                           <label for="footer-color">Colour</label>
                           <input type="color" id="footer-color" value="#6b7078" />

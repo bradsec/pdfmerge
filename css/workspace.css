@@ -382,6 +382,40 @@ li.is-dragging .rotation-controls button .icon {
 
 /* ---------- Settings zone ---------- */
 
+.settings-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  border: 1px solid var(--card-shell-border);
+  border-left: 3px solid var(--color-blue-1);
+  border-radius: var(--radius-panel);
+  background: var(--surface-color);
+}
+
+.settings-notice[hidden] {
+  display: none;
+}
+
+.settings-notice-text {
+  flex: 1 1 14rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--font-color-2);
+}
+
+.settings-notice-text strong {
+  color: var(--font-color);
+  font-weight: 600;
+}
+
+.settings-notice .button {
+  min-height: 44px;
+  margin: 0;
+}
+
 .settings-layout {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -1203,19 +1237,22 @@ li.is-dragging .rotation-controls button .icon {
   font-size: 0.92rem;
 }
 
-.tool-actions .button.secondary {
+.tool-actions .button.secondary,
+.settings-notice .button.secondary {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   color: var(--font-color);
   box-shadow: none;
 }
 
-.tool-actions .button.secondary:hover {
+.tool-actions .button.secondary:hover,
+.settings-notice .button.secondary:hover {
   border-color: var(--color-blue-1);
   transform: none;
 }
 
-.tool-actions .button.secondary:active {
+.tool-actions .button.secondary:active,
+.settings-notice .button.secondary:active {
   background: var(--accent-dim);
   color: var(--font-color);
   box-shadow: none;
@@ -1514,4 +1551,73 @@ li.is-dragging .rotation-controls button .icon {
   #selected-files-list {
     grid-row: 4;
   }
+}
+
+/* ---------- Text style toggles (bold, italic, underline) ---------- */
+
+.text-appearance-row > .text-style-field {
+  grid-column: 1 / -1;
+}
+
+.text-style-field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.text-style-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--font-color-2);
+}
+
+.text-style-group {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.text-style-option {
+  position: relative;
+  display: inline-flex;
+}
+
+.text-style-option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.text-style-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  color: var(--font-color);
+  font-size: 1rem;
+  font-weight: 400;
+  pointer-events: none;
+}
+
+.text-style-bold { font-weight: 700; }
+.text-style-italic { font-style: italic; font-family: Georgia, "Times New Roman", serif; }
+.text-style-underline { text-decoration: underline; text-underline-offset: 3px; }
+
+.text-style-option:hover .text-style-glyph {
+  border-color: var(--color-blue-1);
+}
+
+.text-style-option input:checked + .text-style-glyph {
+  border-color: var(--color-blue-1);
+  background: var(--color-blue-1);
+  color: var(--color-white);
+}
+
+.text-style-option input:focus-visible + .text-style-glyph {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }

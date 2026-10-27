@@ -42,6 +42,7 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 - **Header and Footer Text**: Add text on every output page, including blank and duplex padding pages. Each has a template of up to 100 characters and left, centre, or right alignment. Header defaults to centre; footer defaults to left. They use the same placeholders as page numbers, but plain text such as `CONFIDENTIAL` is valid. All three text options share the “Numbering starts at” value for `{n}`. If page numbers use the same edge and alignment as a header or footer, choose another alignment before merging.
 - **Skip First Page**: Page numbers, header text, and footer text each have this option. The first output page still counts toward `{n}` and `{total}`; if skipped, page 2 uses the next number.
 - **Text Colour**: Choose a separate colour for page numbers, header text, and footer text; each defaults to grey.
+- **Text Style**: Page numbers, header text, footer text, and the text watermark each have bold, italic, and underline toggles. Text defaults to normal weight; the text watermark defaults to bold. Italic is a slanted Roboto, as no italic font file is bundled.
 - **Text Background and Margin**: Each text option can add a solid background box with its own colour. Set its top or bottom and side margin from 0 to 50 mm in 0.5 mm steps; the default is 8.5 mm.
 - **Duplex Padding**: Add a matching blank page after each card that produces an odd number of pages, except the final card
 - **Image Details**: Optionally embed EXIF data (filename, date, GPS coordinates)
@@ -87,7 +88,7 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}` and `{file} {date:YY
 - Cancel mid-merge at any time
 - Progress bar with 60-second timeout protection
 - Dark and light mode, persisted across sessions
-- Option toggles and watermark settings persisted to localStorage across merges and sessions
+- Option toggles and watermark settings persisted to localStorage across merges and sessions; a notice lists the sections that differ from the defaults, with a **Reset to defaults** button
 - Settings below the file cards use six collapsible sections; each section remembers whether it was open
 - Cancelling the save dialog keeps the file list so the merge can be run again
 - The download-again link stays available until you change files, start another merge, or reset

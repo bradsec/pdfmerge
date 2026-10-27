@@ -1,6 +1,7 @@
 import { hexToRgb } from './utils.js?v=1.3.15';
 import { DOMCache } from './dom-cache.js?v=1.3.15';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.15';
+import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.15';
 
 function getPageContentBounds(page) {
     const pageSize = page.getSize();
@@ -39,6 +40,7 @@ function addWatermarkToPage(page, text, font) {
         return isNaN(value) ? 1.0 : value;
     })();
     const watermarkTiled = DOMCache.getElementById("watermark-tiled").checked;
+    const style = getTextStyle('watermark');
     
     const { r, g, b } = hexToRgb(watermarkColor);
     const opacity = watermarkOpacity;
@@ -57,7 +59,8 @@ function addWatermarkToPage(page, text, font) {
             opacity,
             rotation: adjustedRotation,
             scale: watermarkScale,
-            pageTransform
+            pageTransform,
+            style
         });
     } else {
         addSingleWatermark(page, text, font, contentBounds, {
@@ -65,7 +68,8 @@ function addWatermarkToPage(page, text, font) {
             opacity,
             rotation: adjustedRotation,
             scale: watermarkScale,
-            pageTransform
+            pageTransform,
+            style
         });
     }
 }
@@ -93,14 +97,15 @@ function addSingleWatermark(page, text, font, contentBounds, options) {
         options.pageTransform
     );
 
-    page.drawText(text, {
+    drawStyledText(page, text, {
         x: compensatedDraw.x,
         y: compensatedDraw.y,
         size: compensatedDraw.size,
         font,
         color: PDFLib.rgb(options.color.r, options.color.g, options.color.b),
-        rotate: PDFLib.degrees(options.rotation),
+        rotation: options.rotation,
         opacity: options.opacity,
+        style: options.style
     });
 }
 
@@ -281,14 +286,15 @@ function addTiledWatermark(page, text, font, contentBounds, options) {
             { x, y, size: baseFontSize },
             options.pageTransform
         );
-        page.drawText(text, {
+        drawStyledText(page, text, {
             x: compensatedDraw.x,
             y: compensatedDraw.y,
             size: compensatedDraw.size,
-            font: font,
+            font,
             color: PDFLib.rgb(options.color.r, options.color.g, options.color.b),
-            rotate: PDFLib.degrees(options.rotation),
+            rotation: options.rotation,
             opacity: options.opacity * 0.7,
+            style: options.style
         });
     }
 }

@@ -32,6 +32,7 @@ import {
 } from './file-handling.js?v=1.3.15';
 
 import { addWatermarkToPage, addImageWatermarkToPage, compensateWatermarkDrawForPageTransform, embedWatermarkImage, getWatermarkType, hasWatermarkImage } from './watermark.js?v=1.3.15';
+import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.15';
 import { openSettingFor } from './settings-accordion.js?v=1.3.15';
 import { DOMCache } from './dom-cache.js?v=1.3.15';
 
@@ -237,11 +238,15 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
         item.tokens = parsePageNumberTemplate(item.template, { requireNumber: item.name === 'page number' }).tokens;
     });
     const hasGlyph = regularFont?.embedder?.font?.hasGlyphForCodePoint?.bind(regularFont.embedder.font);
-    const boldFont = hasImages && shouldPrintImageDetails()
+    textItems.forEach(item => { item.style = getTextStyle(item.styleId); });
+    const boldFont = (hasImages && shouldPrintImageDetails()) || textItems.some(item => item.style.bold)
         ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal, preview) : null;
     const imageWatermark = watermarkOn && getWatermarkType() === 'image';
-    const blackFont = watermarkOn && !imageWatermark
-        ? await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal, preview) : null;
+    const textWatermark = watermarkOn && !imageWatermark;
+    // A bold watermark keeps the original heavy Black weight; normal uses Regular.
+    const watermarkFont = !textWatermark ? null : getTextStyle('watermark').bold
+        ? await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal, preview)
+        : regularFont ?? await loadFont(pdfDoc, 'fonts/Roboto-Regular.ttf', signal, preview);
     const watermarkImage = imageWatermark ? await embedWatermarkImage(pdfDoc) : null;
 
     const failedFiles = [];
@@ -275,8 +280,8 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     throwIfAborted(signal);
     if (watermarkImage) {
         pdfDoc.getPages().forEach(page => addImageWatermarkToPage(page, watermarkImage));
-    } else if (watermarkOn && !imageWatermark) {
-        pdfDoc.getPages().forEach(page => addWatermarkToPage(page, getWatermarkText(), blackFont));
+    } else if (textWatermark) {
+        pdfDoc.getPages().forEach(page => addWatermarkToPage(page, getWatermarkText(), watermarkFont));
     }
 
     let replacedFileGlyph = false;
@@ -313,9 +318,10 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
                 const box = page.getCropBox();
                 const angle = page.getRotation().angle;
                 const visibleWidth = angle % 180 ? box.height : box.width;
+                const font = item.style.bold ? boldFont : regularFont;
                 const fontSize = fitPageNumberSize(visibleWidth,
-                    size => regularFont.widthOfTextAtSize(label, size), item.margin);
-                const textWidth = regularFont.widthOfTextAtSize(label, fontSize);
+                    size => font.widthOfTextAtSize(label, size), item.margin);
+                const textWidth = font.widthOfTextAtSize(label, fontSize);
                 const placement = getTextPlacement(box, angle, item.edge, item.align,
                     textWidth, fontSize, item.margin);
                 // Resized pages keep a content transform that also applies to
@@ -333,9 +339,9 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
                 }
                 const draw = compensateWatermarkDrawForPageTransform(
                     { x: placement.x, y: placement.y, size: fontSize }, transform);
-                page.drawText(label, {
-                    x: draw.x, y: draw.y, rotate: PDFLib.degrees(placement.rotation),
-                    size: draw.size, font: regularFont,
+                drawStyledText(page, label, {
+                    x: draw.x, y: draw.y, rotation: placement.rotation,
+                    size: draw.size, font, style: item.style,
                     color: PDFLib.rgb(item.color.r, item.color.g, item.color.b)
                 });
             });
@@ -1023,7 +1029,7 @@ function getTextItems() {
     const items = [];
     if (isPageNumberingEnabled()) {
         const [edge, align] = DOMCache.getElementById('page-number-position').value.split('-');
-        items.push({ name: 'page number', template: getPageNumberTemplate(), edge, align,
+        items.push({ name: 'page number', styleId: 'page-number', template: getPageNumberTemplate(), edge, align,
             ...getTextAppearance('page-number'),
             color: parseTextColor(DOMCache.getElementById('page-number-color').value),
             skipFirst: DOMCache.getElementById('page-number-skip-first').checked });
@@ -1031,6 +1037,7 @@ function getTextItems() {
     for (const kind of ['header', 'footer']) {
         if (isTextLineEnabled(kind)) items.push({
             name: kind,
+            styleId: kind,
             template: DOMCache.getElementById(`${kind}-text-template`).value,
             edge: kind === 'header' ? 'top' : 'bottom',
             align: DOMCache.getElementById(`${kind}-text-alignment`).value,
