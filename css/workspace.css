@@ -717,10 +717,18 @@ li.is-dragging .rotation-controls button .icon {
   cursor: pointer;
 }
 
+/* A modal dialog does not stop the page behind it scrolling on iOS. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
 .template-help-dialog {
-  width: min(40rem, calc(100vw - 2rem));
-  max-height: min(80vh, 44rem);
+  width: min(40rem, calc(100% - 1.75rem));
+  max-height: min(calc(100dvh - 2.5rem), 44rem);
+  margin: auto;
   padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--card-shell-border);
   border-radius: var(--radius-surface);
   background: var(--surface-color);
@@ -741,6 +749,8 @@ li.is-dragging .rotation-controls button .icon {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--card-shell-border);
   background: var(--surface-color);
+  /* Above scrolled token buttons, which iOS otherwise paints over it. */
+  z-index: 1;
 }
 
 .template-help-header h2 {
@@ -748,15 +758,26 @@ li.is-dragging .rotation-controls button .icon {
   font-size: 1.05rem;
 }
 
-.template-help-close {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--font-color);
-  font-size: 1.4rem;
-  cursor: pointer;
+/* The heading takes focus only to open the dialog at the top; it is not a control. */
+.template-help-header h2:focus {
+  outline: none;
+}
+
+.template-help-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--card-shell-border);
+  background: var(--surface-color);
+}
+
+.template-help-actions .button {
+  min-height: 44px;
+  margin: 0;
 }
 
 .template-help-body {
@@ -814,7 +835,6 @@ li.is-dragging .rotation-controls button .icon {
 }
 
 .template-help-open:focus-visible,
-.template-help-close:focus-visible,
 .template-help-token:focus-visible {
   outline: 2px solid var(--focus-color);
   outline-offset: 2px;
@@ -1238,7 +1258,8 @@ li.is-dragging .rotation-controls button .icon {
 }
 
 .tool-actions .button.secondary,
-.settings-notice .button.secondary {
+.settings-notice .button.secondary,
+.template-help-actions .button.secondary {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   color: var(--font-color);
@@ -1246,7 +1267,8 @@ li.is-dragging .rotation-controls button .icon {
 }
 
 .tool-actions .button.secondary:hover,
-.settings-notice .button.secondary:hover {
+.settings-notice .button.secondary:hover,
+.template-help-actions .button.secondary:hover {
   border-color: var(--color-blue-1);
   transform: none;
 }
@@ -1505,7 +1527,6 @@ li.is-dragging .rotation-controls button .icon {
   .tool-actions .button,
   .output-preview-nav .output-preview-step,
   .color-preset,
-  .template-help-close,
   .template-help-dialog button.template-help-token {
     margin: 0;
   }
@@ -1519,14 +1540,8 @@ li.is-dragging .rotation-controls button .icon {
     padding: 0 0.5rem;
   }
 
-  .template-help-open,
-  .template-help-close {
+  .template-help-open {
     min-height: 44px;
-  }
-
-  .template-help-close {
-    flex: 0 0 44px;
-    width: 44px;
   }
 
   .template-help-dialog button.template-help-token {

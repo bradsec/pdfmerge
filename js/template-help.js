@@ -70,22 +70,30 @@ function createButton(className, text, label) {
 
 let helpDialog = null;
 let helpTarget = null;
+let helpOpener = null;
 
 function buildHelpDialog() {
     const now = new Date();
     const dialog = document.createElement('dialog');
     dialog.className = 'template-help-dialog';
     dialog.setAttribute('aria-labelledby', 'template-help-title');
+    // method="dialog" lets the Close button close it natively.
+    const form = document.createElement('form');
+    form.method = 'dialog';
+    form.className = 'template-help-content';
+    dialog.append(form);
 
     const header = document.createElement('div');
     header.className = 'template-help-header';
     const title = document.createElement('h2');
     title.id = 'template-help-title';
     title.textContent = 'Template help';
-    const close = createButton('template-help-close', '×', 'Close template help');
-    close.addEventListener('click', () => dialog.close());
-    header.append(title, close);
-    dialog.append(header);
+    // The heading takes initial focus so the dialog opens at the top, rather
+    // than on the first token button.
+    title.tabIndex = -1;
+    title.autofocus = true;
+    header.append(title);
+    form.append(header);
 
     const body = document.createElement('div');
     body.className = 'template-help-body';
@@ -152,18 +160,31 @@ function buildHelpDialog() {
     braces.className = 'template-help-intro';
     braces.textContent = 'Type {{ or }} for a literal brace. Page number templates must include {n}.';
     body.append(braces);
-    dialog.append(body);
+    form.append(body);
+
+    // Kept in view at the bottom so a long guide always has a reachable Close.
+    const actions = document.createElement('div');
+    actions.className = 'template-help-actions';
+    const close = document.createElement('button');
+    close.value = 'close';
+    close.className = 'button secondary';
+    close.textContent = 'Close';
+    actions.append(close);
+    form.append(actions);
 
     // Light dismiss: a click on the backdrop lands on the dialog element itself.
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-    dialog.addEventListener('close', () => helpTarget?.focus());
+    // Focus the opener, not the template field: focusing a field on a phone
+    // opens the keyboard and scrolls the page.
+    dialog.addEventListener('close', () => helpOpener?.focus({ preventScroll: true }));
     document.body.append(dialog);
     return dialog;
 }
 
-function openHelp(input) {
+function openHelp(input, opener) {
     helpDialog ??= buildHelpDialog();
     helpTarget = input;
+    helpOpener = opener;
     // Examples without {n} are not valid page number templates.
     const pageNumber = input.id === 'page-number-template';
     helpDialog.querySelectorAll('[data-needs-number]').forEach(item => {
@@ -174,7 +195,7 @@ function openHelp(input) {
 
 function renderHelp(container, input) {
     const button = createButton('template-help-open', 'Template help', `Template help for ${input.labels?.[0]?.textContent || 'this template'}`);
-    button.addEventListener('click', () => openHelp(input));
+    button.addEventListener('click', () => openHelp(input, button));
     container.replaceChildren(button);
 }
 

@@ -14,6 +14,7 @@ import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.16';
 import { initializeOutputPreview } from './output-preview.js?v=1.3.16';
 import { initializeTemplateHelp } from './template-help.js?v=1.3.16';
 import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.16';
+import { getTextStyle } from './text-style.js?v=1.3.16';
 
 // Application constants
 const APP_CONFIG = {
@@ -185,10 +186,8 @@ function initializeApp() {
     const preview = DOMCache.getElementById("page-number-preview");
     ['page-number', 'header', 'footer'].forEach(kind => {
         const input = DOMCache.getElementById(`${kind}-color`);
-        const swatch = DOMCache.getElementById(`${kind}-color-swatch`);
         const box = DOMCache.getElementById(`${kind}-box`);
         const boxColor = DOMCache.getElementById(`${kind}-box-color`);
-        const boxSwatch = DOMCache.getElementById(`${kind}-box-swatch`);
         const margin = DOMCache.getElementById(`${kind}-margin`);
         const prefix = kind.replace('-', '_').toUpperCase();
         const key = APP_CONFIG.STORAGE_KEYS[`${prefix}_COLOR`];
@@ -202,11 +201,8 @@ function initializeApp() {
         } catch (error) {
             console.warn(`Failed to load ${kind} appearance:`, error);
         }
-        swatch.style.backgroundColor = input.value;
         const updateBox = () => {
             boxColor.parentElement.hidden = !box.checked;
-            boxSwatch.hidden = !box.checked;
-            boxSwatch.style.backgroundColor = boxColor.value;
         };
         updateBox();
         box.addEventListener('change', updateBox);
@@ -218,14 +214,8 @@ function initializeApp() {
             try { localStorage.setItem(boxKey, value); }
             catch (error) { console.warn(`Failed to save ${kind} box colour:`, error); }
         }, APP_CONFIG.DEBOUNCE_DELAY);
-        input.addEventListener('input', () => {
-            swatch.style.backgroundColor = input.value;
-            saveColor(input.value);
-        });
-        boxColor.addEventListener('input', () => {
-            boxSwatch.style.backgroundColor = boxColor.value;
-            saveBoxColor(boxColor.value);
-        });
+        input.addEventListener('input', () => saveColor(input.value));
+        boxColor.addEventListener('input', () => saveBoxColor(boxColor.value));
         margin.addEventListener('input', () => {
             validateTextMargin(kind);
             try { localStorage.setItem(marginKey, margin.value); }
@@ -245,12 +235,39 @@ function initializeApp() {
             if (start === null) return 'Preview: (invalid start number)';
             return `Preview: ${formatPageNumber(start, 12, parsed, 'Contract', now)}`;
         };
-        preview.textContent = previewText(template, tokens);
+        // Valid templates show a sample drawn with the chosen colour, style and
+        // background box, on white like the output page.
+        const showPreview = (element, kind, value, parsed) => {
+            const text = previewText(value, parsed);
+            if (!parsed || start === null || !value.trim()) {
+                element.textContent = text;
+                return;
+            }
+            const style = getTextStyle(kind);
+            const sample = document.createElement('span');
+            sample.className = 'text-sample';
+            sample.textContent = formatPageNumber(start, 12, parsed, 'Contract', now);
+            sample.style.color = DOMCache.getElementById(`${kind}-color`).value;
+            sample.style.backgroundColor = DOMCache.getElementById(`${kind}-box`).checked
+                ? DOMCache.getElementById(`${kind}-box-color`).value : '#ffffff';
+            sample.style.fontWeight = style.bold ? '700' : '400';
+            sample.style.fontStyle = style.italic ? 'italic' : 'normal';
+            sample.style.textDecoration = style.underline ? 'underline' : 'none';
+            element.replaceChildren('Preview: ', sample);
+        };
+        showPreview(preview, 'page-number', template, tokens);
         textControls.forEach(control => {
             const parsed = parsePageNumberTemplate(control.template.value, { requireNumber: false });
-            control.preview.textContent = previewText(control.template.value, parsed.tokens);
+            showPreview(control.preview, control.kind, control.template.value, parsed.tokens);
         });
     };
+    ['page-number', 'header', 'footer'].forEach(kind => {
+        ['color', 'box', 'box-color', 'bold', 'italic', 'underline'].forEach(name => {
+            const field = DOMCache.getElementById(`${kind}-${name}`);
+            field?.addEventListener('input', updatePreviews);
+            field?.addEventListener('change', updatePreviews);
+        });
+    });
     const updateVisibility = () => {
         pageNumberOptions.hidden = !pageNumberToggle.checked;
         textControls.forEach(control => {

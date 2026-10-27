@@ -325,8 +325,7 @@
   display: none;
 }
 
-.text-box-color[hidden],
-.text-color-swatch[hidden] {
+.text-box-color[hidden] {
   display: none;
 }
 
@@ -353,12 +352,16 @@
   min-height: 1.5rem;
 }
 
-.text-color-swatch {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-round);
+/* Sample of the drawn text: colours and style are set inline from the controls. */
+.text-sample {
+  display: inline-block;
+  max-width: 100%;
+  margin-left: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--card-shell-border);
+  border-radius: var(--radius-control);
+  overflow-wrap: anywhere;
+  text-underline-offset: 2px;
 }
 
 .text-options-panel select,
