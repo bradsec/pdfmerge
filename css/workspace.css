@@ -4,7 +4,6 @@
 :root {
   /* pdfmerge workspace tokens: tonal zones instead of extra hues */
   --zone-bg: color-mix(in srgb, var(--surface-color) 70%, var(--bg-color));
-  --zone-header-color: #3d4a5c;
   --desk-bg: #dfe4eb;
   --control-height: 36px;
   --control-font-size: 0.9rem;
@@ -13,7 +12,6 @@
 
 [data-theme="dark"] {
   --zone-bg: color-mix(in srgb, var(--surface-color) 82%, var(--bg-color));
-  --zone-header-color: #b4c0d0;
   --desk-bg: #111317;
   --card-paper-shadow: 0 1px 2px rgb(0 0 0 / 50%), 0 6px 14px rgb(0 0 0 / 35%);
 }
@@ -649,4 +647,90 @@
 .color-preset:focus-visible {
   outline: 2px solid var(--focus-color);
   outline-offset: 2px;
+}
+
+/* ---------- Alignment fixes ---------- */
+
+#selected-files-list li .card-header .order-number,
+#selected-files-list li .card-header .file-type-badge,
+#selected-files-list li .card-header .orientation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 24px;
+  min-height: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+#selected-files-list li .card-header .orientation-badge .icon {
+  width: 12px;
+  height: 12px;
+}
+
+#selected-files-list li .card-header .delete-file-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  min-width: 0;
+  height: 28px;
+}
+
+#drop-area.has-files .sort-files-control select {
+  height: var(--control-height);
+  min-height: 0;
+  padding: 0 2rem 0 0.7rem;
+  font-size: var(--control-font-size);
+}
+
+.output-preview-nav .output-preview-step {
+  width: 36px;
+  height: 36px;
+  min-height: 0;
+  padding: 0;
+}
+
+.output-preview-nav .output-preview-goto input[type="number"] {
+  width: 4.25rem;
+  height: var(--control-height);
+  min-height: 0;
+  padding: 0 0.4rem;
+}
+
+.output-preview-nav {
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.settings-content input[type="file"] {
+  max-width: 100%;
+  font-size: var(--control-font-size);
+  color: var(--font-color-2);
+}
+
+.settings-content input[type="file"]::file-selector-button {
+  height: var(--control-height);
+  margin-right: 0.6rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  color: var(--font-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-content input[type="file"]::file-selector-button:hover {
+  border-color: var(--color-blue-1);
+}
+
+.range-value {
+  min-width: 3.2rem;
+}
+
+#selected-files-list li .card-body .pdf-page-range-label {
+  width: 100%;
+  max-width: none;
 }

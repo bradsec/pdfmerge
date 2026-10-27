@@ -68,6 +68,7 @@
   --radius-panel: 10px;
   --radius-surface: 12px;
   --radius-round: 999px;
+  --zone-header-color: #3d4a5c;
   --bg-color: #f3f4f6;
   --surface-color: var(--color-white);
   --surface2-color: #f6f7f9;
@@ -101,6 +102,7 @@
 
 /* Shared dark theme tokens: keep this block identical in both apps. */
 [data-theme="dark"] {
+  --zone-header-color: #b4c0d0;
   color-scheme: dark;
   --color-blue-text: #9ac7ff;
   --color-green-text: #8fd38b;

@@ -221,9 +221,12 @@ async function convertToPDF() {
  * page numbers, {file}, skip-first and image numbers keep their global values.
  */
 export async function buildOutputDocument({ files = selectedFiles, maxPages = Infinity, signal,
-    mergeDate = new Date(), totalPages, onProgress, preview = false, pageWindow = null } = {}) {
+    mergeDate = new Date(), totalPages, onProgress, preview = false, pageWindow = null, decorate = true } = {}) {
     throwIfAborted(signal);
-    const textItems = getTextItems();
+    // decorate: false builds plain pages, so the preview still shows the
+    // document while a watermark or text setting is incomplete.
+    const textItems = decorate ? getTextItems() : [];
+    const watermarkOn = decorate && isWatermarkEnabled();
     const pdfDoc = await PDFLib.PDFDocument.create();
     pdfDoc.registerFontkit(fontkit);
     const hasImages = files.some(isImageEntry);
@@ -236,8 +239,8 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     const hasGlyph = regularFont?.embedder?.font?.hasGlyphForCodePoint?.bind(regularFont.embedder.font);
     const boldFont = hasImages && shouldPrintImageDetails()
         ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal, preview) : null;
-    const imageWatermark = isWatermarkEnabled() && getWatermarkType() === 'image';
-    const blackFont = isWatermarkEnabled() && !imageWatermark
+    const imageWatermark = watermarkOn && getWatermarkType() === 'image';
+    const blackFont = watermarkOn && !imageWatermark
         ? await loadFont(pdfDoc, 'fonts/Roboto-Black.ttf', signal, preview) : null;
     const watermarkImage = imageWatermark ? await embedWatermarkImage(pdfDoc) : null;
 
@@ -272,7 +275,7 @@ export async function buildOutputDocument({ files = selectedFiles, maxPages = In
     throwIfAborted(signal);
     if (watermarkImage) {
         pdfDoc.getPages().forEach(page => addImageWatermarkToPage(page, watermarkImage));
-    } else if (isWatermarkEnabled() && !imageWatermark) {
+    } else if (watermarkOn && !imageWatermark) {
         pdfDoc.getPages().forEach(page => addWatermarkToPage(page, getWatermarkText(), blackFont));
     }
 

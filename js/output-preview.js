@@ -159,20 +159,19 @@ async function renderPreview() {
         note.hidden = !text;
     };
 
-    const problem = getOutputSettingsProblem();
-    if (problem) {
-        // Keep the last good render visible but mark it out of date.
-        aside.classList.add('is-stale');
-        setNote(problem === 'watermark image'
-            ? 'Choose a watermark image to update the preview.'
-            : 'Fix the highlighted settings to update the preview.');
-        return;
-    }
-
     const counted = countOutputPages(selectedFiles, { duplexPadding: isDuplexPaddingEnabled() });
     knownTotal = counted.exact ? Math.max(counted.count, 1) : null;
     currentPage = clampPreviewPage(currentPage, knownTotal);
     updateNav();
+
+    // An incomplete watermark or text setting must not hide the document:
+    // show plain pages and say what is left out.
+    const problem = getOutputSettingsProblem();
+    const problemNote = {
+        '': '',
+        'watermark image': 'Watermark not shown: choose a watermark image, or switch the watermark type to Text.',
+        'page range': 'A file has an invalid page range. Fix it to preview that file\'s pages.'
+    }[problem ?? ''] ?? 'Watermark, page numbers and header or footer text are not shown until the highlighted settings are fixed.';
 
     controller?.abort();
     controller = new AbortController();
@@ -183,7 +182,7 @@ async function renderPreview() {
 
     try {
         const result = await buildOutputDocument({
-            signal, preview: true,
+            signal, preview: true, decorate: !problem || problem === 'page range',
             pageWindow: { from: pageIndex, to: pageIndex + 1 },
             totalPages: counted.exact ? counted.count : undefined
         });
@@ -218,7 +217,9 @@ async function renderPreview() {
         frame.replaceChildren(figure);
 
         aside.classList.remove('is-stale');
-        if (result.unsupportedTemplate) {
+        if (problemNote) {
+            setNote(problemNote);
+        } else if (result.unsupportedTemplate) {
             setNote(`The ${result.unsupportedTemplate} template contains characters Roboto cannot draw.`);
         } else if (result.failedFiles.length) {
             setNote(`Could not read: ${result.failedFiles.join(', ')}.`);
