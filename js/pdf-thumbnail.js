@@ -78,10 +78,13 @@ export async function renderOutputPages(bytes, sizing, signal) {
             const viewport = page.getViewport({ scale });
             const ratio = window.devicePixelRatio || 1;
             const canvas = document.createElement('canvas');
-            canvas.width = Math.ceil(viewport.width * ratio);
-            canvas.height = Math.ceil(viewport.height * ratio);
-            canvas.style.width = `${viewport.width}px`;
-            canvas.style.height = `${viewport.height}px`;
+            // Round down to whole device pixels: a rounded-up canvas leaves an
+            // unpainted strip along the right or bottom edge that shows the
+            // canvas background as a white seam.
+            canvas.width = Math.floor(viewport.width * ratio);
+            canvas.height = Math.floor(viewport.height * ratio);
+            canvas.style.width = `${canvas.width / ratio}px`;
+            canvas.style.height = `${canvas.height / ratio}px`;
             const context = canvas.getContext('2d');
             context.setTransform(ratio, 0, 0, ratio, 0, 0);
             await page.render({ canvasContext: context, viewport }).promise;

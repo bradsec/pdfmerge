@@ -1033,3 +1033,45 @@
   outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
+
+/* Full-bleed cover images need no paper behind them; a white frame would
+ * show through the anti-aliased edge as a light seam. */
+#selected-files-list li[data-image-layout="cover"] .card-thumbnail-surface,
+#selected-files-list li[data-image-layout="cover-rotated"] .card-thumbnail-surface {
+  background: transparent;
+}
+
+/* Every card the same height across all rows: rows share the tallest card's
+ * height, and the body fills the space so bottom controls line up. */
+#selected-files-list {
+  grid-auto-rows: 1fr;
+}
+
+#selected-files-list li {
+  grid-template-rows: auto auto 1fr;
+  height: 100%;
+}
+
+#selected-files-list li .card-body {
+  align-self: stretch;
+  align-content: start;
+}
+
+#selected-files-list li .card-body {
+  justify-items: stretch;
+  align-items: start;
+}
+
+#selected-files-list li .card-body > label,
+#selected-files-list li .card-body > select {
+  justify-self: stretch;
+  width: 100%;
+  max-width: none;
+}
+
+/* The base .card-body centres content, which shrinks a grid column to its
+ * content width; stretch it so fields span the card. */
+#selected-files-list li .card-body {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+}
