@@ -64,9 +64,9 @@
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --base-font-size: 1rem;
   --line-height: 1.4;
-  --radius-control: 4px;
-  --radius-panel: 6px;
-  --radius-surface: 8px;
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-surface: 12px;
   --radius-round: 999px;
   --bg-color: #f3f4f6;
   --surface-color: var(--color-white);

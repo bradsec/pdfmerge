@@ -1,0 +1,581 @@
+/* Workspace styles: file cards, settings controls and zone separation.
+ * Loaded last so it defines the workspace look in one place. */
+
+:root {
+  /* pdfmerge workspace tokens: tonal zones instead of extra hues */
+  --zone-bg: color-mix(in srgb, var(--surface-color) 70%, var(--bg-color));
+  --zone-header-color: #3d4a5c;
+  --desk-bg: #dfe4eb;
+  --control-height: 36px;
+  --control-font-size: 0.9rem;
+  --card-paper-shadow: 0 1px 2px rgb(15 23 42 / 18%), 0 4px 10px rgb(15 23 42 / 10%);
+}
+
+[data-theme="dark"] {
+  --zone-bg: color-mix(in srgb, var(--surface-color) 82%, var(--bg-color));
+  --zone-header-color: #b4c0d0;
+  --desk-bg: #111317;
+  --card-paper-shadow: 0 1px 2px rgb(0 0 0 / 50%), 0 6px 14px rgb(0 0 0 / 35%);
+}
+
+/* ---------- Files zone ---------- */
+
+#drop-area.has-files {
+  padding: 0.75rem 0.85rem 0.85rem;
+  border-style: solid;
+  border-color: var(--card-shell-border);
+  background: var(--zone-bg);
+  text-align: left;
+}
+
+#drop-area.has-files:hover {
+  transform: none;
+  box-shadow: none;
+  background: var(--zone-bg);
+}
+
+#drop-area.has-files #file-upload-label {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  z-index: 2;
+  min-height: var(--control-height);
+  padding: 0 0.9rem;
+  font-size: var(--control-font-size);
+}
+
+#drop-area.has-files .sort-files-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--control-height);
+  margin: 0 0 0.75rem;
+  padding-right: 9.5rem;
+}
+
+.files-title {
+  margin: 0 auto 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--zone-header-color);
+}
+
+.files-summary {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--font-color-2);
+}
+
+.sort-files-control label {
+  font-size: 0.85rem;
+  color: var(--font-color-2);
+}
+
+/* ---------- File cards ---------- */
+
+#selected-files-list {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  justify-items: stretch;
+  place-content: start;
+}
+
+#selected-files-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "head"
+    "thumb"
+    "body";
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.5rem;
+  max-width: none;
+  min-height: 0;
+  padding: 0.55rem;
+  background: var(--surface-color);
+  border: 1px solid var(--card-shell-border);
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#selected-files-list li:hover {
+  border-color: color-mix(in srgb, var(--color-blue-1) 45%, var(--card-shell-border));
+}
+
+#selected-files-list li .file-info-container {
+  grid-area: info;
+  display: contents;
+}
+
+#selected-files-list li .card-header {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+
+#selected-files-list li .card-meta,
+#selected-files-list li .card-meta-top-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+#selected-files-list li .order-number {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-control);
+  background: var(--color-blue-1);
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: none;
+}
+
+#selected-files-list li .file-type-badge,
+#selected-files-list li .orientation-badge {
+  height: 22px;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-control);
+  font-size: 0.68rem;
+  line-height: 22px;
+  box-shadow: none;
+}
+
+#selected-files-list li .delete-file-button {
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--surface-color) 85%, transparent);
+  border: 1px solid var(--card-shell-border);
+}
+
+/* The page thumbnail is the card's hero: a sheet on a desk. */
+#selected-files-list li .card-thumbnail-wrapper {
+  grid-area: thumb;
+  height: 180px;
+  padding: 0.75rem;
+  border-radius: calc(var(--radius-panel) - 3px);
+  background: var(--desk-bg);
+}
+
+#selected-files-list li .card-thumbnail-surface {
+  box-shadow: var(--card-paper-shadow);
+}
+
+#selected-files-list li .card-body {
+  grid-area: body;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0 0.1rem;
+  text-align: left;
+}
+
+#selected-files-list li .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+#selected-files-list li .card-top-meta {
+  display: flex;
+  gap: 0.6rem;
+  margin: -0.2rem 0 0.1rem;
+  font-size: 0.75rem;
+  color: var(--font-color-2);
+}
+
+#selected-files-list li .pdf-page-range-label {
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--font-color-2);
+  text-align: left;
+}
+
+#selected-files-list li .card-body .pdf-page-range-input,
+#selected-files-list li .card-body .image-layout-card-select {
+  width: 100%;
+  max-width: none;
+  height: 32px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+#selected-files-list li .card-body .image-layout-card-select {
+  padding-right: 1.75rem;
+}
+
+/* Card tools sit on the desk corner, clear of the name and inputs. */
+#selected-files-list li .rotation-controls {
+  grid-area: thumb;
+  align-self: end;
+  justify-self: end;
+  z-index: 1;
+  margin: 0.4rem;
+  display: flex;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+}
+
+#selected-files-list li .rotation-controls button {
+  width: 30px;
+  height: 30px;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  border: 1px solid var(--card-shell-border);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+}
+
+/* ---------- Settings zone ---------- */
+
+.settings-layout {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--card-shell-border);
+}
+
+.settings-section > summary .settings-title {
+  color: var(--zone-header-color);
+}
+
+.output-preview .settings-content {
+  background: var(--desk-bg);
+  border-radius: 0 0 var(--radius-panel) var(--radius-panel);
+}
+
+.output-preview-pages {
+  background: transparent;
+}
+
+/* Compact controls sized to their content */
+.settings-content input[type="text"],
+.settings-content input[type="number"],
+.settings-content select {
+  height: var(--control-height);
+  min-height: 0;
+  padding: 0 0.6rem;
+  font-size: var(--control-font-size);
+}
+
+.settings-content input[type="number"] {
+  width: 6.5rem;
+}
+
+.settings-content select {
+  width: auto;
+  min-width: 9rem;
+  max-width: 100%;
+}
+
+.settings-content label {
+  font-size: 0.85rem;
+}
+
+.settings-content input[type="color"] {
+  width: 44px;
+  height: var(--control-height);
+  padding: 2px;
+}
+
+/* Watermark controls in a tidy grid */
+.watermark-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.9rem 1.25rem;
+  align-items: end;
+}
+
+.watermark-group[style*="none"] {
+  display: none !important;
+}
+
+.watermark-item {
+  display: grid;
+  gap: 0.3rem;
+  align-items: start;
+}
+
+.watermark-item label {
+  margin: 0;
+}
+
+.watermark-item.watermark-text-input-item,
+.watermark-image-only.watermark-file-item,
+.watermark-descriptions {
+  grid-column: 1 / -1;
+}
+
+.watermark-item input[type="text"] {
+  width: 100%;
+}
+
+/* Sliders */
+.range-control {
+  min-width: 11rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.range-control input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: var(--control-height);
+  margin: 0;
+  accent-color: var(--color-blue-1);
+  cursor: pointer;
+}
+
+.range-control input[type="range"]:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.range-value {
+  min-width: 3.6rem;
+  text-align: right;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--font-color);
+}
+
+/* ---------- Action bar ---------- */
+
+#output-filename-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--card-shell-border);
+}
+
+#output-filename-container input {
+  height: var(--control-height);
+  min-height: 0;
+  font-size: var(--control-font-size);
+}
+
+@media (max-width: 640px) {
+  #drop-area.has-files #file-upload-label {
+    position: static;
+    margin-bottom: 0.75rem;
+  }
+
+  #drop-area.has-files .sort-files-control {
+    padding-right: 0;
+    flex-wrap: wrap;
+  }
+
+  #selected-files-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+/* ---------- Template help dialog ---------- */
+
+.template-help-open {
+  justify-self: start;
+  min-height: 32px;
+  margin-top: 0.4rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  color: var(--color-blue-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.template-help-dialog {
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: min(80vh, 44rem);
+  padding: 0;
+  border: 1px solid var(--card-shell-border);
+  border-radius: var(--radius-surface);
+  background: var(--surface-color);
+  color: var(--font-color);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 30%);
+}
+
+.template-help-dialog::backdrop {
+  background: rgb(15 23 42 / 45%);
+}
+
+.template-help-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--card-shell-border);
+  background: var(--surface-color);
+}
+
+.template-help-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.template-help-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--font-color);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.template-help-body {
+  padding: 0.5rem 1rem 1rem;
+  font-size: 0.88rem;
+}
+
+.template-help-intro {
+  margin: 0.5rem 0;
+  color: var(--font-color-2);
+}
+
+.template-help-heading {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.95rem;
+  color: var(--zone-header-color);
+}
+
+.template-help-list,
+.template-help-dates {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.template-help-list li {
+  display: grid;
+  grid-template-columns: minmax(9rem, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--font-color-2);
+}
+
+.template-help-list li[hidden] {
+  display: none;
+}
+
+.template-help-token {
+  justify-self: start;
+  min-height: 30px;
+  padding: 0 0.55rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--zone-bg);
+  color: var(--font-color);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.template-help-token:hover {
+  border-color: var(--color-blue-1);
+}
+
+.template-help-open:focus-visible,
+.template-help-close:focus-visible,
+.template-help-token:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.template-help-dates {
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  color: var(--font-color-2);
+}
+
+.template-help-dates code {
+  font-family: "JetBrains Mono", monospace;
+  color: var(--font-color);
+}
+
+@media (max-width: 640px) {
+  .template-help-list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+  }
+}
+
+/* ---------- Tighter workspace spacing ---------- */
+
+.tool-surface:has(#drop-area.has-files) {
+  padding: 1rem;
+}
+
+.settings-accordion {
+  gap: 0.5rem;
+}
+
+.settings-section > summary {
+  min-height: 42px;
+  padding: 0.5rem 0.85rem;
+}
+
+.settings-content {
+  padding: 0.75rem 0.85rem 0.85rem;
+}
+
+.settings-content .toggle-item {
+  margin: 0 0 0.5rem;
+}
+
+.text-options-panel,
+.watermark-group {
+  margin: 0.5rem 0 0;
+}
+
+@media (max-width: 640px) {
+  .tool-surface:has(#drop-area.has-files) {
+    padding: 0.75rem;
+  }
+}
+
+#selected-files-list li .card-body .pdf-page-range-input::placeholder {
+  font-size: 0.85rem;
+}
+
+.template-help-dialog .template-help-list li {
+  margin: 0;
+  padding: 0;
+}
+
+.template-help-dialog button.template-help-token {
+  min-height: 28px;
+  height: auto;
+  padding: 0.15rem 0.55rem;
+}
+
+.template-help-dialog .template-help-header {
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+}

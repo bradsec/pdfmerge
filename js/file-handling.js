@@ -479,7 +479,7 @@ async function createFileCard(fileEntry, index) {
         const pageRangeInput = document.createElement("input");
         pageRangeInput.type = "text";
         pageRangeInput.className = "pdf-page-range-input";
-        pageRangeInput.placeholder = "e.g. 1-5 or 1,3,7 (default all)";
+        pageRangeInput.placeholder = "All pages";
         pageRangeInput.setAttribute("data-file-id", fileEntry.id);
         pageRangeInput.title = "Ranges (1-5), individual pages (1,3,7), or mixed (1-3,5,8). Leave empty for all pages.";
         
@@ -556,8 +556,8 @@ async function createFileCard(fileEntry, index) {
             if (pageCount && pageCount > 0) {
                 const filePagesSpan = document.createElement("span");
                 filePagesSpan.className = "file-pages";
-                filePagesSpan.textContent = `· ${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
-                cardTopMeta.appendChild(filePagesSpan);
+                filePagesSpan.textContent = `${pageCount} ${pageCount === 1 ? 'page' : 'pages'}`;
+                cardTopMeta.prepend(filePagesSpan);
             }
         } catch (error) {
             console.error("Error getting PDF page count:", error);
@@ -566,9 +566,9 @@ async function createFileCard(fileEntry, index) {
         const resolutionSpan = document.createElement("span");
         resolutionSpan.className = "file-pages";
         getImageResolution(fileEntry.file).then(resolution => {
-            if (resolution) resolutionSpan.textContent = `· ${resolution.width} × ${resolution.height}`;
+            if (resolution) resolutionSpan.textContent = `${resolution.width} × ${resolution.height}`;
         }).catch(() => {});
-        cardTopMeta.appendChild(resolutionSpan);
+        cardTopMeta.prepend(resolutionSpan);
     }
     
     // Create file info container
@@ -599,7 +599,8 @@ async function createFileCard(fileEntry, index) {
     let thumbnailContentElement = null;
     const isPdfFile = fileExtension === "pdf";
     fileInfoContainer.appendChild(cardHeader);
-    fileInfoContainer.appendChild(cardTopMeta);
+    // Size and page count read as a caption under the file name.
+    fileNameSpan.after(cardTopMeta);
 
     const updateOrientationBadge = () => {
         const baseOrientation = isImageFile ? "portrait" : fileEntry.baseOrientation;

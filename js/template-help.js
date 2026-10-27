@@ -53,7 +53,6 @@ export function insertAtCaret(value, start, end, text) {
 
 function setTemplateValue(input, value, caret) {
     input.value = value.slice(0, input.maxLength > 0 ? input.maxLength : value.length);
-    input.focus();
     const position = Math.min(caret, input.value.length);
     input.setSelectionRange(position, position);
     input.dataset.touched = 'true';
@@ -69,19 +68,32 @@ function createButton(className, text, label) {
     return button;
 }
 
-function renderHelp(container, input) {
-    const now = new Date();
-    const details = document.createElement('details');
-    details.className = 'template-help-panel';
-    const summary = document.createElement('summary');
-    summary.textContent = 'Template help';
-    details.append(summary);
+let helpDialog = null;
+let helpTarget = null;
 
+function buildHelpDialog() {
+    const now = new Date();
+    const dialog = document.createElement('dialog');
+    dialog.className = 'template-help-dialog';
+    dialog.setAttribute('aria-labelledby', 'template-help-title');
+
+    const header = document.createElement('div');
+    header.className = 'template-help-header';
+    const title = document.createElement('h2');
+    title.id = 'template-help-title';
+    title.textContent = 'Template help';
+    const close = createButton('template-help-close', '×', 'Close template help');
+    close.addEventListener('click', () => dialog.close());
+    header.append(title, close);
+    dialog.append(header);
+
+    const body = document.createElement('div');
+    body.className = 'template-help-body';
     const intro = document.createElement('p');
     intro.className = 'template-help-intro';
     intro.textContent = 'Type any text and add placeholders in braces. Select one to insert it at the cursor. '
-        + `Examples use page ${SAMPLE.number} of ${SAMPLE.total} from "${SAMPLE.file}.pdf".`;
-    details.append(intro);
+        + `Samples use page ${SAMPLE.number} of ${SAMPLE.total} from "${SAMPLE.file}.pdf".`;
+    body.append(intro);
 
     const placeholders = document.createElement('ul');
     placeholders.className = 'template-help-list';
@@ -89,19 +101,23 @@ function renderHelp(container, input) {
         const item = document.createElement('li');
         const button = createButton('template-help-token', token, `Insert ${token}: ${description}`);
         button.addEventListener('click', () => {
-            const next = insertAtCaret(input.value, input.selectionStart, input.selectionEnd, token);
-            setTemplateValue(input, next.value, next.caret);
+            if (!helpTarget) return;
+            const next = insertAtCaret(helpTarget.value, helpTarget.selectionStart, helpTarget.selectionEnd, token);
+            setTemplateValue(helpTarget, next.value, next.caret);
         });
         const text = document.createElement('span');
         text.textContent = `${description}. Shows "${sampleTemplateOutput(token, now)}"`;
         item.append(button, text);
         placeholders.append(item);
     }
-    details.append(placeholders);
+    body.append(placeholders);
 
-    const dateHeading = document.createElement('p');
+    const dateHeading = document.createElement('h3');
     dateHeading.className = 'template-help-heading';
-    dateHeading.textContent = 'Date and time format tokens (put after the colon). Wrap literal letters in [ ], e.g. {date:[Day] D}.';
+    dateHeading.textContent = 'Date and time formats';
+    const dateNote = document.createElement('p');
+    dateNote.className = 'template-help-intro';
+    dateNote.textContent = 'Put these after the colon, as in {date:DD/MM/YYYY}. Wrap literal letters in [ ], as in {date:[Day] D}.';
     const dateList = document.createElement('ul');
     dateList.className = 'template-help-dates';
     for (const [token, meaning] of DATE_TOKENS) {
@@ -111,32 +127,55 @@ function renderHelp(container, input) {
         item.append(code, ` ${meaning}`);
         dateList.append(item);
     }
-    details.append(dateHeading, dateList);
+    body.append(dateHeading, dateNote, dateList);
 
-    const examplesHeading = document.createElement('p');
+    const examplesHeading = document.createElement('h3');
     examplesHeading.className = 'template-help-heading';
-    examplesHeading.textContent = 'Examples (select to use):';
+    examplesHeading.textContent = 'Examples';
     const examples = document.createElement('ul');
     examples.className = 'template-help-list';
-    const requireNumber = input.id === 'page-number-template';
     for (const example of TEMPLATE_EXAMPLES) {
-        if (requireNumber && parsePageNumberTemplate(example).error) continue;
         const item = document.createElement('li');
+        item.dataset.needsNumber = String(Boolean(parsePageNumberTemplate(example).error));
         const button = createButton('template-help-token', example, `Use template ${example}`);
-        button.addEventListener('click', () => setTemplateValue(input, example, example.length));
+        button.addEventListener('click', () => {
+            if (helpTarget) setTemplateValue(helpTarget, example, example.length);
+        });
         const text = document.createElement('span');
         text.textContent = `Shows "${sampleTemplateOutput(example, now)}"`;
         item.append(button, text);
         examples.append(item);
     }
-    details.append(examplesHeading, examples);
+    body.append(examplesHeading, examples);
 
     const braces = document.createElement('p');
     braces.className = 'template-help-intro';
     braces.textContent = 'Type {{ or }} for a literal brace. Page number templates must include {n}.';
-    details.append(braces);
+    body.append(braces);
+    dialog.append(body);
 
-    container.replaceChildren(details);
+    // Light dismiss: a click on the backdrop lands on the dialog element itself.
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener('close', () => helpTarget?.focus());
+    document.body.append(dialog);
+    return dialog;
+}
+
+function openHelp(input) {
+    helpDialog ??= buildHelpDialog();
+    helpTarget = input;
+    // Examples without {n} are not valid page number templates.
+    const pageNumber = input.id === 'page-number-template';
+    helpDialog.querySelectorAll('[data-needs-number]').forEach(item => {
+        item.hidden = pageNumber && item.dataset.needsNumber === 'true';
+    });
+    helpDialog.showModal();
+}
+
+function renderHelp(container, input) {
+    const button = createButton('template-help-open', 'Template help', `Template help for ${input.labels?.[0]?.textContent || 'this template'}`);
+    button.addEventListener('click', () => openHelp(input));
+    container.replaceChildren(button);
 }
 
 export function initializeTemplateHelp() {

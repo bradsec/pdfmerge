@@ -305,6 +305,7 @@ function initializeApp() {
     pageNumberStart.addEventListener("blur", () => validatePageNumberStart());
     loadWatermarkFormStates();
     initializeSettingsAccordion();
+    initializeRangeOutputs();
     initializeTemplateHelp();
     initializeOutputPreview();
     initializeDragManager();
@@ -480,3 +481,17 @@ function loadWatermarkFormStates() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
+
+/**
+ * Shows each slider's value beside it, including values restored from storage.
+ */
+function initializeRangeOutputs() {
+    document.querySelectorAll('.range-control input[type="range"]').forEach(input => {
+        const output = input.parentElement.querySelector('.range-value');
+        if (!output) return;
+        const sync = () => { output.textContent = `${input.value}${input.dataset.unit || ''}`; };
+        input.addEventListener('input', sync);
+        input.addEventListener('change', sync);
+        sync();
+    });
+}

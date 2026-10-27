@@ -76,9 +76,25 @@ function updateNav() {
     panel.querySelector('.settings-status').textContent = previewStatusText(currentPage, knownTotal);
 }
 
+export function filesSummaryText(fileCount, pageCount) {
+    if (!fileCount) return '';
+    const files = `${fileCount} ${fileCount === 1 ? 'file' : 'files'}`;
+    return pageCount ? `${files}, ${pageCount} ${pageCount === 1 ? 'page' : 'pages'}` : files;
+}
+
+function updateFilesSummary() {
+    const summary = document.getElementById('files-summary');
+    if (!summary) return;
+    const counted = countOutputPages(selectedFiles, { duplexPadding: isDuplexPaddingEnabled() });
+    summary.textContent = filesSummaryText(selectedFiles.length, counted.exact ? counted.count : null);
+}
+
 function schedule(delay = DEBOUNCE_MS) {
     clearTimeout(timer);
-    timer = setTimeout(renderPreview, delay);
+    timer = setTimeout(() => {
+        updateFilesSummary();
+        renderPreview();
+    }, delay);
 }
 
 export function initializeOutputPreview() {
