@@ -7,6 +7,7 @@ function element(id, value = '') {
     const attributes = new Map();
     const node = {
         id, value, dataset: {}, hidden: true, textContent: '', isConnected: true,
+        closest: () => node.section ?? null,
         setAttribute: (name, val) => attributes.set(name, val),
         removeAttribute: name => attributes.delete(name),
         getAttribute: name => attributes.get(name),
@@ -22,6 +23,7 @@ const { validateTextTemplate } = await importApp('pdf-processing.js');
 test('empty template waits for blur or merge, while edited invalid syntax shows live', () => {
     element('add-header-text').checked = true;
     const input = element('header-text-template');
+    input.section = { open: false };
     const error = element('header-text-template-error');
 
     assert.equal(validateTextTemplate('header'), false);
@@ -40,6 +42,7 @@ test('empty template waits for blur or merge, while edited invalid syntax shows 
     assert.equal(validateTextTemplate('header', true), false);
     assert.equal(error.hidden, false);
     assert.equal(input.focused, true);
+    assert.equal(input.section.open, true);
 
     input.value = 'CONFIDENTIAL';
     assert.equal(validateTextTemplate('header'), true);

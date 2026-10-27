@@ -1,0 +1,192 @@
+/* Tokens styles */
+/**
+ * PDFMERGE Stylesheet
+ */
+
+/* Self-hosted web fonts */
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/web/roboto.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/web/jetbrains-mono.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  font-size: 24px;
+}
+
+/* ====================================
+ * 1. CSS CUSTOM PROPERTIES (VARIABLES)
+ * Centralized design tokens for consistency
+ * ==================================== */
+
+/* Shared design tokens: keep this block identical in both apps. */
+:root {
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-ink: #111827;
+  --color-blue-1: #0071e3;
+  --color-blue-2: #005ab5;
+  --color-blue-3: #004085;
+  --color-blue-text: #005ab5;
+  --color-red-1: #c44438;
+  --color-red-2: #913128;
+  --color-green-1: #35752e;
+  --color-green-text: #35752e;
+  --color-red-text: #a13027;
+  --color-amber-text: #8a4c00;
+  --color-amber-1: #b45309;
+  --color-gray-1: #fafafa;
+  --color-gray-3: #bebebe;
+  --color-gray-5: #666666;
+  --color-gray-6: #4e4e4e;
+  --color-gray-8: #1d1d1d;
+  --font-family: 'Roboto', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --base-font-size: 1rem;
+  --line-height: 1.4;
+  --radius-control: 4px;
+  --radius-panel: 6px;
+  --radius-surface: 8px;
+  --radius-round: 999px;
+  --bg-color: #f3f4f6;
+  --surface-color: var(--color-white);
+  --surface2-color: #f6f7f9;
+  --border-color: #858b94;
+  --card-shell-border: color-mix(in srgb, var(--border-color) 35%, var(--surface-color));
+  --font-color: var(--color-gray-8);
+  --font-color-2: var(--color-gray-5);
+  --font-color-footer: var(--color-gray-5);
+  --branding-font-color: var(--font-color);
+  --branding-span-font-color: var(--color-blue-1);
+  --link-hover-color: var(--color-blue-text);
+  --button-bg-color: var(--color-blue-1);
+  --button-hover-bg-color: var(--color-blue-2);
+  --button-active-bg-color: var(--color-blue-3);
+  --button-font-color: var(--color-white);
+  --button-disabled-bg-color: #d5d8de;
+  --button-disabled-font-color: var(--color-gray-6);
+  --form-input-bg-color: var(--color-gray-1);
+  --form-input-font-color: var(--color-gray-6);
+  --form-input-border: 1px solid var(--border-color);
+  --form-placeholder-color: var(--color-gray-5);
+  --accent: var(--color-blue-1);
+  --accent-dim: rgb(0 113 227 / 10%);
+  --body-glow: rgb(0 113 227 / 8%);
+  --body-sheen: rgb(255 255 255 / 55%);
+  --drop-tint: rgb(0 113 227 / 4%);
+  --drop-tint-hover: rgb(0 113 227 / 10%);
+  --border-color-drop-area: var(--focus-color);
+  --focus-color: var(--color-blue-1);
+}
+
+/* Shared dark theme tokens: keep this block identical in both apps. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-blue-text: #9ac7ff;
+  --color-green-text: #8fd38b;
+  --color-red-text: #ff8d82;
+  --color-amber-text: #ffc078;
+  --bg-color: #16181c;
+  --surface-color: #22252b;
+  --surface2-color: #2d3138;
+  --border-color: #7b828c;
+  --card-shell-border: color-mix(in srgb, var(--border-color) 35%, var(--surface-color));
+  --font-color: #f1f3f5;
+  --font-color-2: #b5bac2;
+  --font-color-footer: #a6acb4;
+  --branding-font-color: var(--font-color);
+  --branding-span-font-color: var(--color-blue-1);
+  --link-hover-color: var(--color-blue-text);
+  --button-disabled-bg-color: #444a53;
+  --button-disabled-font-color: var(--font-color);
+  --form-input-bg-color: #181b20;
+  --form-input-font-color: var(--font-color);
+  --form-input-border: 1px solid var(--border-color);
+  --form-placeholder-color: var(--font-color-2);
+  --accent-dim: rgb(0 113 227 / 10%);
+  --body-glow: rgb(0 113 227 / 14%);
+  --body-sheen: rgb(255 255 255 / 3%);
+  --border-color-drop-area: var(--focus-color);
+  --focus-color: #9ac7ff;
+}
+
+/* pdfmerge tokens */
+:root {
+  --link-font-color: var(--font-color-2);
+  --link-active-color: var(--color-blue-text);
+  --font-color-filelist: var(--color-gray-6);
+  --bg-color-filelist: var(--surface-color);
+  --card-preview-stage-bg: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 72%, transparent), color-mix(in srgb, var(--color-black) 3%, transparent));
+  --card-preview-stage-border: color-mix(in srgb, var(--color-black) 6%, transparent);
+  --card-preview-frame-bg: color-mix(in srgb, var(--color-white) 82%, transparent);
+  --card-action-bg: color-mix(in srgb, var(--color-white) 58%, transparent);
+  --card-action-border: var(--border-color);
+  --orientation-portrait-bg: color-mix(in srgb, var(--color-orientation-blue) 12%, transparent);
+  --orientation-portrait-color: #2457a6;
+  --orientation-landscape-bg: color-mix(in srgb, var(--color-orientation-green-wash) 14%, transparent);
+  --orientation-landscape-color: #2b6d38;
+  --orientation-neutral-bg: color-mix(in srgb, var(--color-black) 5%, transparent);
+  --orientation-neutral-color: #5b6472;
+  --orientation-toggle-bg: color-mix(in srgb, var(--color-blue-1) 10%, transparent);
+  --orientation-toggle-bg-hover: color-mix(in srgb, var(--color-blue-1) 16%, transparent);
+  --orientation-toggle-border: var(--focus-color);
+  --orientation-toggle-color: #0c4f99;
+  --font-color-drop-area: var(--color-gray-5);
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --color-orientation-blue: #3578e5;
+  --color-orientation-green-wash: #529a4a;
+  --color-dark-card-muted: #9aa3af;
+  --color-dark-card-bg: #3a3f47;
+  --color-dark-select-bg: #40454e;
+  --color-dark-contrast: #e6f1ff;
+  --color-dark-danger-hover: #b94a3f;
+}
+
+[data-theme="dark"] {
+  --color-orientation-green-wash: #4daa71;
+  --font-color-filelist: var(--font-color);
+  --bg-color-filelist: #262a31;
+  --card-preview-stage-bg: linear-gradient(180deg, color-mix(in srgb, var(--color-white) 3.5%, transparent), color-mix(in srgb, var(--color-black) 16%, transparent));
+  --card-preview-stage-border: color-mix(in srgb, var(--color-white) 5.5%, transparent);
+  --card-preview-frame-bg: color-mix(in srgb, var(--color-gray-1) 96%, transparent);
+  --card-action-bg: color-mix(in srgb, var(--color-white) 3%, transparent);
+  --card-action-border: var(--border-color);
+  --orientation-portrait-bg: color-mix(in srgb, var(--color-orientation-blue) 16%, transparent);
+  --orientation-portrait-color: #b7d7ff;
+  --orientation-landscape-bg: color-mix(in srgb, var(--color-orientation-green-wash) 16%, transparent);
+  --orientation-landscape-color: #b7f2c7;
+  --orientation-neutral-bg: color-mix(in srgb, var(--color-white) 8%, transparent);
+  --orientation-neutral-color: color-mix(in srgb, var(--color-white) 78%, transparent);
+  --orientation-toggle-bg: color-mix(in srgb, var(--color-blue-1) 12%, transparent);
+  --orientation-toggle-bg-hover: color-mix(in srgb, var(--color-blue-1) 20%, transparent);
+  --orientation-toggle-border: var(--focus-color);
+  --orientation-toggle-color: #d9eaff;
+  --font-color-drop-area: var(--font-color-2);
+}
+
+

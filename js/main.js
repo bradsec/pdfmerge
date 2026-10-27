@@ -6,10 +6,11 @@
 import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.5';
 import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.5';
 import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.5';
-import { parseTextColor } from './utils.js?v=1.3.5';
+import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.5';
 import { initWatermarkControls } from './watermark.js?v=1.3.5';
 import { DOMCache } from './dom-cache.js?v=1.3.5';
 import { initializePaperSizeSelect } from './paper-size.js?v=1.3.5';
+import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.5';
 
 // Application constants
 const APP_CONFIG = {
@@ -134,6 +135,7 @@ function initializeApp() {
             selectedFiles.push(entry);
             try {
                 await appendSelectedFileEntriesToList([entry]);
+                displayFlashMessage(`Blank page added at position ${selectedFiles.indexOf(entry) + 1}`, 'success');
             } catch {
                 // card rendering failed — entry is still in selectedFiles, full re-render recovers
                 updateSelectedFilesList();
@@ -142,8 +144,8 @@ function initializeApp() {
     }
 
     updateButtonVisibility();
-    initWatermarkControls();
     loadCheckboxStates();
+    initWatermarkControls();
     const pageNumberToggle = DOMCache.getElementById("add-page-numbers");
     const pageNumberOptions = DOMCache.querySelector(".page-number-options");
     const textControls = ['header', 'footer'].map(kind => ({
@@ -300,6 +302,7 @@ function initializeApp() {
     pageNumberStart.addEventListener("input", () => { validatePageNumberStart(); updatePreviews(); });
     pageNumberStart.addEventListener("blur", () => validatePageNumberStart());
     loadWatermarkFormStates();
+    initializeSettingsAccordion();
     initializeDragManager();
 }
 

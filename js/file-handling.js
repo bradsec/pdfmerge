@@ -237,6 +237,8 @@ async function sortSelectedFiles(sortOrder) {
     clearResultLink();
     sortFileEntriesInPlace(selectedFiles, sortOrder);
     await updateSelectedFilesList();
+    const labels = { 'name-asc': 'name A-Z', 'name-desc': 'name Z-A', oldest: 'oldest first', newest: 'newest first' };
+    if (labels[sortOrder]) displayFlashMessage(`Sorted by ${labels[sortOrder]}`, 'success');
 }
 
 /**
@@ -254,6 +256,8 @@ async function handleFileInputChange(event) {
     const appendedEntries = await appendFilesToSelection(Array.from(fileInput.files));
     try {
         await appendSelectedFileEntriesToList(appendedEntries);
+        if (appendedEntries.length) displayFlashMessage(appendedEntries.length === 1
+            ? `Added ${appendedEntries[0].name}` : `Added ${appendedEntries.length} files`, 'success');
     } finally {
         // Clear the input so selecting the same file again re-fires change
         fileInput.value = "";
@@ -274,6 +278,8 @@ async function handleDropArea(event) {
     const appendedEntries = await appendFilesToSelection(Array.from(event.dataTransfer.files));
     try {
         await appendSelectedFileEntriesToList(appendedEntries);
+        if (appendedEntries.length) displayFlashMessage(appendedEntries.length === 1
+            ? `Added ${appendedEntries[0].name}` : `Added ${appendedEntries.length} files`, 'success');
     } finally {
         updateDropAreaState();
         spinner.style.display = "none";
@@ -952,10 +958,10 @@ function updateToggleItemVisibility() {
     const paperSizeSelection = DOMCache.getElementById("paper-size-selection");
     const outputOptions = DOMCache.getElementById("output-options");
 
-    toggleImageItem.style.display = hasImageFiles ? "block" : "none";
-    toggleWatermarkItem.style.display = selectedFiles.length > 0 ? "block" : "none";
-    paperSizeSelection.style.display = selectedFiles.length > 0 ? "block" : "none";
-    if (outputOptions) outputOptions.style.display = selectedFiles.length > 0 ? "block" : "none";
+    toggleImageItem.hidden = !hasImageFiles;
+    toggleWatermarkItem.hidden = selectedFiles.length === 0;
+    paperSizeSelection.hidden = selectedFiles.length === 0;
+    if (outputOptions) outputOptions.hidden = selectedFiles.length === 0;
 }
 
 /**
@@ -1008,6 +1014,7 @@ async function completeFileRemoval(fileId) {
     updateDropAreaState();
     updateButtonVisibility();
     updateToggleItemVisibility();
+    displayFlashMessage(`Removed ${isBlankPage(fileEntry) ? 'blank page' : fileEntry.name}`, 'info');
 }
 
 function clearResultLink() {
@@ -1027,6 +1034,7 @@ function resetFiles(preserveResult = false) {
     const hadFocus = !active || active === document.body ||
         active === DOMCache.getElementById("reset-button") ||
         active === DOMCache.getElementById("convert-button");
+    const hadFiles = selectedFiles.length > 0;
     if (!preserveResult) clearResultLink();
     selectedFiles.forEach((fileEntry) => revokeThumbnailUrl(fileEntry));
     selectedFiles.length = 0;
@@ -1038,6 +1046,7 @@ function resetFiles(preserveResult = false) {
     updateDropAreaState();
     updateButtonVisibility();
     updateToggleItemVisibility();
+    if (hadFiles && !preserveResult) displayFlashMessage('File list cleared', 'info');
     if (hadFocus) {
         const download = preserveResult ? DOMCache.getElementById("file-link")?.querySelector("a") : null;
         (download || DOMCache.getElementById("file-input")).focus();

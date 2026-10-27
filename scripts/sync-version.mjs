@@ -32,7 +32,9 @@ const updatedHtml = html.replace(versionSpan, (_, open, close) => `${open}${vers
   });
 
 for (const asset of [
-  'css/reset.css', 'css/styles.css', 'images/icons.svg', 'images/brand-mark.svg',
+  'css/reset.css', 'css/tokens.css', 'css/base.css', 'css/layout.css',
+  'css/components.css', 'css/files.css', 'css/options.css', 'css/responsive.css',
+  'images/icons.svg', 'images/brand-mark.svg',
   'images/favicon.svg', 'images/favicon-32x32.png', 'images/favicon-16x16.png',
   'images/apple-touch-icon.png', 'site.webmanifest',
 ]) {

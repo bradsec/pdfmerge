@@ -1,0 +1,448 @@
+/* Responsive styles */
+/* ====================================
+ * 7. ANIMATIONS & KEYFRAMES
+ * Motion and visual feedback
+ * ==================================== */
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+
+@keyframes flash-success {
+  0%, 100% {
+    background: none;
+  }
+  50% {
+    background-color: var(--color-green-1);
+    color: var(--color-white);
+  }
+}
+
+/* ====================================
+ * 8. RESPONSIVE DESIGN
+ * Adaptive layouts for different screen sizes
+ * ==================================== */
+
+/* Mobile: Stack cards vertically, smaller size */
+@media (max-width: 640px) {
+  .button,
+  button,
+  button[type="submit"] {
+    display: block; 
+    width: 100%; 
+    margin: var(--spacing-xs) 0; 
+  }
+
+  #selected-files-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  #selected-files-list li {
+    width: 100%;
+    max-width: 400px;
+    min-height: 220px;
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+
+  .card-thumbnail-wrapper {
+    height: 180px;
+    padding: 12px;
+  }
+
+  .card-thumbnail-frame {
+    max-width: 220px;
+  }
+
+  .card-thumbnail-page {
+    width: 78%;
+    height: 78%;
+  }
+
+  .card-thumbnail-surface {
+    padding: 0;
+  }
+
+  .card-header {
+    align-items: flex-start;
+  }
+
+  .card-meta {
+    gap: 6px;
+  }
+
+  .orientation-badge,
+  .file-type-badge {
+    font-size: 0.72rem;
+  }
+
+  .card-body {
+    gap: 6px;
+  }
+
+  .file-name {
+    font-size: 0.85rem;
+    max-height: 2.4rem;
+  }
+
+  .file-size,
+  .file-pages {
+    font-size: 0.7rem;
+  }
+
+  .pdf-page-range-input {
+    font-size: 1rem;
+  }
+
+  .delete-file-button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
+
+  .delete-file-button .icon {
+    font-size: 20px;
+  }
+
+  .rotation-controls {
+    gap: 6px;
+  }
+
+  
+  .watermark-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .watermark-item {
+    margin: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .watermark-item input[type="text"],
+  .watermark-item input[type="number"] {
+    width: 100%;
+    margin-top: 4px;
+  }
+  
+  .watermark-item input[type="color"] {
+    width: 80px;
+    height: 40px;
+    margin-top: 4px;
+    border-radius: var(--radius-control);
+  }
+  
+  .watermark-item label {
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  
+  .watermark-tiled-item label {
+    flex-direction: row;
+    margin-bottom: 8px;
+  }
+  
+  .paper-size-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .paper-size-item {
+    margin: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .paper-size-item label {
+    margin-bottom: 4px;
+    margin-right: 0;
+  }
+  
+  .paper-size-item select {
+    width: 100%;
+  }
+  
+}
+
+
+
+/* Tablet: 2-column grid layout */
+@media (min-width: 641px) and (max-width: 1024px) {
+  #selected-files-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  
+  #selected-files-list li {
+    width: 100%;
+    max-width: 350px;
+    min-width: 0;
+    min-height: 220px;
+  }
+  
+  
+  .file-size,
+  .file-pages {
+    font-size: 0.8rem;
+    max-width: 100px;
+  }
+  
+  .pdf-page-range-input {
+    font-size: 1rem;
+  }
+  
+  .delete-file-button {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 6px;
+  }
+  
+  .delete-file-button .icon {
+    font-size: 22px;
+  }
+}
+
+/* Desktop: 3-column grid layout */
+@media (min-width: 1025px) {
+  #selected-files-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 0 auto;
+  }
+
+  #selected-files-list li {
+    width: 100%;
+    max-width: 100%;
+    min-height: 220px;
+  }
+
+  .delete-file-button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
+}
+
+/* Extra Large Desktop: keep 3-column layout */
+@media (min-width: 1400px) {
+  #selected-files-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  #selected-files-list li {
+    width: 100%;
+    max-width: 100%;
+    min-height: 220px;
+  }
+}
+
+::selection {
+  background: var(--accent-dim);
+  color: var(--font-color);
+}
+
+.tool-surface:has(#drop-area:not(.has-files)) {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* The native label covers only the empty zone, leaving file-card controls operable. */
+#drop-area:not(.has-files) #file-upload-label::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-panel);
+}
+
+#drop-area:has(#file-input:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 4px;
+}
+
+#drop-area.has-files {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+#drop-area.has-files .drop-sub {
+  display: none;
+}
+
+#drop-area.has-files #file-upload-label {
+  margin-bottom: 1.25rem;
+}
+
+#drop-area.has-files #file-list {
+  margin-bottom: 1.25rem;
+}
+
+#drop-area.has-files.drag {
+  outline: 2px dashed var(--focus-color);
+  outline-offset: 4px;
+}
+
+#output-filename {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .tool-surface {
+    padding: 1rem;
+  }
+
+  #selected-files-list li {
+    margin-bottom: 0;
+    min-width: 0;
+  }
+
+  .tool-actions .button {
+    flex-basis: 100%;
+  }
+
+  .settings-content {
+    padding: 0.875rem;
+  }
+
+  .text-content-row,
+  .text-content-row--line,
+  .text-appearance-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Shared responsive shell: keep identical in both apps. */
+#browse-btn,
+#file-upload-label {
+  min-height: 48px;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+#browse-btn .icon,
+#file-upload-label .icon {
+  font-size: 1.125rem;
+}
+
+.header-top > button {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin: 0 0 0 auto;
+  padding: 0.5rem;
+}
+
+a.branding,
+a.branding:visited,
+a.branding:hover {
+  color: var(--branding-font-color);
+}
+
+.branding:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.footer-secondary a {
+  color: var(--color-blue-text);
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+  white-space: nowrap;
+}
+
+.footer-secondary .footer-try {
+  white-space: nowrap;
+}
+
+.drop-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--font-color);
+}
+
+.drop-sub {
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--font-color-2);
+  text-wrap: balance;
+}
+
+.drop-touch-hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .drop-touch-hint { display: inline; }
+  .drop-drag-hint { display: none; }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 0.5rem max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
+  }
+
+  .hero {
+    margin: 1.25rem auto 1rem;
+  }
+
+  .hero h1 {
+    max-width: 19ch;
+    font-size: 2rem;
+  }
+
+  .hero p {
+    margin-top: 0.75rem;
+    font-size: 0.9375rem;
+  }
+
+  .hero-points {
+    gap: 0.375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-point {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.55rem;
+  }
+
+  footer {
+    margin-top: 1.5rem;
+  }
+}

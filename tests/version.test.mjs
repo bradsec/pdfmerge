@@ -56,7 +56,7 @@ test('sync replaces old versions, preserves external URLs and fragments, and is 
     mkdirSync(join(root, 'js'));
     copyFileSync(new URL('../scripts/sync-version.mjs', import.meta.url), join(root, 'scripts/sync-version.mjs'));
     writeFileSync(join(root, 'package.json'), JSON.stringify({ version: '9.8.7' }));
-    writeFileSync(join(root, 'index.html'), html.replace(/css\/styles\.css[^"']*/, 'css/styles.css?mode=fast&v=old&v=older#sheet'));
+    writeFileSync(join(root, 'index.html'), html.replace(/css\/tokens\.css[^"']*/, 'css/tokens.css?mode=fast&v=old&v=older#sheet'));
     for (const file of readdirSync(new URL('../js/', import.meta.url)).filter(file => file.endsWith('.js'))) {
       copyFileSync(new URL(`../js/${file}`, import.meta.url), join(root, 'js', file));
     }
@@ -76,7 +76,7 @@ import '../shared.js?mode=fast&v=old#part';
     await sync();
     const firstHtml = readFileSync(join(root, 'index.html'), 'utf8');
     assert.ok(firstHtml.includes('images/icons.svg?v=9.8.7#moon'));
-    assert.ok(firstHtml.includes('css/styles.css?mode=fast&v=9.8.7#sheet'));
+    assert.ok(firstHtml.includes('css/tokens.css?mode=fast&v=9.8.7#sheet'));
     for (const [, external] of html.matchAll(/(?:href|src)=["'](https:[^"']+)["']/g)) {
       assert.ok(firstHtml.includes(external));
     }

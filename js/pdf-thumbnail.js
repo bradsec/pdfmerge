@@ -55,3 +55,33 @@ export async function renderPdfThumbnail(file, height = 80) {
         await loadingTask.destroy().catch(() => {});
     }
 }
+
+export async function renderOutputPages(bytes, width, signal) {
+    const loadingTask = pdfjsLib.getDocument({ data: bytes });
+    const cancel = () => { void loadingTask.destroy().catch(() => {}); };
+    signal?.addEventListener('abort', cancel, { once: true });
+    try {
+        const pdf = await loadingTask.promise;
+        const canvases = [];
+        for (let number = 1; number <= pdf.numPages; number++) {
+            if (signal?.aborted) throw new DOMException('Preview cancelled', 'AbortError');
+            const page = await pdf.getPage(number);
+            const base = page.getViewport({ scale: 1 });
+            const viewport = page.getViewport({ scale: width / base.width });
+            const ratio = window.devicePixelRatio || 1;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.ceil(viewport.width * ratio);
+            canvas.height = Math.ceil(viewport.height * ratio);
+            canvas.style.width = `${viewport.width}px`;
+            canvas.style.height = `${viewport.height}px`;
+            const context = canvas.getContext('2d');
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            await page.render({ canvasContext: context, viewport }).promise;
+            canvases.push(canvas);
+        }
+        return canvases;
+    } finally {
+        signal?.removeEventListener('abort', cancel);
+        await loadingTask.destroy().catch(() => {});
+    }
+}

@@ -1,5 +1,8 @@
 <!-- Lucide 1.61.0, ISC license: ../js/vendor/lucide-LICENSE -->
 <svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="chevron-down" viewBox="0 0 24 24">
+    <path d="m6 9 6 6 6-6" />
+  </symbol>
   <symbol id="circle-alert" viewBox="0 0 24 24">
     <circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" />
   </symbol>

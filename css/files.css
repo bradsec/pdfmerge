@@ -1,0 +1,895 @@
+/* Files styles */
+/* ====================================
+ * 6. APPLICATION-SPECIFIC COMPONENTS
+ * Components unique to PDFMERGE
+ * ==================================== */
+
+/* Drop Area */
+#drop-area {
+  margin: 0;
+  border: 1px dashed var(--border-color-drop-area);
+  border-radius: var(--radius-panel);
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  color: var(--font-color-drop-area);
+  position: relative;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  background: linear-gradient(180deg, var(--drop-tint), transparent 45%), var(--surface2-color);
+}
+
+#drop-area:hover {
+  border-color: var(--focus-color);
+  background: linear-gradient(180deg, var(--drop-tint-hover), transparent 45%), var(--surface2-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-blue-1) 10%, transparent);
+}
+
+#drop-area .drop-icon,
+#drop-area > p {
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#drop-area.has-files .drop-icon,
+#drop-area.has-files > p {
+  opacity: 0.2;
+  transition: opacity var(--transition-normal);
+}
+
+#drop-area.drag .drop-icon,
+#drop-area.drag > p {
+  opacity: 0.3;
+}
+
+.drop-icon {
+  font-size: 40px;
+  display: block;
+  margin: 0 auto 1rem;
+  color: var(--color-blue-text);
+}
+
+/* File List Container */
+#file-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.sort-files-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sort-files-control select {
+  width: auto;
+}
+
+#drop-area:not(.has-files) .sort-files-control {
+  display: none;
+}
+
+/* File List - Modern CSS Grid Layout */
+#selected-files-list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: fit-content;
+  box-sizing: border-box;
+  justify-items: center;
+  place-content: start center;
+}
+
+/* File Cards with Drag and Drop */
+#selected-files-list li {
+  background-color: var(--bg-color-filelist);
+  color: var(--font-color-filelist);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 14px 14px 16px;
+  border: 1px solid var(--card-shell-border);
+  border-radius: var(--radius-panel);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  min-height: 200px;
+  position: relative;
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--color-ink) 8%, transparent);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  pointer-events: auto;
+  transform-origin: center;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+}
+
+.card-thumbnail-wrapper {
+    width: 100%;
+    height: 196px;
+    overflow: hidden;
+    background: var(--card-preview-stage-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 16px;
+}
+
+.card-thumbnail-wrapper--pdf {
+    height: 196px;
+}
+
+.card-thumbnail-frame {
+    width: 100%;
+    height: 100%;
+    max-width: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+}
+
+.card-thumbnail-page {
+    width: 82%;
+    height: 82%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-thumbnail-surface {
+    height: 100%;
+    width: auto;
+    aspect-ratio: 210 / 297;
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-preview-frame-bg);
+    padding: 0;
+    box-sizing: border-box;
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--color-black) 8%, transparent);
+    transform-origin: center center;
+    transform: rotate(var(--thumbnail-rotation, 0deg)) scale(var(--thumbnail-page-scale, 1));
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+
+.card-thumbnail-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(var(--thumbnail-image-rotation, 0deg)) scale(var(--thumbnail-image-scale, 1));
+    transform-origin: center center;
+    transition: transform 0.25s ease;
+}
+
+.card-thumbnail-content--image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(var(--thumbnail-image-rotation, 0deg)) scale(var(--thumbnail-image-scale, 1));
+}
+
+.card-thumbnail-surface--pdf {
+    padding: 0;
+}
+
+.card-thumbnail-content--pdf {
+    transform: rotate(var(--thumbnail-pdf-content-rotation, 0deg));
+}
+
+.card-thumbnail-content--pdf[data-pdf-rotation-mode="sideways"] {
+    position: absolute;
+    width: 141.43%;
+    height: 70.71%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(var(--thumbnail-pdf-content-rotation, 0deg));
+    transform-origin: center center;
+}
+
+.card-thumbnail--pdf {
+    width: 100%;
+    height: 100%;
+}
+
+.card-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+#selected-files-list li[data-image-layout="cover"] .card-thumbnail-surface {
+  padding: 0;
+}
+
+#selected-files-list li[data-image-layout="cover"] .card-thumbnail-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#selected-files-list li[data-image-layout="cover"] .card-thumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+#selected-files-list li[data-image-layout="cover-rotated"] .card-thumbnail-surface {
+  padding: 0;
+  background: var(--card-preview-frame-bg);
+}
+
+#selected-files-list li[data-image-layout="cover-rotated"] .card-thumbnail-content {
+  position: absolute;
+  width: 141.43%;
+  height: 70.71%;
+  top: 50%;
+  left: 50%;
+  overflow: hidden;
+  transform: translate(-50%, -50%) rotate(var(--thumbnail-image-rotation, 90deg)) scale(var(--thumbnail-image-scale, 1));
+  transform-origin: center center;
+}
+
+#selected-files-list li[data-image-layout="cover-rotated"] .card-thumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+#selected-files-list li[data-image-layout="fit"] .card-thumbnail-surface {
+  padding: 0;
+}
+
+#selected-files-list li[data-image-layout="fit"] .card-thumbnail-content {
+  width: 100%;
+  height: 100%;
+}
+
+#selected-files-list li[data-image-layout="fit"] .card-thumbnail {
+  object-fit: contain;
+  background: var(--card-preview-frame-bg);
+}
+
+#selected-files-list li[data-image-layout="default"] .card-thumbnail-surface {
+  padding: 0;
+  background: var(--card-preview-frame-bg);
+}
+
+#selected-files-list li[data-image-layout="default"] .card-thumbnail-content {
+  width: 84%;
+  height: 84%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(var(--thumbnail-image-rotation, 0deg)) scale(var(--thumbnail-image-scale, 1));
+}
+
+#selected-files-list li[data-image-layout="default"] .card-thumbnail {
+  object-fit: contain;
+  background: var(--card-preview-frame-bg);
+}
+
+/* fit-rotated: image rotated 90° placed on a portrait page.
+   The img is absolutely positioned with swapped dimensions (landscape box = page height × page width)
+   then rotated 90° so it maps exactly onto the portrait page area. object-fit: contain then
+   scales the image so its longer side fills the corresponding page dimension, matching the
+   non-rotated "fit" behaviour (longer side always touches). */
+#selected-files-list li[data-image-layout="fit-rotated"] .card-thumbnail-surface {
+  height: 100%;
+  width: auto;
+  padding: 0;
+  background: var(--card-preview-frame-bg);
+}
+
+#selected-files-list li[data-image-layout="fit-rotated"] .card-thumbnail-content {
+  position: absolute;
+  width: 141.43%;
+  height: 70.71%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(var(--thumbnail-image-rotation, 90deg)) scale(var(--thumbnail-image-scale, 1));
+  transform-origin: center center;
+}
+
+#selected-files-list li[data-image-layout="fit-rotated"] .card-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--card-preview-frame-bg);
+}
+
+/* default-rotated: same as fit-rotated but scaled to 84% so ~8% margin shows on each side,
+   matching the visual framing of the default-margins layout. */
+#selected-files-list li[data-image-layout="default-rotated"] .card-thumbnail-surface {
+  height: 100%;
+  width: auto;
+  padding: 0;
+  background: var(--card-preview-frame-bg);
+}
+
+#selected-files-list li[data-image-layout="default-rotated"] .card-thumbnail-content {
+  position: absolute;
+  width: 118.8%;
+  height: 59.4%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(var(--thumbnail-image-rotation, 90deg)) scale(var(--thumbnail-image-scale, 1));
+  transform-origin: center center;
+}
+
+#selected-files-list li[data-image-layout="default-rotated"] .card-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--card-preview-frame-bg);
+}
+
+/* Enhanced dragging state */
+#selected-files-list li.dragging,
+#selected-files-list li.is-dragging {
+  opacity: 0.9;
+  z-index: 1000;
+  cursor: grabbing;
+  box-shadow: 0 15px 40px color-mix(in srgb, var(--color-black) 30%, transparent);
+  transition: none;
+  border-color: var(--focus-color);
+}
+
+/* When the card is reparented to document.body during drag, all
+   #selected-files-list li rules stop matching. Repeat the critical
+   visual properties here so the ghost card still looks like a card. */
+li.is-dragging {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 14px 14px 16px;
+  border: 1px solid var(--color-blue-1);
+  border-radius: var(--radius-panel);
+  box-sizing: border-box;
+  background-color: var(--bg-color-filelist);
+  color: var(--font-color-filelist);
+  overflow: hidden;
+  user-select: none;
+  opacity: 0.9;
+  z-index: 1000;
+  cursor: grabbing;
+  box-shadow: 0 15px 40px color-mix(in srgb, var(--color-black) 30%, transparent);
+  transition: none;
+}
+
+.drag-placeholder {
+  border: 2px dashed var(--focus-color);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-blue-1) 8%, transparent), color-mix(in srgb, var(--color-blue-1) 3%, transparent));
+  border-radius: var(--radius-panel);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* Card hover effects */
+#selected-files-list li:not(.dragging) {
+  cursor: grab;
+}
+
+#selected-files-list li:not(.dragging):hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Smooth transitions for reordering */
+#selected-files-list li {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1), opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Click to reorder animation */
+#selected-files-list li.reordering {
+  animation: reorderPulse 0.4s ease;
+}
+
+@keyframes reorderPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); box-shadow: 0 8px 25px color-mix(in srgb, var(--color-blue-1) 40%, transparent); }
+  100% { transform: scale(1); }
+}
+
+/* Card explosion animation styles */
+.card-exploding {
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Subtle pre-explosion effect */
+@keyframes preExplode {
+  0% { 
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+  100% { 
+    transform: scale(1.01);
+    filter: brightness(1.05);
+  }
+}
+
+.card-pre-explode {
+  animation: preExplode 0.2s ease-in-out;
+}
+
+#selected-files-list li:hover::after {
+  opacity: 1;
+}
+
+/* View Transition API styles */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* All card transitions - matches any view-transition-name starting with 'card-' */
+::view-transition-group(*) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#selected-files-list li:hover {
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--color-black) 10%, transparent);
+  transform: translateY(-3px);
+  border-color: var(--focus-color);
+}
+
+#selected-files-list li:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-black) 8%, transparent);
+  border-color: var(--focus-color);
+}
+
+[data-theme="dark"] #selected-files-list li {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-white) 1.8%, transparent), color-mix(in srgb, var(--color-black) 4%, transparent)),
+    var(--bg-color-filelist);
+  border-color: var(--card-shell-border);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 4%, transparent),
+    0 16px 34px color-mix(in srgb, var(--color-black) 26%, transparent);
+}
+
+[data-theme="dark"] #selected-files-list li:hover {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-white) 5%, transparent),
+    0 20px 42px color-mix(in srgb, var(--color-black) 34%, transparent);
+  border-color: color-mix(in srgb, var(--color-blue-1) 18%, transparent);
+}
+
+[data-theme="dark"] .card-thumbnail-wrapper {
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--color-blue-1) 6%, transparent), transparent 42%),
+    var(--card-preview-stage-bg);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 3.5%, transparent);
+}
+
+[data-theme="dark"] .card-thumbnail-surface {
+  box-shadow:
+    0 14px 30px color-mix(in srgb, var(--color-black) 24%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-ink) 6%, transparent);
+}
+
+[data-theme="dark"] .delete-file-button {
+  color: var(--color-dark-card-muted);
+}
+
+[data-theme="dark"] .image-layout-card-select {
+  background-color: var(--color-dark-card-bg);
+  color: var(--font-color);
+}
+
+/* File Card Components */
+.file-info-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  height: 100%;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.card-meta-top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Order Number Badge */
+.order-number {
+  color: var(--font-color-2);
+  padding: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  box-shadow: none;
+  border: none;
+  order: -1;
+  cursor: pointer;
+}
+
+/* Reset the shared button look: the order number is a compact text button. */
+button.order-number,
+button.order-number:hover,
+button.order-number:active {
+  margin: 0;
+  background: none;
+  color: var(--font-color-2);
+  font-family: inherit;
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  transform: none;
+}
+
+button.order-number:hover {
+  background: var(--accent-dim);
+}
+
+.file-type-badge {
+  background-color: var(--color-gray-5);
+  color: var(--color-white);
+  padding: 5px 10px;
+  border-radius: var(--radius-control);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.file-type-badge.pdf {
+  background-color: var(--color-red-1);
+}
+
+.file-type-badge.image {
+  background-color: var(--color-green-1);
+}
+
+.file-type-badge.blank {
+  background-color: var(--color-gray-5);
+}
+
+.orientation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 4px 10px 4px 9px;
+  border-radius: var(--radius-control);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--card-action-border);
+  background: var(--orientation-neutral-bg);
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.orientation-badge::before {
+  content: "";
+  display: inline-block;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius-control);
+  opacity: 0.85;
+}
+
+.orientation-badge--portrait::before {
+  width: 10px;
+  height: 14px;
+}
+
+.orientation-badge--landscape::before {
+  width: 14px;
+  height: 10px;
+}
+
+.orientation-badge--square::before,
+.orientation-badge--unknown::before {
+  width: 12px;
+  height: 12px;
+}
+
+.orientation-badge--portrait {
+  background: var(--orientation-portrait-bg);
+  color: var(--orientation-portrait-color);
+}
+
+.orientation-badge--landscape {
+  background: var(--orientation-landscape-bg);
+  color: var(--orientation-landscape-color);
+}
+
+.orientation-badge--square,
+.orientation-badge--unknown {
+  background: var(--orientation-neutral-bg);
+  color: var(--orientation-neutral-color);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  text-align: center;
+}
+
+.card-top-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 4px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  font-weight: 600;
+  color: inherit;
+  font-size: 0.95rem;
+  display: -webkit-box;
+  line-height: 1.3;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
+  max-height: 2.6rem;
+}
+
+.file-size,
+.file-pages {
+  font-size: 0.75rem;
+  color: var(--font-color-2);
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.pdf-page-range-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--font-color-2);
+}
+
+.pdf-page-range-input {
+  border: 1px solid var(--card-action-border);
+  box-shadow: none;
+  font-size: 1rem;
+  padding: 10px 12px;
+  color: var(--form-input-font-color);
+  background-color: var(--form-input-bg-color);
+  width: 100%;
+  max-width: 220px;
+  min-height: 44px;
+  line-height: 1.2;
+  text-align: center;
+  margin-top: 2px;
+  border-radius: var(--radius-control);
+}
+
+.pdf-page-range-input:hover {
+  border-color: var(--focus-color);
+}
+
+.pdf-page-range-input:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.pdf-page-range-input::placeholder {
+  color: var(--form-placeholder-color);
+  font-size: 1rem;
+}
+
+.pdf-page-range-input[aria-invalid="true"],
+#page-number-start[aria-invalid="true"],
+#page-number-template[aria-invalid="true"],
+.text-line-options [aria-invalid="true"] {
+  border-color: var(--color-red-text);
+}
+
+.pdf-page-range-error,
+.control-error {
+  color: var(--color-red-text);
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+}
+
+
+.image-layout-card-select {
+  width: 100%;
+  max-width: 220px;
+  min-height: 44px;
+  padding: 8px 34px 8px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-color);
+  background-color: var(--form-input-bg-color);
+  background-image:
+    linear-gradient(45deg, transparent 50%, color-mix(in srgb, var(--color-blue-1) 70%, transparent) 50%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-blue-1) 70%, transparent) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  color: var(--form-input-font-color);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 30%, transparent), 0 1px 2px color-mix(in srgb, var(--color-black) 4%, transparent);
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-layout-card-select:hover {
+  border-color: var(--focus-color);
+}
+
+.image-layout-card-select:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] .image-layout-card-select {
+  background-image:
+    linear-gradient(45deg, transparent 50%, color-mix(in srgb, var(--color-blue-text) 80%, transparent) 50%),
+    linear-gradient(135deg, color-mix(in srgb, var(--color-blue-text) 80%, transparent) 50%, transparent 50%);
+  border-color: var(--border-color);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-white) 6%, transparent), 0 1px 2px color-mix(in srgb, var(--color-black) 15%, transparent);
+}
+
+[data-theme="dark"] .image-layout-card-select:hover {
+  background-color: var(--color-dark-select-bg);
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-blue-1) 10%, transparent);
+}
+
+/* Delete Button */
+.delete-file-button {
+  background: var(--card-action-bg);
+  border: 1px solid var(--card-action-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: static;
+  color: var(--font-color-2);
+  padding: 0;
+  box-shadow: none;
+  border-radius: var(--radius-control);
+  transition: var(--transition-fast);
+  opacity: 1;
+  z-index: 2;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.delete-file-button:hover {
+  background: var(--color-red-1);
+  color: var(--color-white);
+  opacity: 1;
+  transform: none;
+  border: none;
+  box-shadow: none;
+}
+
+.delete-file-button:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.delete-file-button:active {
+  background: var(--color-red-2);
+  color: var(--color-white);
+  box-shadow: none;
+  border: none;
+  transform: scale(0.95);
+}
+
+.delete-file-button .icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Blank Page Card */
+.blank-page-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blank-page-preview .icon {
+  font-size: 36px;
+  opacity: 0.35;
+  color: var(--font-color-filelist);
+}
+
+.blank-page-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  color: var(--font-color-filelist);
+  font-style: italic;
+  min-height: 88px;
+}
+

@@ -79,9 +79,10 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}` and `{file} {date:YY
 - Progress bar with 60-second timeout protection
 - Dark and light mode, persisted across sessions
 - Option toggles and watermark settings persisted to localStorage across merges and sessions
+- Settings below the file cards use six collapsible sections; each section remembers whether it was open
 - Cancelling the save dialog keeps the file list so the merge can be run again
 - The download-again link stays available until you change files, start another merge, or reset
-- **Notifications**: Dismissible toast messages that close on time, including on iOS Safari
+- **Notifications**: Dismissible toasts confirm file additions, removals, sorting, clearing, blank pages, and merges
 - **Accessibility**: Visible keyboard focus, 44px touch targets, screen-reader status for long operations, and reduced-motion support
 
 ## Browser Compatibility

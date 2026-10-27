@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const css = readFileSync(new URL('../css/styles.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../css/tokens.css', import.meta.url), 'utf8');
 
 test('landing shell includes structured hero elements', () => {
   assert.match(html, /class="hero-eyebrow"/);

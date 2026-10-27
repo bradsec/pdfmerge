@@ -1,0 +1,52 @@
+/* Base styles */
+/* ====================================
+ * 2. BASE STYLES
+ * Foundation styles applied globally
+ * ==================================== */
+
+body {
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0.9375rem;
+  color: var(--font-color);
+  background:
+    radial-gradient(circle at top, var(--body-glow), transparent 30%),
+    linear-gradient(180deg, var(--body-sheen), transparent 28%),
+    var(--bg-color);
+  font-size: var(--base-font-size);
+  line-height: var(--line-height);
+  min-height: 100dvh;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top, var(--body-glow), transparent 30%),
+    linear-gradient(180deg, var(--body-sheen), transparent 28%),
+    var(--bg-color);
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0.625rem 0.3125rem;
+}
+
+a,
+a:link,
+a:visited {
+  color: var(--link-font-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+a:active {
+  color: var(--link-active-color);
+}
+
