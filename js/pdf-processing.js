@@ -10,21 +10,12 @@ import {
     formatFileSize, 
     parseTextColor,
     isMobileDevice 
-<<<<<<< Updated upstream
-} from './utils.js?v=1.3.17';
-import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.17';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.17';
-import { parsePageRangeSelection } from './page-range.js?v=1.3.17';
-import { planOutputPages } from './output-count.js?v=1.3.17';
-import { needsDuplexPadding, formatPageNumber, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.17';
-=======
 } from './utils.js?v=1.3.17';
 import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.17';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.17';
 import { parsePageRangeSelection } from './page-range.js?v=1.3.17';
 import { planOutputPages } from './output-count.js?v=1.3.17';
 import { needsDuplexPadding, formatPageNumber, parseExifDateTime, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.17';
->>>>>>> Stashed changes
 
 import { 
     selectedFiles, 
