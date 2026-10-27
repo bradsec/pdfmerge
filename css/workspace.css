@@ -769,7 +769,7 @@ html:has(dialog[open]) {
   z-index: 1;
   display: flex;
   justify-content: flex-end;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--card-shell-border);
   background: var(--surface-color);
@@ -778,6 +778,7 @@ html:has(dialog[open]) {
 .template-help-actions .button {
   min-height: 44px;
   margin: 0;
+  padding: 0 1.25rem;
 }
 
 .template-help-body {
@@ -914,7 +915,15 @@ html:has(dialog[open]) {
 .template-help-dialog button.template-help-token {
   min-height: 28px;
   height: auto;
+  margin: 0;
   padding: 0.15rem 0.55rem;
+}
+
+/* Touch targets on tablets, which miss the 640px phone rules. */
+@media (pointer: coarse) {
+  .template-help-dialog button.template-help-token {
+    min-height: 44px;
+  }
 }
 
 .template-help-dialog .template-help-header {
@@ -1513,8 +1522,7 @@ html:has(dialog[open]) {
 
   .tool-actions .button,
   .output-preview-nav .output-preview-step,
-  .color-preset,
-  .template-help-dialog button.template-help-token {
+  .color-preset {
     margin: 0;
   }
 
