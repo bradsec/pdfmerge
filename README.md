@@ -16,7 +16,7 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 ### File Handling
 
 - **PDF and Image Merging**: Combine PDFs with JPG, PNG, WEBP, and GIF images
-- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files to start** and move a card to the end with its order-number button
+- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files** or the empty drop zone and move a card to the end with its order-number button
 - **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page
 - **Duplicate Files**: Add the same file more than once, for example to take different page ranges from one PDF
 - **Blank Page Insertion**: Add blank separator pages to the output
