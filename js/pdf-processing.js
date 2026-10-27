@@ -15,6 +15,8 @@ import {
 } from './utils.js?v=1.3.2';
 import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.2';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.2';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.2';
+import { needsDuplexPadding, formatPageNumber, getPageNumberPlacement, parsePageNumberStart } from './output-pages.js?v=1.3.2';
 
 import { 
     selectedFiles, 
@@ -23,7 +25,8 @@ import {
     clearResultLink,
     updateButtonVisibility, 
     updateToggleItemVisibility,
-    updateDropAreaState
+    updateDropAreaState,
+    validatePageRanges
 } from './file-handling.js?v=1.3.2';
 
 import { addWatermarkToPage } from './watermark.js?v=1.3.2';
@@ -49,6 +52,21 @@ let abortController = null;
  * Processes all selected files and creates a merged PDF
  */
 async function convertToPDF() {
+    const invalidRange = await validatePageRanges();
+    if (invalidRange) {
+        const message = invalidRange.reason
+            ? `Cannot merge ${invalidRange.fileEntry.name}: ${invalidRange.reason}.`
+            : `Cannot merge: invalid page range "${invalidRange.token || '(empty)'}" for ${invalidRange.fileEntry.name}.`;
+        DOMCache.getElementById("tool-status").textContent = message;
+        displayFlashMessage(message, "danger");
+        return;
+    }
+    if (isPageNumberingEnabled() && !validatePageNumberStart(true)) {
+        const message = "Cannot merge: enter a start page number of 1 or greater.";
+        DOMCache.getElementById("tool-status").textContent = message;
+        displayFlashMessage(message, "danger");
+        return;
+    }
     clearResultLink();
     // Cancel any existing operation
     if (abortController) {
@@ -87,8 +105,8 @@ async function convertToPDF() {
         // pdf-lib writes every embedded font into the output, used or not, so
         // embed only the fonts this run draws with.
         const hasImages = selectedFiles.some(isImageEntry);
-        const needsTextFont = hasImages &&
-            (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash());
+        const needsTextFont = isPageNumberingEnabled() || (hasImages &&
+            (shouldPrintImageDetails() || shouldPrintImagePageNumbers() || shouldPrintImageHash()));
         const regularFont = needsTextFont ? await loadFont(pdfDoc, 'fonts/Roboto-Regular.ttf', signal) : null;
         const boldFont = hasImages && shouldPrintImageDetails()
             ? await loadFont(pdfDoc, 'fonts/Roboto-Bold.ttf', signal)
@@ -120,7 +138,7 @@ async function convertToPDF() {
                 throw new Error('Operation was cancelled');
             }
 
-            await processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, failedFiles);
+            await processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, failedFiles, processedFiles);
             processedFiles += chunk.length;
             const progressBar = DOMCache.getElementById("progress-bar");
             progressBar.style.width = `${(processedFiles / selectedFiles.length) * 100}%`;
@@ -140,6 +158,25 @@ async function convertToPDF() {
             pages.forEach((page) => {
                 // Use actual final page dimensions - no need for standardWidth/Height
                 addWatermarkToPage(page, getWatermarkText(), blackFont);
+            });
+        }
+
+        if (isPageNumberingEnabled()) {
+            const pages = pdfDoc.getPages();
+            const start = parsePageNumberStart(DOMCache.getElementById("page-number-start").value);
+            const format = DOMCache.getElementById("page-number-format").value;
+            const position = DOMCache.getElementById("page-number-position").value;
+            pages.forEach((page, index) => {
+                const number = start + index;
+                const total = pages.length;
+                const label = formatPageNumber(number, total, format);
+                const fontSize = 10;
+                const placement = getPageNumberPlacement(page.getCropBox(), page.getRotation().angle,
+                    position, regularFont.widthOfTextAtSize(label, fontSize), fontSize);
+                page.drawText(label, {
+                    x: placement.x, y: placement.y, rotate: PDFLib.degrees(placement.rotation),
+                    size: fontSize, font: regularFont, color: PDFLib.rgb(0.42, 0.44, 0.47)
+                });
             });
         }
 
@@ -220,7 +257,7 @@ function chunkArray(array, size) {
     return chunkedArr;
 }
 
-async function processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, failedFiles) {
+async function processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, failedFiles, startIndex) {
     for (let i = 0; i < chunk.length; i++) {
         // Check for cancellation before processing each file
         if (signal && signal.aborted) {
@@ -228,6 +265,7 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, fa
         }
 
         const fileEntry = chunk[i];
+        const previousPageCount = pdfDoc.getPageCount();
 
         if (!isSupportedFileType(fileEntry)) {
             console.error(`Unsupported file type: ${fileEntry.name}`);
@@ -255,6 +293,13 @@ async function processFileChunk(chunk, pdfDoc, regularFont, boldFont, signal, fa
             }
             console.error("Error processing file:", error);
             failedFiles.push(fileEntry.name);
+        }
+        const cardPageCount = pdfDoc.getPageCount() - previousPageCount;
+        if (isDuplexPaddingEnabled() && cardPageCount > 0 &&
+            needsDuplexPadding(cardPageCount, startIndex + i === selectedFiles.length - 1)) {
+            const lastPage = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+            const padding = pdfDoc.addPage([lastPage.getWidth(), lastPage.getHeight()]);
+            padding.setRotation(lastPage.getRotation());
         }
     }
 }
@@ -765,6 +810,26 @@ function shouldPrintImageHash() {
     return DOMCache.getElementById("print-image-hash").checked;
 }
 
+function isPageNumberingEnabled() {
+    return DOMCache.getElementById("add-page-numbers").checked;
+}
+
+function isDuplexPaddingEnabled() {
+    return DOMCache.getElementById("duplex-padding").checked;
+}
+
+function validatePageNumberStart(focus = false) {
+    const input = DOMCache.getElementById("page-number-start");
+    const error = DOMCache.getElementById("page-number-start-error");
+    const valid = parsePageNumberStart(input.value) !== null;
+    input.setAttribute("aria-invalid", String(!valid));
+    if (valid) input.removeAttribute("aria-describedby");
+    else input.setAttribute("aria-describedby", error.id);
+    error.hidden = valid;
+    if (!valid && focus) input.focus();
+    return valid;
+}
+
 function isWatermarkEnabled() {
     return DOMCache.getElementById("add-watermark").checked;
 }
@@ -781,35 +846,6 @@ function getWatermarkText() {
  *   order typed (repeats kept) plus any tokens that could not be parsed or are
  *   out of range
  */
-function parsePageRangeSelection(pageRangeValue, totalPages) {
-    const pageIndices = [];
-    const invalidTokens = [];
-    const ranges = pageRangeValue.split(',').map(r => r.trim());
-
-    for (const range of ranges) {
-        if (range.includes('-')) {
-            const [start, end] = range.split('-').map(n => parseInt(n.trim()));
-            if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
-                invalidTokens.push(range);
-                continue;
-            }
-            for (let i = start; i <= end; i++) {
-                pageIndices.push(i - 1); // Convert to 0-based index
-            }
-        } else {
-            const pageNum = parseInt(range);
-            if (isNaN(pageNum) || pageNum < 1 || pageNum > totalPages) {
-                invalidTokens.push(range);
-                continue;
-            }
-            pageIndices.push(pageNum - 1); // Convert to 0-based index
-        }
-    }
-
-    // Order and repeats are kept as typed so "3,1,2" reorders and "1,1" duplicates
-    return { pageIndices, invalidTokens };
-}
-
 function getSelectedPageIndicesForFile(file, totalPages) {
     const pageRangeValue = (file.pageRange ?? '').trim();
     if (!pageRangeValue) {
@@ -818,19 +854,9 @@ function getSelectedPageIndicesForFile(file, totalPages) {
 
     const { pageIndices, invalidTokens } = parsePageRangeSelection(pageRangeValue, totalPages);
 
-    for (const token of invalidTokens) {
-        const label = token.includes('-') ? "page range" : "page number";
-        displayFlashMessage(`Invalid ${label} "${token}" for ${file.name}. File has ${totalPages} pages.`, "warning");
-    }
-
-    // A range was entered but nothing in it is valid; merging all pages here
-    // would silently ignore the user's selection, so fail this file instead.
-    if (pageIndices.length === 0) {
-        displayFlashMessage(`No valid pages in range "${pageRangeValue}" for ${file.name}. File was not merged.`, "danger");
-        throw new Error(`No valid pages in range "${pageRangeValue}"`);
-    }
+    if (invalidTokens.length) throw new Error(`Invalid page range "${invalidTokens[0]}" for ${file.name}.`);
 
     return pageIndices;
 }
 
-export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection };
+export { convertToPDF, cancelPDFProcessing, normalizePageBoxes, resizePdfPageToOutputSize, formatExifGpsCoordinates, parsePageRangeSelection, validatePageNumberStart };

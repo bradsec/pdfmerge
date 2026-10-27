@@ -10,6 +10,7 @@ import { CardExplosion } from './card-explosion.js?v=1.3.2';
 import { DOMCache } from './dom-cache.js?v=1.3.2';
 import { renderPdfThumbnail, isPdfPasswordProtected } from './pdf-thumbnail.js?v=1.3.2';
 import { getPdfThumbnailPreviewState } from './thumbnail-orientation.js?v=1.3.2';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.2';
 
 // File handling constants
 const FILE_CONFIG = {
@@ -214,6 +215,29 @@ const imageResolutionCache = new Map();
 
 // Drag manager instance
 let dragManager = null;
+let sortControlBound = false;
+
+function sortFileEntriesInPlace(entries, sortOrder) {
+    const compare = {
+        'name-asc': (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+        'name-desc': (a, b) => b.name.localeCompare(a.name, undefined, { numeric: true, sensitivity: 'base' }),
+        oldest: (a, b) => a.file.lastModified - b.file.lastModified,
+        newest: (a, b) => b.file.lastModified - a.file.lastModified
+    }[sortOrder];
+    if (!compare) return;
+
+    const sortedFiles = entries.filter((entry) => !isBlankPage(entry)).sort(compare);
+    let fileIndex = 0;
+    entries.forEach((entry, index) => {
+        if (!isBlankPage(entry)) entries[index] = sortedFiles[fileIndex++];
+    });
+}
+
+async function sortSelectedFiles(sortOrder) {
+    clearResultLink();
+    sortFileEntriesInPlace(selectedFiles, sortOrder);
+    await updateSelectedFilesList();
+}
 
 /**
  * Handles file input change events
@@ -454,9 +478,34 @@ async function createFileCard(fileEntry, index) {
         pageRangeInput.title = "Ranges (1-5), individual pages (1,3,7), or mixed (1-3,5,8). Leave empty for all pages.";
         
         pageRangeInput.value = fileEntry.pageRange ?? '';
-        pageRangeInput.addEventListener("input", function() {
-            fileEntry.pageRange = this.value;
+        const pageRangeError = document.createElement("p");
+        pageRangeError.className = "pdf-page-range-error";
+        pageRangeError.id = `${fileEntry.id}-range-error`;
+        pageRangeError.hidden = true;
+        const validateRange = () => {
+            const invalidToken = pageRangeInput.value.trim()
+                ? parsePageRangeSelection(pageRangeInput.value,
+                    fileEntry.pageCount ?? Number.MAX_SAFE_INTEGER,
+                    fileEntry.pageCount !== null && fileEntry.pageCount !== undefined).invalidTokens[0]
+                : undefined;
+            pageRangeInput.setAttribute("aria-invalid", invalidToken === undefined ? "false" : "true");
+            if (invalidToken === undefined) {
+                pageRangeInput.removeAttribute("aria-describedby");
+                pageRangeError.hidden = true;
+                pageRangeError.textContent = "";
+                return true;
+            }
+            pageRangeInput.setAttribute("aria-describedby", pageRangeError.id);
+            pageRangeError.textContent = `Invalid page range token: "${invalidToken || '(empty)'}".`;
+            pageRangeError.hidden = false;
+            return false;
+        };
+        pageRangeInput.addEventListener("input", () => {
+            fileEntry.pageRange = pageRangeInput.value;
+            validateRange();
         });
+        pageRangeInput.addEventListener("blur", validateRange);
+        validateRange();
 
         // A persistent label: the placeholder alone disappears once typed in
         // and is not a reliable accessible name.
@@ -465,6 +514,7 @@ async function createFileCard(fileEntry, index) {
         pageRangeLabel.append("Pages", pageRangeInput);
 
         cardBody.appendChild(pageRangeLabel);
+        cardBody.appendChild(pageRangeError);
     } else if (isImageFile) {
         const imageLayoutSelect = document.createElement("select");
         imageLayoutSelect.className = "image-layout-card-select";
@@ -494,6 +544,9 @@ async function createFileCard(fileEntry, index) {
     if (fileExtension === "pdf") {
         try {
             const pageCount = await getPDFPageCount(fileEntry.file);
+            fileEntry.pageCount = pageCount;
+            const rangeInput = cardBody.querySelector('.pdf-page-range-input');
+            if (rangeInput) rangeInput.dispatchEvent(new Event('blur'));
             if (pageCount && pageCount > 0) {
                 const filePagesSpan = document.createElement("span");
                 filePagesSpan.className = "file-pages";
@@ -897,10 +950,12 @@ function updateToggleItemVisibility() {
     const toggleImageItem = DOMCache.getElementById("image-details-toggle");
     const toggleWatermarkItem = DOMCache.getElementById("watermark-details-toggle");
     const paperSizeSelection = DOMCache.getElementById("paper-size-selection");
+    const outputOptions = DOMCache.getElementById("output-options");
 
     toggleImageItem.style.display = hasImageFiles ? "block" : "none";
     toggleWatermarkItem.style.display = selectedFiles.length > 0 ? "block" : "none";
     paperSizeSelection.style.display = selectedFiles.length > 0 ? "block" : "none";
+    if (outputOptions) outputOptions.style.display = selectedFiles.length > 0 ? "block" : "none";
 }
 
 /**
@@ -1162,6 +1217,17 @@ function initializeDragManager() {
     isInitializingDragManager = true;
     
     try {
+        if (!sortControlBound) {
+            const sortControl = DOMCache.getElementById("sort-files-select");
+            if (sortControl) {
+                sortControl.addEventListener("change", async () => {
+                    const order = sortControl.value;
+                    sortControl.value = "";
+                    if (order) await sortSelectedFiles(order);
+                });
+                sortControlBound = true;
+            }
+        }
         // Destroy existing drag manager if it exists
         if (dragManager) {
             dragManager.destroy();
@@ -1198,6 +1264,7 @@ function reorderSelectedFiles(fromIndex, toIndex) {
         return;
     }
 
+    clearResultLink();
     const draggedFile = selectedFiles.splice(fromIndex, 1)[0];
     selectedFiles.splice(toIndex, 0, draggedFile);
 }
@@ -1259,8 +1326,19 @@ function announceToolStatus(message) {
 
 function setOrderButtonLabel(button, fileName, order) {
     button.textContent = order.toString();
-    button.title = `Merge order: ${order} (Click to move to end)`;
-    button.setAttribute("aria-label", `Merge order ${order}: move ${fileName} to end`);
+    button.title = `Merge order: ${order}. Click to move to end. Alt+Arrow keys move; Alt+Home/End move to first/last.`;
+    button.setAttribute("aria-label", `Merge order ${order}: ${fileName}. Click to move to end. Alt+Arrow keys move; Alt+Home or End move to first or last.`);
+}
+
+function getKeyboardMoveTarget(key, index, length) {
+    return {
+        ArrowLeft: Math.max(0, index - 1),
+        ArrowUp: Math.max(0, index - 1),
+        ArrowRight: Math.min(length - 1, index + 1),
+        ArrowDown: Math.min(length - 1, index + 1),
+        Home: 0,
+        End: length - 1
+    }[key];
 }
 
 function createOrderButton(fileEntry, index) {
@@ -1268,6 +1346,19 @@ function createOrderButton(fileEntry, index) {
     button.type = "button";
     button.className = "order-number";
     setOrderButtonLabel(button, fileEntry.name, index + 1);
+    button.addEventListener("keydown", (event) => {
+        if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const currentIndex = findSelectedFileIndexById(fileEntry.id);
+        if (currentIndex < 0) return;
+        const targetIndex = getKeyboardMoveTarget(event.key, currentIndex, selectedFiles.length);
+        if (targetIndex === undefined) return;
+        event.preventDefault();
+        if (targetIndex === currentIndex) return;
+        reorderSelectedFiles(currentIndex, targetIndex);
+        syncCardDomOrder();
+        button.focus();
+        announceToolStatus(`Moved ${fileEntry.name} to position ${targetIndex + 1} of ${selectedFiles.length}`);
+    });
     button.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1290,6 +1381,27 @@ function createOrderButton(fileEntry, index) {
     return button;
 }
 
+async function validatePageRanges() {
+    for (const fileEntry of selectedFiles) {
+        if (fileEntry.extension !== 'pdf' || !fileEntry.pageRange?.trim()) continue;
+        const pageCount = fileEntry.pageCount ?? await getPDFPageCount(fileEntry.file);
+        fileEntry.pageCount = pageCount;
+        if (!pageCount) return { fileEntry, reason: 'Could not read PDF page count' };
+        const invalidToken = parsePageRangeSelection(
+            fileEntry.pageRange, pageCount
+        ).invalidTokens[0];
+        if (invalidToken === undefined) continue;
+
+        const input = DOMCache.getElementById(fileEntry.id)?.querySelector('.pdf-page-range-input');
+        if (input) {
+            input.dispatchEvent(new Event('blur'));
+            input.focus();
+        }
+        return { fileEntry, token: invalidToken };
+    }
+    return null;
+}
+
 
 
 
@@ -1307,4 +1419,8 @@ export {
     initializeDragManager,
     updateSelectedFilesList,
     appendSelectedFileEntriesToList,
+    sortFileEntriesInPlace,
+    sortSelectedFiles,
+    validatePageRanges,
+    getKeyboardMoveTarget,
 };
