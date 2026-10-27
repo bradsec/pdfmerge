@@ -734,3 +734,151 @@
   width: 100%;
   max-width: none;
 }
+
+/* ---------- Settings fields: aligned grid, typed slider values ---------- */
+
+.watermark-group {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.5rem;
+  align-items: start;
+}
+
+.watermark-group .watermark-tiled-item,
+.watermark-group .watermark-file-item,
+.watermark-group .watermark-text-input-item,
+.watermark-group .watermark-descriptions {
+  grid-column: 1 / -1;
+}
+
+.watermark-item > label,
+.text-line-field > label,
+.page-number-field > label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--font-color-2);
+}
+
+.range-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.range-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  font-family: inherit;
+  color: var(--font-color-2);
+  font-size: 0.8rem;
+}
+
+.settings-content .range-value input.range-number {
+  width: 4.6rem;
+  height: 32px;
+  padding: 0 0.4rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.range-unit:empty {
+  display: none;
+}
+
+/* File chooser styled like the app's secondary buttons */
+.file-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+.file-picker-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.file-picker-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: var(--control-height);
+  padding: 0 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-color);
+  color: var(--font-color);
+  font-size: var(--control-font-size);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.watermark-item .file-picker-button {
+  margin: 0;
+  font-size: var(--control-font-size);
+  color: var(--font-color);
+}
+
+.file-picker-button:hover {
+  border-color: var(--color-blue-1);
+}
+
+.file-picker-input:focus-visible + .file-picker-button {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .watermark-group {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Text appearance: colour gets its own row; box and margin share the next. */
+.text-options-panel .text-appearance-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.5rem;
+  align-items: start;
+}
+
+.text-options-panel .text-appearance-row > :first-child {
+  grid-column: 1 / -1;
+}
+
+.text-options-panel .text-appearance-row > *,
+.text-options-panel .text-line-field {
+  min-width: 0;
+}
+
+.text-options-panel .text-box-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding-top: 1.35rem;
+}
+
+.text-options-panel .text-box-controls .toggle-item {
+  margin: 0;
+}
+
+.text-options-panel .text-option-skip {
+  margin: 0.25rem 0 0;
+}
+
+@media (max-width: 640px) {
+  .text-options-panel .text-appearance-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .text-options-panel .text-box-controls {
+    padding-top: 0;
+  }
+}

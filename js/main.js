@@ -484,16 +484,55 @@ function loadWatermarkFormStates() {
 document.addEventListener("DOMContentLoaded", initializeApp);
 
 /**
- * Shows each slider's value beside it, including values restored from storage.
+ * Pairs each slider with a number field so values can be typed exactly. The
+ * slider keeps its id, so storage and preview listeners are unchanged.
  */
 function initializeRangeOutputs() {
-    document.querySelectorAll('.range-control input[type="range"]').forEach(input => {
-        const output = input.parentElement.querySelector('.range-value');
+    document.querySelectorAll('.range-control input[type="range"]').forEach(range => {
+        const output = range.parentElement.querySelector('.range-value');
         if (!output) return;
-        const sync = () => { output.textContent = `${input.value}${input.dataset.unit || ''}`; };
-        input.addEventListener('input', sync);
-        input.addEventListener('change', sync);
-        sync();
+        const number = document.createElement('input');
+        number.type = 'number';
+        number.className = 'range-number';
+        number.min = range.min;
+        number.max = range.max;
+        number.step = range.step;
+        number.inputMode = 'decimal';
+        const label = range.labels?.[0]?.textContent.trim() || 'Value';
+        number.setAttribute('aria-label', `${label} value`);
+        const unit = document.createElement('span');
+        unit.className = 'range-unit';
+        unit.textContent = (range.dataset.unit || '').trim();
+        unit.setAttribute('aria-hidden', 'true');
+        const value = document.createElement('span');
+        value.className = 'range-value';
+        value.append(number, unit);
+        output.replaceWith(value);
+
+        const syncNumber = () => { number.value = range.value; };
+        const commit = () => {
+            const parsed = parseFloat(number.value);
+            if (!Number.isFinite(parsed)) {
+                syncNumber();
+                return;
+            }
+            const clamped = Math.min(Number(range.max), Math.max(Number(range.min), parsed));
+            range.value = String(clamped);
+            // The browser snaps to step; show what was actually applied.
+            syncNumber();
+            range.dispatchEvent(new Event('input', { bubbles: true }));
+            range.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        range.addEventListener('input', syncNumber);
+        range.addEventListener('change', syncNumber);
+        number.addEventListener('change', commit);
+        number.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                commit();
+            }
+        });
+        syncNumber();
     });
 }
 
