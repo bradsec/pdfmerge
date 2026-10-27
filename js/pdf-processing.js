@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js?v=1.3.15';
+import { createIcon } from './icons.js?v=1.3.16';
 import { 
     formatDateTime, 
     getFormattedCurrentDate, 
@@ -13,12 +13,12 @@ import {
     parseTextColor,
     estimateTextWidth,
     isMobileDevice 
-} from './utils.js?v=1.3.15';
-import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.15';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.15';
-import { parsePageRangeSelection } from './page-range.js?v=1.3.15';
-import { planOutputPages } from './output-count.js?v=1.3.15';
-import { needsDuplexPadding, formatPageNumber, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.15';
+} from './utils.js?v=1.3.16';
+import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.16';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.16';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.16';
+import { planOutputPages } from './output-count.js?v=1.3.16';
+import { needsDuplexPadding, formatPageNumber, getTextPlacement, getTextBox, parsePageNumberStart, parsePageNumberTemplate, parseTextMargin, mmToPt, fitPageNumberSize, getTextOverlap, needsNumberingStart, shouldDrawOnPage } from './output-pages.js?v=1.3.16';
 
 import { 
     selectedFiles, 
@@ -29,12 +29,12 @@ import {
     updateToggleItemVisibility,
     updateDropAreaState,
     validatePageRanges
-} from './file-handling.js?v=1.3.15';
+} from './file-handling.js?v=1.3.16';
 
-import { addWatermarkToPage, addImageWatermarkToPage, compensateWatermarkDrawForPageTransform, embedWatermarkImage, getWatermarkType, hasWatermarkImage } from './watermark.js?v=1.3.15';
-import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.15';
-import { openSettingFor } from './settings-accordion.js?v=1.3.15';
-import { DOMCache } from './dom-cache.js?v=1.3.15';
+import { addWatermarkToPage, addImageWatermarkToPage, compensateWatermarkDrawForPageTransform, embedWatermarkImage, getWatermarkType, hasWatermarkImage } from './watermark.js?v=1.3.16';
+import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.16';
+import { openSettingFor } from './settings-accordion.js?v=1.3.16';
+import { DOMCache } from './dom-cache.js?v=1.3.16';
 
 // PDF Processing constants
 const PDF_CONFIG = {
