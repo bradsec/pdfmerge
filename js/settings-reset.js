@@ -5,7 +5,7 @@
  * and the saved preferences, so no listener logic is duplicated here.
  */
 
-import { getDefaultPaperSizeValue } from './paper-size.js?v=1.3.20';
+import { getDefaultPaperSizeValue } from './paper-size.js?v=1.3.21';
 
 /**
  * Controls built from another control (range number boxes, segmented radios)
