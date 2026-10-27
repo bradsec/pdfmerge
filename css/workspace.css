@@ -783,6 +783,8 @@ html:has(dialog[open]) {
 .template-help-body {
   padding: 0.5rem 1rem 1rem;
   font-size: 0.88rem;
+  /* The {hash} sample is one unbroken token; without this the dialog scrolls sideways. */
+  overflow-wrap: anywhere;
 }
 
 .template-help-intro {
@@ -1531,10 +1533,6 @@ html:has(dialog[open]) {
 
   .template-help-dialog button.template-help-token {
     min-height: 44px;
-  }
-
-  .template-help-body {
-    overflow-wrap: anywhere;
   }
 }
 
