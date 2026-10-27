@@ -16,8 +16,9 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 ### File Handling
 
 - **PDF and Image Merging**: Combine PDFs with JPG, PNG, WEBP, and GIF images
-- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files** or the empty drop zone and move a card to the end with its order-number button
-- **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page
+- **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files** and move a focused card with Alt+Arrow keys or Alt+Home/End
+- **Sort Files**: Sort file cards once by natural filename order (A-Z or Z-A) or modification date (oldest or newest first). Blank pages stay in their slots
+- **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page. Invalid tokens or page numbers block the merge and show an error under that card
 - **Duplicate Files**: Add the same file more than once, for example to take different page ranges from one PDF
 - **Blank Page Insertion**: Add blank separator pages to the output
 - **Individual File Removal**: Delete specific files with per-card remove buttons
@@ -36,7 +37,9 @@ Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270
 
 - **Paper Sizes**: A0, A1, A2, A3, A4, Letter, Legal, Tabloid
 - **Page Orientation**: Toggle any image page between portrait and landscape
-- **Page Numbers**: Optionally add sequential image numbers
+- **Image Numbers**: Optionally add sequential image numbers on images with Default Margins layout
+- **Output Page Numbers**: Number every output page, including blank and duplex padding pages. Choose bottom centre, bottom right, or top right; plain numbers or `Page 1 of N`; and a starting number of 1 or greater. `N` is the total output page count
+- **Duplex Padding**: Add a matching blank page after each card that produces an odd number of pages, except the final card
 - **Image Details**: Optionally embed EXIF data (filename, date, GPS coordinates)
 - **Image Hash**: Optionally embed SHA-256 hash per image for verification
 - **Custom Filename**: User-defined output filename

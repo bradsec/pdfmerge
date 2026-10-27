@@ -4,7 +4,7 @@
  */
 
 import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.3';
-import { convertToPDF } from './pdf-processing.js?v=1.3.3';
+import { convertToPDF, validatePageNumberStart } from './pdf-processing.js?v=1.3.3';
 import { initWatermarkControls } from './watermark.js?v=1.3.3';
 import { DOMCache } from './dom-cache.js?v=1.3.3';
 import { initializePaperSizeSelect } from './paper-size.js?v=1.3.3';
@@ -16,6 +16,8 @@ const APP_CONFIG = {
         "print-image-page-numbers",
         "print-image-hash",
         "add-watermark",
+        "add-page-numbers",
+        "duplex-padding",
         "watermark-tiled"
     ],
     STORAGE_KEYS: {
@@ -117,6 +119,16 @@ function initializeApp() {
     updateButtonVisibility();
     initWatermarkControls();
     loadCheckboxStates();
+    const pageNumberToggle = DOMCache.getElementById("add-page-numbers");
+    const pageNumberOptions = DOMCache.querySelector(".page-number-options");
+    const updatePageNumberOptions = () => {
+        pageNumberOptions.style.display = pageNumberToggle.checked ? "grid" : "none";
+    };
+    updatePageNumberOptions();
+    pageNumberToggle.addEventListener("change", updatePageNumberOptions);
+    const pageNumberStart = DOMCache.getElementById("page-number-start");
+    pageNumberStart.addEventListener("input", () => validatePageNumberStart());
+    pageNumberStart.addEventListener("blur", () => validatePageNumberStart());
     loadWatermarkFormStates();
     initializeDragManager();
 }

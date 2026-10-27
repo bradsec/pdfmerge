@@ -1106,10 +1106,25 @@ input:checked + .slider:before {
 #file-list {
   margin: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   position: relative;
   z-index: 1;
   width: 100%;
+}
+
+.sort-files-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sort-files-control select {
+  width: auto;
+}
+
+#drop-area:not(.has-files) .sort-files-control {
+  display: none;
 }
 
 /* File List - Modern CSS Grid Layout */
@@ -1807,6 +1822,18 @@ button.order-number:hover {
   font-size: 1rem;
 }
 
+.pdf-page-range-input[aria-invalid="true"],
+#page-number-start[aria-invalid="true"] {
+  border-color: var(--color-red-text);
+}
+
+.pdf-page-range-error,
+.control-error {
+  color: var(--color-red-text);
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+}
+
 
 .image-layout-card-select {
   width: 100%;
@@ -1984,6 +2011,7 @@ button.order-number:hover {
   gap: var(--spacing-md);
 }
 
+#output-options,
 #image-details-toggle,
 #paper-size-selection {
   margin-top: 1rem;
@@ -1991,6 +2019,36 @@ button.order-number:hover {
   background: color-mix(in srgb, var(--surface2-color) 90%, transparent);
   border: 1px solid var(--border-color);
   border-radius: 14px;
+}
+
+#output-options {
+  display: none;
+}
+
+.output-options h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.page-number-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.page-number-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.page-number-options input {
+  width: 100%;
+}
+
+.page-number-options .control-error {
+  grid-column: 1 / -1;
 }
 
 .paper-size-item {
@@ -2431,9 +2489,14 @@ button.order-number:hover {
   }
 
   #image-details-toggle,
+  #output-options,
   #paper-size-selection,
   #watermark-details-toggle {
     padding: 0.875rem;
+  }
+
+  .page-number-options {
+    grid-template-columns: 1fr;
   }
 }
 
