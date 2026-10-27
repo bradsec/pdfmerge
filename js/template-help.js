@@ -3,7 +3,7 @@
  * One definition renders beside each template input; entries insert into it.
  */
 
-import { formatPageNumber, parsePageNumberTemplate } from './output-pages.js?v=1.3.17';
+import { formatPageNumber, parsePageNumberTemplate } from './output-pages.js?v=1.3.18';
 
 const SAMPLE = { number: 3, total: 12, file: 'Contract' };
 
