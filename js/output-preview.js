@@ -140,7 +140,9 @@ export function initializeOutputPreview() {
     // loading (page counts, thumbnails) after they were added.
     surface.addEventListener('input', event => { if (!aside.contains(event.target)) refresh(); });
     surface.addEventListener('change', event => { if (!aside.contains(event.target)) refresh(); });
-    list.addEventListener('click', refresh);
+    // Capture phase: card buttons stop propagation, and the image-rotate
+    // button changes no markup the observer below would see.
+    list.addEventListener('click', refresh, true);
     new MutationObserver(refresh).observe(list, { childList: true, subtree: true });
     // The settings area appears once files exist; a merge holds the surface busy.
     if (layout) new MutationObserver(refresh).observe(layout, { attributes: true, attributeFilter: ['hidden'] });
