@@ -3,18 +3,18 @@
  * @author BRADSEC
  */
 
-import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.18';
-import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.18';
-import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.18';
-import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.18';
-import { initWatermarkControls } from './watermark.js?v=1.3.18';
-import { DOMCache } from './dom-cache.js?v=1.3.18';
-import { initializePaperSizeSelect } from './paper-size.js?v=1.3.18';
-import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.18';
-import { initializeOutputPreview } from './output-preview.js?v=1.3.18';
-import { initializeTemplateHelp, SAMPLE_SOURCE } from './template-help.js?v=1.3.18';
-import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.18';
-import { getTextStyle } from './text-style.js?v=1.3.18';
+import { handleFileInputChange, handleDropArea, resetFiles, clearResultLink, updateButtonVisibility, initializeDragManager, selectedFiles, updateSelectedFilesList, createBlankPageEntry, appendSelectedFileEntriesToList } from './file-handling.js?v=1.3.19';
+import { convertToPDF, validatePageNumberStart, validatePageNumberTemplate, validateTextTemplate, validateTextOverlap, validateTextMargin } from './pdf-processing.js?v=1.3.19';
+import { parsePageNumberTemplate, formatPageNumber, parsePageNumberStart, needsNumberingStart, parseTextMargin } from './output-pages.js?v=1.3.19';
+import { parseTextColor, displayFlashMessage } from './utils.js?v=1.3.19';
+import { initWatermarkControls } from './watermark.js?v=1.3.19';
+import { DOMCache } from './dom-cache.js?v=1.3.19';
+import { initializePaperSizeSelect } from './paper-size.js?v=1.3.19';
+import { initializeSettingsAccordion } from './settings-accordion.js?v=1.3.19';
+import { initializeOutputPreview } from './output-preview.js?v=1.3.19';
+import { initializeTemplateHelp, SAMPLE_SOURCE } from './template-help.js?v=1.3.19';
+import { resetSettings, initializeSettingsNotice } from './settings-reset.js?v=1.3.19';
+import { getTextStyle } from './text-style.js?v=1.3.19';
 
 // Application constants
 const APP_CONFIG = {
