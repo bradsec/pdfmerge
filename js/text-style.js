@@ -4,7 +4,7 @@
  * a line drawn along the rotated baseline.
  */
 
-import { DOMCache } from './dom-cache.js?v=1.3.21';
+import { DOMCache } from './dom-cache.js?v=1.3.22';
 
 const ITALIC_SLANT_DEGREES = 12;
 // Fractions of the font size, close to Roboto's own underline metrics.

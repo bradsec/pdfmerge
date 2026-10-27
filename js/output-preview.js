@@ -4,12 +4,12 @@
  * the preview is the real output; only the viewed page is built.
  */
 
-import { buildOutputDocument, getOutputSettingsProblem, isDuplexPaddingEnabled } from './pdf-processing.js?v=1.3.21';
-import { renderOutputPages } from './pdf-thumbnail.js?v=1.3.21';
-import { countOutputPages } from './output-count.js?v=1.3.21';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.21';
-import { selectedFiles } from './file-handling.js?v=1.3.21';
-import { clampViewerZoom, cappedRenderScale, anchorScroll } from './output-viewer-math.js?v=1.3.21';
+import { buildOutputDocument, getOutputSettingsProblem, isDuplexPaddingEnabled } from './pdf-processing.js?v=1.3.22';
+import { renderOutputPages } from './pdf-thumbnail.js?v=1.3.22';
+import { countOutputPages } from './output-count.js?v=1.3.22';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.22';
+import { selectedFiles } from './file-handling.js?v=1.3.22';
+import { clampViewerZoom, cappedRenderScale, anchorScroll } from './output-viewer-math.js?v=1.3.22';
 
 const DEBOUNCE_MS = 300;
 const DESKTOP_QUERY = '(min-width: 1024px)';
