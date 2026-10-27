@@ -1,4 +1,4 @@
-import { createIcon } from './icons.js?v=1.3.9';
+import { createIcon } from './icons.js?v=1.3.10';
 
 const STORAGE_PREFIX = 'settings-open:';
 const PIN_PREFIX = 'settings-pinned:';
