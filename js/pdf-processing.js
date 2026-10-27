@@ -3,7 +3,7 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js?v=1.3.2';
+import { createIcon } from './icons.js?v=1.3.3';
 import { 
     formatDateTime, 
     getFormattedCurrentDate, 
@@ -12,11 +12,11 @@ import {
     hexToRgb,
     estimateTextWidth,
     isMobileDevice 
-} from './utils.js?v=1.3.2';
-import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.2';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.2';
-import { parsePageRangeSelection } from './page-range.js?v=1.3.2';
-import { needsDuplexPadding, formatPageNumber, getPageNumberPlacement, parsePageNumberStart } from './output-pages.js?v=1.3.2';
+} from './utils.js?v=1.3.3';
+import { resizeImageAndConvertToJPEG } from './image-processing.js?v=1.3.3';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.3';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.3';
+import { needsDuplexPadding, formatPageNumber, getPageNumberPlacement, parsePageNumberStart } from './output-pages.js?v=1.3.3';
 
 import { 
     selectedFiles, 
@@ -27,10 +27,10 @@ import {
     updateToggleItemVisibility,
     updateDropAreaState,
     validatePageRanges
-} from './file-handling.js?v=1.3.2';
+} from './file-handling.js?v=1.3.3';
 
-import { addWatermarkToPage } from './watermark.js?v=1.3.2';
-import { DOMCache } from './dom-cache.js?v=1.3.2';
+import { addWatermarkToPage } from './watermark.js?v=1.3.3';
+import { DOMCache } from './dom-cache.js?v=1.3.3';
 
 // PDF Processing constants
 const PDF_CONFIG = {
