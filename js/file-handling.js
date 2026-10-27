@@ -3,14 +3,14 @@
  * @author BRADSEC
  */
 
-import { createIcon } from './icons.js?v=1.3.7';
-import { formatFileSize, displayFlashMessage, getFormattedCurrentDate } from './utils.js?v=1.3.7';
-import { CardDragManager } from './card-drag-manager.js?v=1.3.7';
-import { CardExplosion } from './card-explosion.js?v=1.3.7';
-import { DOMCache } from './dom-cache.js?v=1.3.7';
-import { renderPdfThumbnail, isPdfPasswordProtected } from './pdf-thumbnail.js?v=1.3.7';
-import { getPdfThumbnailPreviewState } from './thumbnail-orientation.js?v=1.3.7';
-import { parsePageRangeSelection } from './page-range.js?v=1.3.7';
+import { createIcon } from './icons.js?v=1.3.8';
+import { formatFileSize, displayFlashMessage, getFormattedCurrentDate } from './utils.js?v=1.3.8';
+import { CardDragManager } from './card-drag-manager.js?v=1.3.8';
+import { CardExplosion } from './card-explosion.js?v=1.3.8';
+import { DOMCache } from './dom-cache.js?v=1.3.8';
+import { renderPdfThumbnail, isPdfPasswordProtected } from './pdf-thumbnail.js?v=1.3.8';
+import { getPdfThumbnailPreviewState } from './thumbnail-orientation.js?v=1.3.8';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.8';
 
 // File handling constants
 const FILE_CONFIG = {
