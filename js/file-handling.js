@@ -392,9 +392,9 @@ async function createFileCard(fileEntry, index) {
         orientationBadge.className = "orientation-badge orientation-badge--portrait";
         orientationBadge.textContent = "Portrait";
         orientationBadge.title = "Blank pages are added in portrait orientation";
+        orientationBadge.hidden = true;
 
         cardMetaTopRow.appendChild(orderNumber);
-        cardMetaTopRow.appendChild(typeBadge);
         cardMeta.appendChild(cardMetaTopRow);
         cardMeta.appendChild(orientationBadge);
 
@@ -403,7 +403,7 @@ async function createFileCard(fileEntry, index) {
         thumbnailWrapper.appendChild(createIcon('file-text'));
 
         const blankCard = document.createElement("div");
-        blankCard.className = "blank-page-card file-info-container";
+        blankCard.className = "blank-page-card file-name";
         blankCard.innerHTML = `<span>Blank Page</span>`;
 
         const deleteButton = document.createElement("button");
@@ -418,11 +418,21 @@ async function createFileCard(fileEntry, index) {
             removeFileFromList(currentFileId);
         });
 
+        const rotationControls = document.createElement("div");
+        rotationControls.className = "rotation-controls";
+        rotationControls.appendChild(deleteButton);
         cardHeader.appendChild(cardMeta);
-        cardHeader.appendChild(deleteButton);
-        fileInfoContainer.appendChild(cardHeader);
+        cardHeader.appendChild(typeBadge);
+        thumbnailWrapper.appendChild(cardHeader);
         fileInfoContainer.appendChild(thumbnailWrapper);
+        fileInfoContainer.appendChild(rotationControls);
         fileInfoContainer.appendChild(blankCard);
+        const blankMeta = document.createElement("div");
+        blankMeta.className = "card-top-meta";
+        fileInfoContainer.appendChild(blankMeta);
+        const blankFooter = document.createElement("div");
+        blankFooter.className = "card-footer";
+        fileInfoContainer.appendChild(blankFooter);
         listItem.appendChild(fileInfoContainer);
         return listItem;
     }
@@ -454,16 +464,19 @@ async function createFileCard(fileEntry, index) {
 
     const orientationBadge = document.createElement("span");
     orientationBadge.className = "orientation-badge orientation-badge--unknown";
+    orientationBadge.hidden = true;
     
     cardMetaTopRow.appendChild(orderNumber);
-    cardMetaTopRow.appendChild(typeBadge);
     cardMeta.appendChild(cardMetaTopRow);
     cardMeta.appendChild(orientationBadge);
     cardHeader.appendChild(cardMeta);
+    cardHeader.appendChild(typeBadge);
     
     // Create card body with file name
     const cardBody = document.createElement("div");
     cardBody.className = "card-body";
+    const cardFooter = document.createElement("div");
+    cardFooter.className = "card-footer";
     
     const fileNameSpan = document.createElement("div");
     fileNameSpan.className = "file-name";
@@ -519,8 +532,8 @@ async function createFileCard(fileEntry, index) {
         pageRangeLabel.className = "pdf-page-range-label";
         pageRangeLabel.append("Pages", pageRangeInput);
 
-        cardBody.appendChild(pageRangeLabel);
-        cardBody.appendChild(pageRangeError);
+        cardFooter.appendChild(pageRangeLabel);
+        cardFooter.appendChild(pageRangeError);
     } else if (isImageFile) {
         const imageLayoutSelect = document.createElement("select");
         imageLayoutSelect.className = "image-layout-card-select";
@@ -535,7 +548,10 @@ async function createFileCard(fileEntry, index) {
 
         imageLayoutSelect.value = getImageLayoutValue(fileEntry);
 
-        cardBody.appendChild(imageLayoutSelect);
+        const imageLayoutLabel = document.createElement("label");
+        imageLayoutLabel.className = "image-layout-card-label";
+        imageLayoutLabel.append("Margins", imageLayoutSelect);
+        cardFooter.appendChild(imageLayoutLabel);
     }
     
     // Create card footer with metadata
@@ -551,7 +567,7 @@ async function createFileCard(fileEntry, index) {
         try {
             const pageCount = await getPDFPageCount(fileEntry.file);
             fileEntry.pageCount = pageCount;
-            const rangeInput = cardBody.querySelector('.pdf-page-range-input');
+            const rangeInput = cardFooter.querySelector('.pdf-page-range-input');
             if (rangeInput) rangeInput.dispatchEvent(new Event('blur'));
             if (pageCount && pageCount > 0) {
                 const filePagesSpan = document.createElement("span");
@@ -586,7 +602,6 @@ async function createFileCard(fileEntry, index) {
         e.stopPropagation();
         removeFileFromList(e.currentTarget.getAttribute("data-file-id"));
     });
-    cardHeader.appendChild(deleteButton);
 
     // Add unique view transition name for smooth animations
     listItem.style.viewTransitionName = `card-${fileEntry.id}`;
@@ -598,7 +613,6 @@ async function createFileCard(fileEntry, index) {
     let thumbnail = null;
     let thumbnailContentElement = null;
     const isPdfFile = fileExtension === "pdf";
-    fileInfoContainer.appendChild(cardHeader);
     // Size and page count read as a caption under the file name.
     fileNameSpan.after(cardTopMeta);
 
@@ -654,10 +668,9 @@ async function createFileCard(fileEntry, index) {
         page.appendChild(pageSurface);
         frame.appendChild(page);
         wrapper.appendChild(frame);
+        wrapper.appendChild(cardHeader);
         fileInfoContainer.appendChild(wrapper);
     }
-
-    fileInfoContainer.appendChild(cardBody);
 
     // Initialise rotation state
     if (fileEntry.rotation === undefined) fileEntry.rotation = 0;
@@ -727,7 +740,7 @@ async function createFileCard(fileEntry, index) {
         syncOrientationUi();
     });
 
-    const imageLayoutSelect = isImageFile ? cardBody.querySelector('.image-layout-card-select') : null;
+    const imageLayoutSelect = isImageFile ? cardFooter.querySelector('.image-layout-card-select') : null;
     if (imageLayoutSelect) {
         imageLayoutSelect.addEventListener("click", (e) => e.stopPropagation());
         imageLayoutSelect.addEventListener("change", (e) => {
@@ -786,7 +799,10 @@ async function createFileCard(fileEntry, index) {
     } else {
         syncOrientationUi();
     }
+    rotationControls.appendChild(deleteButton);
     fileInfoContainer.appendChild(rotationControls);
+    fileInfoContainer.appendChild(cardBody);
+    fileInfoContainer.appendChild(cardFooter);
 
     listItem.appendChild(fileInfoContainer);
 

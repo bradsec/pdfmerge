@@ -72,10 +72,11 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}` and `{file} {date:YY
 
 ### Live Preview
 
-- Shows the first two output pages with every output option applied, built by the same code path as the merge, so it matches the downloaded file
+- Shows output pages with every output option applied, built by the same code path as the merge, so it matches the downloaded file
 - All preview pages share one scale, so portrait and landscape pages keep their true relative sizes
 - Updates shortly after any change; invalid settings dim the last preview until fixed
 - Desktop shows it beside the settings; on small screens it is a collapsible section above them
+- Enlarge a page to inspect details, zoom from fit to 400%, pan, and move between pages
 
 ### Privacy and Performance
 

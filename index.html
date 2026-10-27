@@ -118,7 +118,6 @@
       <ul class="hero-points" aria-label="Key PDFMerge benefits">
         <li class="hero-point">No uploads</li>
         <li class="hero-point">Live preview</li>
-        <li class="hero-point">Page numbers</li>
       </ul>
     </header>
     <main>
@@ -572,28 +571,56 @@
                       <span id="output-preview-total"></span>
                     </label>
                     <button type="button" id="output-preview-next" class="output-preview-step" aria-label="Next page"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#chevron-right"></use></svg></button>
+                    <button type="button" id="output-preview-enlarge" class="output-preview-step" aria-label="Enlarge preview"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#maximize"></use></svg></button>
                   </div>
                   <div id="output-preview-pages" class="output-preview-pages" tabindex="0" aria-label="Preview page. Use arrow keys to change page." aria-live="polite"></div>
                   <p id="output-preview-note" class="output-preview-note" role="status" hidden></p>
                 </div>
               </details>
             </aside>
+            <dialog id="output-viewer" class="output-viewer" aria-label="Output page viewer">
+              <div class="output-viewer-header">
+                <span>Output preview</span>
+                <button type="button" id="output-viewer-close" class="output-viewer-control" aria-label="Close viewer"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#x"></use></svg></button>
+              </div>
+              <div id="output-viewer-scroll" class="output-viewer-scroll" tabindex="0" aria-label="Zoomed output page">
+                <div id="output-viewer-page" class="output-viewer-page"></div>
+                <p id="output-viewer-status" class="output-viewer-status" role="status" hidden></p>
+              </div>
+              <div class="output-viewer-toolbar" role="toolbar" aria-label="Viewer controls">
+                <div class="output-viewer-control-group" role="group" aria-label="Zoom controls">
+                  <button type="button" id="output-viewer-zoom-out" class="output-viewer-control" aria-label="Zoom out"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#zoom-out"></use></svg></button>
+                  <span id="output-viewer-zoom-readout" class="output-viewer-readout" aria-live="polite">100%</span>
+                  <button type="button" id="output-viewer-zoom-in" class="output-viewer-control" aria-label="Zoom in"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#zoom-in"></use></svg></button>
+                  <button type="button" id="output-viewer-fit" class="output-viewer-control output-viewer-fit" aria-label="Fit page">Fit</button>
+                </div>
+                <div class="output-viewer-control-group" role="group" aria-label="Page controls">
+                  <button type="button" id="output-viewer-prev" class="output-viewer-control" aria-label="Previous page"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#chevron-left"></use></svg></button>
+                  <span id="output-viewer-page-count" class="output-viewer-readout" aria-live="polite" aria-label="Page 1">1</span>
+                  <button type="button" id="output-viewer-next" class="output-viewer-control" aria-label="Next page"><svg class="icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#chevron-right"></use></svg></button>
+                </div>
+              </div>
+            </dialog>
           </div>
           <div id="progress-container">
             <div id="progress-bar" role="progressbar" aria-label="PDF merge progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
             <button id="cancel-button" class="button danger" style="display:none;" type="button">Cancel</button>
           </div>
           <div id="output-filename-container" style="display:none;">
-            <label for="output-filename">Output filename</label>
-            <div class="output-filename-row">
-              <input type="text" id="output-filename" placeholder="PDFMerge_YYYYMMDDTHHMMSSZ" autocomplete="off" />
-              <span class="output-filename-ext">.pdf</span>
+            <div class="output-bar">
+              <div class="output-filename-field">
+                <label for="output-filename">Output filename</label>
+                <div class="output-filename-row">
+                  <input type="text" id="output-filename" placeholder="PDFMerge_YYYYMMDDTHHMMSSZ" autocomplete="off" />
+                  <span class="output-filename-ext">.pdf</span>
+                </div>
+              </div>
+              <div class="tool-actions">
+                <button id="blank-page-button" class="button secondary" style="display:none;" type="button">Add blank page</button>
+                <button id="reset-button" class="button secondary" style="display:none;">Clear files</button>
+                <button id="convert-button" class="button primary" style="display:none;">Merge PDF</button>
+              </div>
             </div>
-          </div>
-          <div class="tool-actions">
-            <button id="convert-button" class="button primary" style="display:none;">Merge PDF</button>
-            <button id="reset-button" class="button secondary" style="display:none;">Clear files</button>
-            <button id="blank-page-button" class="button secondary" style="display:none;" type="button">Add blank page</button>
           </div>
           <div id="file-link"></div>
         </div>
@@ -605,7 +632,7 @@
         <span>All processing happens in your browser. Your files are never uploaded to any server.</span>
       </p>
       <p class="footer-secondary">Need to password protect your PDF file? <span class="footer-try">Try <a href="https://pdfprotect.me" target="_blank" rel="noopener noreferrer" aria-label="Open PDF Protect">PDF Protect</a>.</span></p>
-      <p class="footer-links"><a href="https://github.com/bradsec/pdfmerge" target="_blank" rel="noopener noreferrer" aria-label="View PDF Merge source code on GitHub"><svg class="footer-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.62 7.62 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg> GitHub</a>
+      <p class="footer-links"><a href="https://github.com/bradsec/pdfmerge" target="_blank" rel="noopener noreferrer" aria-label="View PDF Merge source code on GitHub"><svg class="footer-icon" viewBox="-2 -2 20 20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.62 7.62 0 0 1 8 3.86c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg> GitHub</a>
         <a href="https://ko-fi.com/bradsec" target="_blank" rel="noopener noreferrer" aria-label="Support this project on Ko-fi"><svg class="icon footer-icon" aria-hidden="true"><use href="images/icons.svg?v=1.3.12#coffee"></use></svg> Support this project</a>
       </p>
       <p class="footer-version">v<span id="app-version">1.3.12</span></p>

@@ -9,6 +9,7 @@ import { renderOutputPages } from './pdf-thumbnail.js?v=1.3.12';
 import { countOutputPages } from './output-count.js?v=1.3.12';
 import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.12';
 import { selectedFiles } from './file-handling.js?v=1.3.12';
+import { clampViewerZoom, cappedRenderScale, anchorScroll } from './output-viewer-math.js?v=1.3.12';
 
 const DEBOUNCE_MS = 300;
 const DESKTOP_QUERY = '(min-width: 1024px)';
@@ -18,6 +19,11 @@ let controller = null;
 let generation = 0;
 let currentPage = 1;
 let knownTotal = null;
+let viewerController = null;
+let viewerGeneration = 0;
+let viewerZoom = 1;
+let viewerCanvas = null;
+let viewerOpener = null;
 
 export function previewStatusText(page, total) {
     if (!page) return '';
@@ -55,6 +61,18 @@ function elements() {
     };
 }
 
+function viewerElements() {
+    return {
+        dialog: document.getElementById('output-viewer'),
+        scroll: document.getElementById('output-viewer-scroll'),
+        page: document.getElementById('output-viewer-page'),
+        status: document.getElementById('output-viewer-status'),
+        readout: document.getElementById('output-viewer-zoom-readout'),
+        prev: document.getElementById('output-viewer-prev'),
+        next: document.getElementById('output-viewer-next')
+    };
+}
+
 function goToPage(page) {
     const target = clampPreviewPage(page, knownTotal);
     if (target === currentPage) {
@@ -63,7 +81,8 @@ function goToPage(page) {
     }
     currentPage = target;
     updateNav();
-    schedule(0);
+    if (viewerElements().dialog?.open) renderViewer();
+    else schedule(0);
 }
 
 function updateNav() {
@@ -74,6 +93,14 @@ function updateNav() {
     prev.disabled = currentPage <= 1;
     next.disabled = knownTotal !== null && currentPage >= knownTotal;
     panel.querySelector('.settings-status').textContent = previewStatusText(currentPage, knownTotal);
+    const viewer = viewerElements();
+    if (viewer.prev) viewer.prev.disabled = currentPage <= 1;
+    if (viewer.next) viewer.next.disabled = knownTotal !== null && currentPage >= knownTotal;
+    const viewerPageCount = document.getElementById('output-viewer-page-count');
+    if (viewerPageCount) {
+        viewerPageCount.textContent = knownTotal ? `${currentPage}/${knownTotal}` : String(currentPage);
+        viewerPageCount.setAttribute('aria-label', previewStatusText(currentPage, knownTotal));
+    }
 }
 
 export function filesSummaryText(fileCount, pageCount) {
@@ -143,14 +170,44 @@ export function initializeOutputPreview() {
         }
     });
 
+    initializeViewer(frame);
+
     updateNav();
     schedule();
+}
+
+async function buildPreviewPage(page, counted, problem, sizing, signal) {
+    const pageIndex = page - 1;
+    const result = await buildOutputDocument({
+        signal, preview: true, decorate: !problem || problem === 'page range',
+        pageWindow: { from: pageIndex, to: pageIndex + 1 },
+        totalPages: counted.exact ? counted.count : undefined
+    });
+    if (signal.aborted) return null;
+    const built = result.pdfDoc.getPageCount();
+    if (!built) return { result, canvas: null };
+    for (let index = built - 2; index >= 0; index--) result.pdfDoc.removePage(index);
+    const outputPage = result.pdfDoc.getPage(0);
+    const rotated = outputPage.getRotation().angle % 180 !== 0;
+    const width = rotated ? outputPage.getHeight() : outputPage.getWidth();
+    const height = rotated ? outputPage.getWidth() : outputPage.getHeight();
+    const { renderScale, cssScale } = sizing(width, height);
+    const bytes = await result.pdfDoc.save();
+    if (signal.aborted) return null;
+    const [canvas] = await renderOutputPages(bytes, { scale: renderScale }, signal);
+    if (signal.aborted) return null;
+    if (cssScale !== renderScale) {
+        canvas.style.width = `${width * cssScale}px`;
+        canvas.style.height = `${height * cssScale}px`;
+    }
+    return { result, canvas };
 }
 
 async function renderPreview() {
     const { aside, panel, frame, note } = elements();
     const layout = aside.closest('.settings-layout');
 
+    if (viewerElements().dialog?.open) return;
     if (!panel.open || layout?.hidden) return;
     if (document.getElementById('tool-surface').getAttribute('aria-busy') === 'true') return;
 
@@ -177,20 +234,15 @@ async function renderPreview() {
     controller = new AbortController();
     const { signal } = controller;
     const run = ++generation;
-    const pageIndex = currentPage - 1;
     aside.setAttribute('aria-busy', 'true');
 
     try {
-        const result = await buildOutputDocument({
-            signal, preview: true, decorate: !problem || problem === 'page range',
-            pageWindow: { from: pageIndex, to: pageIndex + 1 },
-            totalPages: counted.exact ? counted.count : undefined
-        });
-        if (signal.aborted || run !== generation) return;
-
-        // Without an exact plan the build starts at page 1, so keep only the last page.
-        const built = result.pdfDoc.getPageCount();
-        if (!built) {
+        const scale = previewScale(Math.max(160, frame.clientWidth || 300), getSelectedPaperSizePoints());
+        const builtPage = await buildPreviewPage(currentPage, counted, problem,
+            () => ({ renderScale: scale, cssScale: scale }), signal);
+        if (!builtPage || run !== generation) return;
+        const { result, canvas } = builtPage;
+        if (!canvas) {
             if (currentPage > 1 && !counted.exact) {
                 // Paged past the end while the total was still unknown.
                 knownTotal = currentPage - 1;
@@ -200,14 +252,6 @@ async function renderPreview() {
             }
             return;
         }
-        for (let index = built - 2; index >= 0; index--) result.pdfDoc.removePage(index);
-        const bytes = await result.pdfDoc.save();
-        if (signal.aborted || run !== generation) return;
-
-        const scale = previewScale(Math.max(160, frame.clientWidth || 300), getSelectedPaperSizePoints());
-        const [canvas] = await renderOutputPages(bytes, { scale }, signal);
-        if (run !== generation) return;
-
         canvas.setAttribute('role', 'img');
         canvas.setAttribute('aria-label',
             `Preview of output page ${currentPage}${knownTotal ? ` of ${knownTotal}` : ''}`);
@@ -236,4 +280,245 @@ async function renderPreview() {
     } finally {
         if (run === generation) aside.removeAttribute('aria-busy');
     }
+}
+
+function viewerAnchor(clientX, clientY) {
+    const { scroll } = viewerElements();
+    const viewport = scroll.getBoundingClientRect();
+    const page = viewerCanvas?.getBoundingClientRect();
+    return {
+        x: page ? Math.max(0, Math.min(1, (clientX - page.left) / page.width)) : 0.5,
+        y: page ? Math.max(0, Math.min(1, (clientY - page.top) / page.height)) : 0.5,
+        viewportX: clientX - viewport.left,
+        viewportY: clientY - viewport.top
+    };
+}
+
+function setViewerStatus(status, message) {
+    status.textContent = message;
+    status.hidden = !message;
+}
+
+function setViewerZoom(zoom, clientX, clientY) {
+    const target = clampViewerZoom(zoom);
+    if (target === viewerZoom) return;
+    const { scroll } = viewerElements();
+    const rect = scroll.getBoundingClientRect();
+    const anchor = viewerAnchor(clientX ?? rect.left + rect.width / 2,
+        clientY ?? rect.top + rect.height / 2);
+    viewerZoom = target;
+    renderViewer(anchor);
+}
+
+async function renderViewer(anchor = null) {
+    const { dialog, scroll, page, status, readout } = viewerElements();
+    if (!dialog.open) return;
+    viewerController?.abort();
+    viewerController = new AbortController();
+    const { signal } = viewerController;
+    const run = ++viewerGeneration;
+    const counted = countOutputPages(selectedFiles, { duplexPadding: isDuplexPaddingEnabled() });
+    knownTotal = counted.exact ? Math.max(counted.count, 1) : null;
+    currentPage = clampPreviewPage(currentPage, knownTotal);
+    updateNav();
+    readout.textContent = `${Math.round(viewerZoom * 100)}%`;
+    scroll.classList.toggle('is-zoomed', viewerZoom > 1);
+    setViewerStatus(status, '');
+    dialog.setAttribute('aria-busy', 'true');
+
+    try {
+        const problem = getOutputSettingsProblem();
+        const builtPage = await buildPreviewPage(currentPage, counted, problem, (width, height) => {
+            const fitScale = Math.min(Math.max(1, scroll.clientWidth - 32) / width,
+                Math.max(1, scroll.clientHeight - 32) / height);
+            return {
+                cssScale: fitScale * viewerZoom,
+                renderScale: cappedRenderScale(fitScale, viewerZoom, width, height, window.devicePixelRatio || 1)
+            };
+        }, signal);
+        if (run !== viewerGeneration || !builtPage) return;
+        if (!builtPage.canvas) {
+            if (currentPage > 1 && !counted.exact) {
+                knownTotal = currentPage - 1;
+                currentPage = knownTotal;
+                updateNav();
+                renderViewer();
+                return;
+            }
+            setViewerStatus(status, 'No page available.');
+            return;
+        }
+        const oldCanvas = viewerCanvas;
+        viewerCanvas = builtPage.canvas;
+        viewerCanvas.setAttribute('role', 'img');
+        viewerCanvas.setAttribute('aria-label', previewStatusText(currentPage, knownTotal));
+        page.replaceChildren(viewerCanvas);
+        if (oldCanvas) oldCanvas.width = oldCanvas.height = 0;
+        if (anchor) {
+            const canvasRect = viewerCanvas.getBoundingClientRect();
+            const scrollRect = scroll.getBoundingClientRect();
+            scroll.scrollLeft = anchorScroll(anchor.x, viewerCanvas.offsetWidth,
+                anchor.viewportX, scroll.scrollLeft + canvasRect.left - scrollRect.left);
+            scroll.scrollTop = anchorScroll(anchor.y, viewerCanvas.offsetHeight,
+                anchor.viewportY, scroll.scrollTop + canvasRect.top - scrollRect.top);
+        } else {
+            scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+            scroll.scrollTop = (scroll.scrollHeight - scroll.clientHeight) / 2;
+        }
+        if (problem) setViewerStatus(status, 'Some output settings are incomplete. This page may omit decorations.');
+    } catch (error) {
+        if (error?.name === 'AbortError' || signal.aborted) return;
+        console.error('Viewer failed:', error);
+        setViewerStatus(status, 'Page unavailable for the current files.');
+    } finally {
+        if (run === viewerGeneration) dialog.removeAttribute('aria-busy');
+    }
+}
+
+function initializeViewer(frame) {
+    const { dialog, scroll, page, status, prev, next } = viewerElements();
+    const enlarge = document.getElementById('output-preview-enlarge');
+    if (!dialog || !enlarge) return;
+
+    const open = opener => {
+        viewerOpener = opener;
+        viewerZoom = 1;
+        clearTimeout(timer);
+        controller?.abort();
+        dialog.showModal();
+        renderViewer();
+    };
+    enlarge.addEventListener('click', () => open(enlarge));
+    frame.addEventListener('click', event => {
+        if (event.target.closest('canvas')) open(frame);
+    });
+    document.getElementById('output-viewer-close').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => {
+        viewerController?.abort();
+        viewerGeneration++;
+        if (viewerCanvas) viewerCanvas.width = viewerCanvas.height = 0;
+        viewerCanvas = null;
+        page.replaceChildren();
+        setViewerStatus(status, '');
+        pointers.clear();
+        pinch = null;
+        drag = null;
+        viewerOpener?.focus();
+        schedule(0);
+    });
+    prev.addEventListener('click', () => goToPage(currentPage - 1));
+    next.addEventListener('click', () => goToPage(currentPage + 1));
+    document.getElementById('output-viewer-zoom-out').addEventListener('click', () => setViewerZoom(viewerZoom - 0.25));
+    document.getElementById('output-viewer-zoom-in').addEventListener('click', () => setViewerZoom(viewerZoom + 0.25));
+    document.getElementById('output-viewer-fit').addEventListener('click', () => setViewerZoom(1));
+    dialog.addEventListener('keydown', event => {
+        if (event.key === '+' || event.key === '=') setViewerZoom(viewerZoom + 0.25);
+        else if (event.key === '-') setViewerZoom(viewerZoom - 0.25);
+        else if (event.key === '0') setViewerZoom(1);
+        else if (viewerZoom === 1 && event.key === 'ArrowLeft') goToPage(currentPage - 1);
+        else if (viewerZoom === 1 && event.key === 'ArrowRight') goToPage(currentPage + 1);
+        else return;
+        event.preventDefault();
+    });
+    scroll.addEventListener('wheel', event => {
+        if (!event.ctrlKey) return;
+        event.preventDefault();
+        setViewerZoom(viewerZoom * Math.exp(-event.deltaY * 0.01), event.clientX, event.clientY);
+    }, { passive: false });
+    scroll.addEventListener('dblclick', event => {
+        if (Date.now() - lastTouchDoubleTap < 500) return;
+        event.preventDefault();
+        setViewerZoom(viewerZoom === 1 ? 2.5 : 1, event.clientX, event.clientY);
+    });
+
+    const pointers = new Map();
+    let pinch = null;
+    let drag = null;
+    let lastTap = null;
+    let lastTouchDoubleTap = 0;
+    const midpoint = () => {
+        const [a, b] = [...pointers.values()];
+        return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2,
+            distance: Math.hypot(a.x - b.x, a.y - b.y) };
+    };
+    scroll.addEventListener('pointerdown', event => {
+        if (!viewerCanvas) return;
+        if (event.pointerType === 'mouse' && event.button === 0 && viewerZoom > 1) {
+            drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+            scroll.setPointerCapture(event.pointerId);
+            scroll.classList.add('is-dragging');
+        }
+        if (event.pointerType !== 'touch') return;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (pointers.size === 2) {
+            const start = midpoint();
+            pinch = { start, zoom: viewerZoom, anchor: viewerAnchor(start.x, start.y) };
+        }
+    });
+    scroll.addEventListener('pointermove', event => {
+        if (drag?.id === event.pointerId) {
+            scroll.scrollLeft -= event.clientX - drag.x;
+            scroll.scrollTop -= event.clientY - drag.y;
+            drag.x = event.clientX;
+            drag.y = event.clientY;
+        }
+        if (!pointers.has(event.pointerId)) return;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (!pinch || pointers.size !== 2) return;
+        const now = midpoint();
+        const ratio = clampViewerZoom(pinch.zoom * now.distance / pinch.start.distance) / pinch.zoom;
+        viewerCanvas.style.transformOrigin = `${pinch.anchor.x * 100}% ${pinch.anchor.y * 100}%`;
+        viewerCanvas.style.transform = `translate(${now.x - pinch.start.x}px, ${now.y - pinch.start.y}px) scale(${ratio})`;
+    });
+    const endPointer = event => {
+        if (drag?.id === event.pointerId) {
+            drag = null;
+            scroll.classList.remove('is-dragging');
+        }
+        if (!pointers.has(event.pointerId)) return;
+        const wasPinching = pinch;
+        const end = pointers.size === 2 ? midpoint() : null;
+        pointers.delete(event.pointerId);
+        if (wasPinching && end) {
+            viewerCanvas.style.transform = '';
+            const anchor = wasPinching.anchor;
+            const rect = scroll.getBoundingClientRect();
+            anchor.viewportX = end.x - rect.left;
+            anchor.viewportY = end.y - rect.top;
+            viewerZoom = clampViewerZoom(wasPinching.zoom * end.distance / wasPinching.start.distance);
+            pinch = null;
+            pointers.clear();
+            lastTap = null;
+            renderViewer(anchor);
+        } else if (!wasPinching && event.type === 'pointerup' && event.pointerType === 'touch') {
+            const now = { time: Date.now(), x: event.clientX, y: event.clientY };
+            if (lastTap && now.time - lastTap.time < 350 && Math.hypot(now.x - lastTap.x, now.y - lastTap.y) < 32) {
+                lastTouchDoubleTap = now.time;
+                setViewerZoom(viewerZoom === 1 ? 2.5 : 1, now.x, now.y);
+                lastTap = null;
+            } else lastTap = now;
+        }
+    };
+    scroll.addEventListener('pointerup', endPointer);
+    scroll.addEventListener('pointercancel', endPointer);
+
+    let gesture = null;
+    scroll.addEventListener('gesturestart', event => {
+        event.preventDefault();
+        gesture = { zoom: viewerZoom, anchor: viewerAnchor(event.clientX, event.clientY) };
+    });
+    scroll.addEventListener('gesturechange', event => {
+        event.preventDefault();
+        if (!gesture || !viewerCanvas) return;
+        viewerCanvas.style.transformOrigin = `${gesture.anchor.x * 100}% ${gesture.anchor.y * 100}%`;
+        viewerCanvas.style.transform = `scale(${clampViewerZoom(gesture.zoom * event.scale) / gesture.zoom})`;
+    });
+    scroll.addEventListener('gestureend', event => {
+        event.preventDefault();
+        if (!gesture || !viewerCanvas) return;
+        viewerCanvas.style.transform = '';
+        viewerZoom = clampViewerZoom(gesture.zoom * event.scale);
+        renderViewer(gesture.anchor);
+        gesture = null;
+    });
 }

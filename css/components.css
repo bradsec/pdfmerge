@@ -327,26 +327,59 @@ footer a:focus-visible {
 
 .output-filename-row {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-control);
+    background: var(--form-input-bg-color);
+}
+
+.output-filename-row:hover {
+    border-color: var(--color-blue-1);
+}
+
+.output-filename-row:has(#output-filename:focus-visible) {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+}
+
+.output-filename-row:has(#output-filename:disabled) {
+    background: var(--button-disabled-bg-color);
+}
+
+.output-filename-row:has(#output-filename:disabled) .output-filename-ext {
+    background: var(--button-disabled-bg-color);
+    color: var(--button-disabled-font-color);
 }
 
 #output-filename {
     flex: 1;
-    padding: 0.8rem 1rem;
-    border: var(--form-input-border);
-    border-radius: var(--radius-control);
+    min-width: 0;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: var(--radius-control) 0 0 var(--radius-control);
     font-size: 1rem;
     background: var(--form-input-bg-color);
 }
 
+#output-filename:focus-visible {
+    outline: none;
+}
+
+#output-filename:disabled {
+    background: var(--button-disabled-bg-color);
+    color: var(--button-disabled-font-color);
+}
+
 .output-filename-ext {
+    display: inline-flex;
+    align-items: center;
     font-size: 0.875rem;
-    color: var(--font-color-2);
-    background: color-mix(in srgb, var(--surface2-color) 92%, transparent);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-control);
-    padding: 0.5rem 0.8rem;
+    color: var(--font-color);
+    background: var(--surface2-color);
+    border-left: 1px solid var(--border-color);
+    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+    padding: 0 0.75rem;
 }
 
 /* Progress Bar */
