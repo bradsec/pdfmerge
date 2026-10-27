@@ -1,4 +1,4 @@
-import { showToast } from './toast.js?v=1.3.4';
+import { showToast } from './toast.js?v=1.3.5';
 
 /**
  * Formats file size from bytes to human-readable format
