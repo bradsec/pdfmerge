@@ -577,6 +577,46 @@ async function setWatermarkImageFile(file, status) {
     return true;
 }
 
+/**
+ * Replaces a short select with a row of radio buttons. The select stays as
+ * the hidden source of truth so storage and change listeners keep working.
+ */
+function buildSegmentedControl(select) {
+    const group = document.createElement('div');
+    group.className = 'segmented-control';
+    group.setAttribute('role', 'radiogroup');
+    const label = select.labels?.[0];
+    if (label) {
+        label.id ||= `${select.id}-label`;
+        label.removeAttribute('for');
+        group.setAttribute('aria-labelledby', label.id);
+    }
+    for (const option of select.options) {
+        const id = `${select.id}-${option.value}`;
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `${select.id}-choice`;
+        radio.id = id;
+        radio.value = option.value;
+        radio.checked = option.value === select.value;
+        radio.addEventListener('change', () => {
+            if (!radio.checked) return;
+            select.value = radio.value;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        const text = document.createElement('label');
+        text.htmlFor = id;
+        text.textContent = option.textContent;
+        group.append(radio, text);
+    }
+    select.addEventListener('change', () => {
+        const radio = group.querySelector(`input[value="${CSS.escape(select.value)}"]`);
+        if (radio) radio.checked = true;
+    });
+    select.hidden = true;
+    select.after(group);
+}
+
 function initWatermarkControls() {
     const watermarkCheckbox = DOMCache.getElementById("add-watermark");
     const watermarkGroup = DOMCache.querySelector(".watermark-group");
@@ -616,7 +656,10 @@ function initWatermarkControls() {
         watermarkGroup.querySelectorAll('.watermark-image-only').forEach(item => { item.hidden = !image; });
     };
     typeSelect?.addEventListener('change', syncType);
-    if (typeSelect) syncType();
+    if (typeSelect) {
+        syncType();
+        buildSegmentedControl(typeSelect);
+    }
 
     const imageInput = DOMCache.getElementById('watermark-image');
     const status = DOMCache.getElementById('watermark-image-status');

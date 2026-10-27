@@ -185,9 +185,9 @@ async function convertToPDF() {
 
         // Report any partial failures alongside the success
         if (failedFiles.length > 0) {
-            displayFlashMessage(`PDF Merge complete (${failedFiles.length} file(s) could not be processed: ${failedFiles.join(", ")})`, "warning");
+            displayFlashMessage(`PDF merged. ${failedFiles.length} file(s) could not be processed: ${failedFiles.join(", ")}`, "warning");
         } else {
-            displayFlashMessage("PDF Merge complete.", "success");
+            displayFlashMessage("PDF merged.", "success");
         }
         clearLegacyPageRangeStorage();
 
