@@ -1,6 +1,6 @@
-import * as pdfjsLib from './vendor/pdf.min.mjs?v=1.3.5';
+import * as pdfjsLib from './vendor/pdf.min.mjs?v=1.3.6';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.min.mjs?v=1.3.5', import.meta.url).href;
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./vendor/pdf.worker.min.mjs?v=1.3.6', import.meta.url).href;
 
 /**
  * Detects whether a PDF requires a password to open (an encryption "open"
