@@ -656,12 +656,21 @@ function initWatermarkControls() {
     }
 
     const typeSelect = DOMCache.getElementById('watermark-type');
+    const positionSelect = DOMCache.getElementById('watermark-position');
+    const tiledCheckbox = DOMCache.getElementById('watermark-tiled');
+    const marginRow = DOMCache.getElementById('watermark-margin')?.closest('.watermark-item');
+    const syncMargin = () => {
+        if (marginRow) marginRow.hidden = typeSelect.value !== 'image' || tiledCheckbox.checked || positionSelect.value === 'middle-centre';
+    };
     const syncType = () => {
         const image = typeSelect.value === 'image';
         watermarkGroup.querySelectorAll('.watermark-text-only').forEach(item => { item.hidden = image; });
         watermarkGroup.querySelectorAll('.watermark-image-only').forEach(item => { item.hidden = !image; });
+        syncMargin();
     };
     typeSelect?.addEventListener('change', syncType);
+    positionSelect?.addEventListener('change', syncMargin);
+    tiledCheckbox?.addEventListener('change', syncMargin);
     if (typeSelect) {
         syncType();
         buildSegmentedControl(typeSelect);

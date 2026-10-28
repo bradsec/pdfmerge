@@ -68,7 +68,7 @@ Examples: `Revised Page {n} of {total} - {date:D MMM YYYY}`, `{file} {date:YYYY-
 ### Watermarking
 
 - Text watermark with colour, opacity, rotation, and scale
-- Image watermark from a PNG (transparency kept) or JPG: nine positions (corners, edge centres, centre), width as a percentage of the page (5–100%), margin in mm, plus the shared opacity and rotation controls. The image stays in memory for the current tab only; it is never uploaded or saved, so choose it again after reloading.
+- Image watermark from a PNG (transparency kept) or JPG: nine positions (corners, edge centres, centre), width as a percentage of the page (5–100%), and margin in mm for non-tiled edge positions, plus the shared opacity and rotation controls. The image stays in memory for the current tab only; it is never uploaded or saved, so choose it again after reloading.
 - Single watermark or tiled pattern across every page
 
 ### Live Preview
