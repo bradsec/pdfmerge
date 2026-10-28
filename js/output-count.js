@@ -1,5 +1,5 @@
-import { parsePageRangeSelection } from './page-range.js?v=1.3.23';
-import { needsDuplexPadding } from './output-pages.js?v=1.3.23';
+import { parsePageRangeSelection } from './page-range.js?v=1.3.24';
+import { needsDuplexPadding } from './output-pages.js?v=1.3.24';
 
 /**
  * Pages each card contributes to the merged output, in order. Returns null
