@@ -1,7 +1,7 @@
-import { hexToRgb } from './utils.js?v=1.3.24';
-import { DOMCache } from './dom-cache.js?v=1.3.24';
-import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.24';
-import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.24';
+import { hexToRgb } from './utils.js?v=1.3.25';
+import { DOMCache } from './dom-cache.js?v=1.3.25';
+import { getSelectedPaperSizePoints } from './paper-size.js?v=1.3.25';
+import { drawStyledText, getTextStyle } from './text-style.js?v=1.3.25';
 
 function getPageContentBounds(page) {
     const pageSize = page.getSize();
