@@ -19,6 +19,7 @@ Live at [pdfmerge.me](https://pdfmerge.me)
 - **Drag and Drop**: Add files by dropping them anywhere on the page, or reorder cards by dragging. Keyboard users can choose files with **Choose files** and move a focused card with Alt+Arrow keys or Alt+Home/End
 - **Sort Files**: Sort file cards once by natural filename order (A-Z or Z-A) or modification date (oldest or newest first). Blank pages stay in their slots
 - **PDF Page Selection**: Specify page ranges (`1-5`), individual pages (`1,3,7`), or a mix (`1-3,5,8`) per PDF. Pages merge in the order typed, so `3,1,2` reorders and `1,1` repeats a page. Invalid tokens or page numbers block the merge and show an error under that card
+- **Cropped PDF Pages**: The visible CropBox region fits within the selected paper size. Letterbox margins stay blank, and page text and watermarks can use the full output page.
 - **Duplicate Files**: Add the same file more than once, for example to take different page ranges from one PDF
 - **Blank Page Insertion**: Add blank separator pages to the output
 - **Individual File Removal**: Delete specific files with per-card remove buttons
@@ -30,6 +31,8 @@ Each image can be placed on its page in one of three modes:
 - **Default Margins**: Scaled within the image page margins selected in Margins. Default is 54 pt on every side (about 19 mm); choose Narrow (12.7 mm), Normal (25.4 mm), None, or Custom per-side values from 0 to 50 mm in 0.5 mm steps. Cover and Fit still use the full page.
 - **Cover**: Cropped to fill the full page
 - **Fit**: Scaled to fit with letterbox background
+
+Transparent image areas become white in the output PDF in every mode.
 
 Use the Toggle Image Rotation button to rotate the image content 90, 180, or 270 degrees independently of the layout mode.
 

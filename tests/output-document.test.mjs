@@ -78,6 +78,79 @@ test('preview stops after two output pages while the full build keeps all pages'
     assert.equal(full.pdfDoc.getPageCount(), 3);
 });
 
+test('repeated PDF pages own their content transforms and overlays', async () => {
+    const source = await vendor.exports.PDFDocument.create();
+    source.addPage([612, 792]).drawRectangle({ x: 10, y: 10, width: 50, height: 50 });
+    const bytes = await source.save();
+    const entry = pageRange => ({ name: 'source.pdf', extension: 'pdf', pageRange,
+        file: { arrayBuffer: async () => bytes.slice().buffer } });
+    const single = await buildOutputDocument({ files: [entry('1')] });
+    const repeated = await buildOutputDocument({ files: [entry('1,1')] });
+    const expected = single.pdfDoc.getPage(0).node.Contents().size();
+    const [first, second] = repeated.pdfDoc.getPages();
+    assert.deepEqual([first.node.Contents().size(), second.node.Contents().size()], [expected, expected]);
+    first.drawRectangle({ x: 0, y: 0, width: 5, height: 5 });
+    assert.equal(second.node.Contents().size(), expected);
+});
+
+test('resized cropped pages center and clip source content before later overlays', async () => {
+    const source = await vendor.exports.PDFDocument.create();
+    const page = source.addPage([612, 792]);
+    page.setCropBox(100, 100, 300, 200);
+    page.drawRectangle({ x: 10, y: 10, width: 50, height: 50 });
+    const bytes = await source.save();
+    const entry = { name: 'crop.pdf', extension: 'pdf', file: { arrayBuffer: async () => bytes.slice().buffer } };
+    const { pdfDoc } = await buildOutputDocument({ files: [entry] });
+    const output = pdfDoc.getPage(0);
+    const box = output.getCropBox();
+    const media = output.getMediaBox();
+    assert.deepEqual(box, media);
+    assert.equal(box.width, 841.89105);
+    assert.ok(Math.abs(box.height - 595.2765) < 0.001);
+    const transform = output.__pdfmergeWatermarkTransform;
+    assert.ok(transform);
+    assert.ok(Math.abs(transform.scale - Math.min(box.width / 300, box.height / 200)) < 0.001);
+    assert.ok(Math.abs(transform.translateX + 100 * transform.scale - (box.width - 300 * transform.scale) / 2) < 1);
+    assert.ok(Math.abs(transform.translateY + 100 * transform.scale - (box.height - 200 * transform.scale) / 2) < 1);
+    const contents = Array.from({ length: output.node.Contents().size() }, (_, index) =>
+        pdfDoc.context.lookup(output.node.Contents().get(index)));
+    const streams = contents.map(stream => stream.getContentsString());
+    const clipIndex = streams.findIndex(stream => stream.includes(' W\n') || stream.includes('W\n'));
+    const sourceIndex = contents.findIndex(stream => stream instanceof vendor.exports.PDFRawStream);
+    assert.ok(clipIndex >= 0 && clipIndex < sourceIndex, 'clip precedes source content');
+    assert.ok(streams[clipIndex].includes('100 100 300 200 re\nW\nn'), 'clip uses the source CropBox');
+    assert.ok(streams[sourceIndex + 1].includes('Q'), 'clip closes after source content');
+    const before = output.node.Contents().size();
+    output.drawRectangle({ x: 0, y: 0, width: 5, height: 5 });
+    assert.equal(output.node.Contents().size(), before, 'later overlay uses its own stream');
+    assert.ok(contents.slice(sourceIndex + 2).some(stream => stream.getContentsString().includes('0 5 l')),
+        'later overlay is outside the source clip');
+});
+
+test('crop geometry controls orientation and target-sized crops still clip', async () => {
+    for (const [media, crop, landscape] of [
+        [[612, 792], [10, 20, 500, 200], true],
+        [[800, 900], [50, 50, 595.2765, 841.89105], false]
+    ]) {
+        const source = await vendor.exports.PDFDocument.create();
+        const page = source.addPage(media);
+        page.setCropBox(...crop);
+        page.drawRectangle({ x: 1, y: 1, width: 2, height: 2 });
+        if (landscape) {
+            page.node.set(vendor.exports.PDFName.of('Contents'), page.node.Contents().get(0));
+        }
+        const bytes = await source.save();
+        const entry = { name: 'crop.pdf', extension: 'pdf', file: { arrayBuffer: async () => bytes.slice().buffer } };
+        const { pdfDoc } = await buildOutputDocument({ files: [entry] });
+        const output = pdfDoc.getPage(0);
+        assert.equal(output.getWidth() > output.getHeight(), landscape);
+        assert.deepEqual(output.getCropBox(), output.getMediaBox());
+        const streams = Array.from({ length: output.node.Contents().size() }, (_, index) =>
+            pdfDoc.context.lookup(output.node.Contents().get(index)).getContentsString());
+        assert.ok(streams.some(stream => stream.includes('W\n')), 'crop clip is present');
+    }
+});
+
 const { previewStatusText, clampPreviewPage, previewScale } = await importApp('output-preview.js');
 
 test('preview status names the page shown and the merged total when known', () => {

@@ -44,6 +44,9 @@ test('resizePdfPageToOutputSize rescales imported PDF content without using page
         getMediaBox() {
             return { x: 100, y: 200, width: 600, height: 700 };
         },
+        getCropBox() {
+            return { x: 100, y: 200, width: 600, height: 700 };
+        },
         setSize(width, height) {
             calls.push(['setSize', width, height]);
         },

@@ -574,14 +574,20 @@ async function processPdfFile(fileEntry, pdfDoc, signal, { skip = 0, limit = Inf
         const [targetWidth, targetHeight] = getSelectedPaperSize();
         
         copiedPages.forEach((page) => {
+            const contents = page.node.Contents();
+            if (contents instanceof PDFLib.PDFArray) {
+                page.node.set(PDFLib.PDFName.of('Contents'), contents.clone(pdfDoc.context));
+            }
             // Add page to document first
             pdfDoc.addPage(page);
 
             // Scale page to selected paper size with orientation awareness
             const currentSize = page.getSize();
+            const cropBox = page.getCropBox();
+            const mediaBox = page.getMediaBox();
 
             // Determine if the current page is landscape oriented
-            const isCurrentPageLandscape = currentSize.width > currentSize.height;
+            const isCurrentPageLandscape = cropBox.width > cropBox.height;
 
             // Choose appropriate target dimensions based on page orientation
             let finalTargetWidth, finalTargetHeight;
@@ -593,7 +599,9 @@ async function processPdfFile(fileEntry, pdfDoc, signal, { skip = 0, limit = Inf
                 [finalTargetWidth, finalTargetHeight] = [Math.min(targetWidth, targetHeight), Math.max(targetWidth, targetHeight)];
             }
 
-            if (Math.abs(currentSize.width - finalTargetWidth) > 1 || Math.abs(currentSize.height - finalTargetHeight) > 1) {
+            if (Math.abs(cropBox.width - finalTargetWidth) > 1 || Math.abs(cropBox.height - finalTargetHeight) > 1 ||
+                cropBox.x !== mediaBox.x || cropBox.y !== mediaBox.y ||
+                cropBox.width !== currentSize.width || cropBox.height !== currentSize.height) {
                 resizePdfPageToOutputSize(page, finalTargetWidth, finalTargetHeight);
             }
 
@@ -618,29 +626,40 @@ function normalizePageBoxes(page, width, height) {
 }
 
 function resizePdfPageToOutputSize(page, finalTargetWidth, finalTargetHeight) {
-    const currentSize = page.getSize();
     const mediaBox = page.getMediaBox();
-    const scaleX = finalTargetWidth / currentSize.width;
-    const scaleY = finalTargetHeight / currentSize.height;
+    const cropBox = page.getCropBox();
+    const scaleX = finalTargetWidth / cropBox.width;
+    const scaleY = finalTargetHeight / cropBox.height;
     const scale = Math.min(scaleX, scaleY);
-    const originX = mediaBox.x;
-    const originY = mediaBox.y;
-    const scaledWidth = currentSize.width * scale;
-    const scaledHeight = currentSize.height * scale;
+    const originX = cropBox.x;
+    const originY = cropBox.y;
+    const scaledWidth = cropBox.width * scale;
+    const scaledHeight = cropBox.height * scale;
     const centerOffX = (finalTargetWidth - scaledWidth) / 2;
     const centerOffY = (finalTargetHeight - scaledHeight) / 2;
 
+    const translateX = Math.round(centerOffX - originX * scale);
+    const translateY = Math.round(centerOffY - originY * scale);
+    if (cropBox.x !== mediaBox.x || cropBox.y !== mediaBox.y ||
+        cropBox.width !== mediaBox.width || cropBox.height !== mediaBox.height) {
+        page.getContentStream();
+        const contents = page.node.Contents();
+        const start = page.doc.context.register(page.createContentStream(
+            PDFLib.pushGraphicsState(), PDFLib.rectangle(cropBox.x, cropBox.y, cropBox.width, cropBox.height),
+            PDFLib.clip(), PDFLib.endPath()
+        ));
+        const end = page.doc.context.register(page.createContentStream(PDFLib.popGraphicsState()));
+        contents.insert(0, start);
+        contents.insert(contents.size() - 1, end);
+    }
     page.setSize(finalTargetWidth, finalTargetHeight);
     page.scaleContent(scale, scale);
-    page.translateContent(
-        Math.round(centerOffX - originX * scale),
-        Math.round(centerOffY - originY * scale)
-    );
+    page.translateContent(translateX, translateY);
     normalizePageBoxes(page, finalTargetWidth, finalTargetHeight);
     page.__pdfmergeWatermarkTransform = {
         scale,
-        translateX: Math.round(centerOffX - originX * scale),
-        translateY: Math.round(centerOffY - originY * scale)
+        translateX,
+        translateY
     };
 }
 

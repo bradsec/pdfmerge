@@ -98,6 +98,8 @@ function drawImageToCanvas(ctx, source, payload) {
         const offsetY = (scaledH - maxHeightPixels) / 2;
         ctx.canvas.width = maxWidthPixels;
         ctx.canvas.height = maxHeightPixels;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, maxWidthPixels, maxHeightPixels);
         ctx.drawImage(source, -offsetX, -offsetY, scaledW, scaledH);
         return;
     }
@@ -119,6 +121,8 @@ function drawImageToCanvas(ctx, source, payload) {
     const height = source.height * scalingFactor;
     ctx.canvas.width = roundPixels(width);
     ctx.canvas.height = roundPixels(height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.drawImage(source, 0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
